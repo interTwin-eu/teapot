@@ -81,4 +81,9 @@ purpose of changes to the code.
 Main branch is always available. Tagged versions may be created as needed
 following [Semantic Versioning](https://semver.org/) as far as applicable.
 
+
+## Licence
+
+By contributing, you agree that your contributions will be licensed under the [Apache 2.0 Licence](https://gitlab.desy.de/intertwin/teapot/-/blob/main/LICENSE?ref_type=heads).
+
 **This file has been modified from the Chef Cookbook Contributing Guide**.
