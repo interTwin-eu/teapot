@@ -1,0 +1,14 @@
+---
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: build 
+    runs-on: ubuntu-latest
+    run: 
+      docker ps -a
+      
