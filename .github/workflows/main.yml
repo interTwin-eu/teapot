@@ -30,13 +30,13 @@ jobs:
 
   test:
     name: test
+    needs: build
     runs-on: ubuntu-latest
     container: centos:centos7
     steps:
       - uses: actions/download-artifact@v3
         with:
           name: teapot-rpm 
-          needs: build
       - name: Install the rpm package
         run: |
           rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
