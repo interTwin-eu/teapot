@@ -32,7 +32,7 @@ jobs:
     name: test
     needs: build
     runs-on: ubuntu-latest
-    container: centos:centos7
+    container: quay.io/keycloak/keycloak:22.0.1
     steps:
       - uses: actions/download-artifact@v3
         with:
@@ -40,5 +40,6 @@ jobs:
       - name: Install the rpm package
         run: |
           rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
+          /usr/share/teapot/run-teapot.sh
           
     
