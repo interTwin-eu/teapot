@@ -19,7 +19,8 @@ jobs:
           yum -y install rpmdevtools rpmlint rsync
       - name: Build rpm
         run: |
-          /__w/teapot/teapot/rpm/teapot-rpm.sh
+          chmod 777 rpm/teapot-rpm.sh
+          rpm/teapot-rpm.sh
       - name: Upload rpm
         uses: actions/upload-artifact@v3
         with:
