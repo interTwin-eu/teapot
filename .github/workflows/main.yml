@@ -21,13 +21,10 @@ jobs:
         run: |
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
-          cd $HOME
-          ls
-          pwd
       - name: Upload rpm
         uses: actions/upload-artifact@v3
         with:
-          name: rpms
+          name: teapot_rpm
           path: |
             /github/home/rpmbuild/RPMS/noarch/teapot-v*-1.el7.noarch.rpm
 
@@ -36,13 +33,11 @@ jobs:
     runs-on: ubuntu-latest
     container: centos:centos7
     steps:
-      - name: Install test requisites
-        run: |
-          yum -y install unzip
+      - uses: actions/download-artifact@v3
+        with:
+          name: teapot_rpm
       - name: Install the rpm package
         run: |
-          run download Build-CI-pipeline
-          unzip rpms.zip
-          rpm -i rpms/teapot-v*-1.el7.noarch.rpm --nodeps
+          rpm -i teapot_rpm/teapot-v*-1.el7.noarch.rpm --nodeps
           
     
