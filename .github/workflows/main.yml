@@ -29,4 +29,14 @@ jobs:
         with:
           name: rpms
           path: |
-            /github/home/rpmbuild/RPMS/noarch/teapot-v*-1.el7.noarch.rpm      
+            /github/home/rpmbuild/RPMS/noarch/teapot-v*-1.el7.noarch.rpm
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    container: centos:centos7
+    steps:
+      - name: Install the rpm package
+        run: |
+          gh run download Build-CI-pipeline
+    
