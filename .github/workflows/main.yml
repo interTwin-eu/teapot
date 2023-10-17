@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     container: centos:centos7
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Install build requisites
@@ -22,7 +22,7 @@ jobs:
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
       - name: Upload rpm
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: teapot_rpm
           path: |
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     container: centos:centos7
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v3
         with:
           name: teapot_rpm
       - name: Install the rpm package
