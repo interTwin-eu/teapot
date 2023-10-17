@@ -32,7 +32,7 @@ jobs:
     name: test
     needs: build
     runs-on: ubuntu-latest
-    container: quay.io/keycloak/keycloak:22.0.1
+    container: centos:centos7
     steps:
       - uses: actions/download-artifact@v3
         with:
