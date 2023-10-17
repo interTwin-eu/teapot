@@ -21,9 +21,9 @@ jobs:
         run: |
           rpm/teapot-rpm.sh
       - name: Upload rpm
-      - uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3
         with:
-          name: rpms7
+          name: rpms
           path: |
             $HOME/teapot-v*-1.el7.noarch.rpm
       
