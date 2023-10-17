@@ -21,10 +21,9 @@ jobs:
         run: |
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
+          cd $HOME
           ls
           pwd
-          cd ..
-          ls
       - name: Upload rpm
         uses: actions/upload-artifact@v3
         with:
