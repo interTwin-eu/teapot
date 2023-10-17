@@ -24,7 +24,7 @@ jobs:
       - name: Upload rpm
         uses: actions/upload-artifact@v3
         with:
-          name: teapot_rpm
+          name: teapot-rpm
           path: |
             /github/home/rpmbuild/RPMS/noarch/teapot-v*-1.el7.noarch.rpm
 
@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: teapot_rpm
+          name: teapot-rpm 
       - name: Install the rpm package
         run: |
           rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
