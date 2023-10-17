@@ -29,5 +29,4 @@ jobs:
         with:
           name: rpms
           path: |
-            $HOME/teapot-v*-1.el7.noarch.rpm
-      
+            /github/home/rpmbuild/RPMS/noarch/teapot-v*-1.el7.noarch.rpm      
