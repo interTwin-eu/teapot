@@ -17,6 +17,8 @@ jobs:
       - name: Install build requisites
         run: |
           yum -y install rpmdevtools rpmlint rsync
+          ls
+          pwd
       - name: Build rpm
         run: |
           teapot/rpm/teapot-rpm.sh
