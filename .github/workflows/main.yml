@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: build 
+    name: build
     runs-on: ubuntu-latest
     container: centos:centos7
     steps:
@@ -36,10 +36,9 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: teapot-rpm 
+          name: teapot-rpm
       - name: Install the rpm package
         run: |
           rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
           /usr/share/teapot/run-teapot.sh
-          
-    
+

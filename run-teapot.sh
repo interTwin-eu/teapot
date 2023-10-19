@@ -1,6 +1,6 @@
 #!/bin/bash
 
-path_to_pid='/home/dijana/teapot.pid'
+path_to_pid='$HOME/teapot.pid'
 if [ -a $path_to_pid ]; then
         stormpid=`cat $path_to_pid`
         kill $stormpid 
