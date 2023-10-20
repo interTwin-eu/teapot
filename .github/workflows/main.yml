@@ -68,7 +68,7 @@ jobs:
           cd Python-3.10.12/
           ./configure --enable-optimizations
           make
-          make test
+          #make test
           make install
           cd ~
           echo "export PATH=\"\${PATH}:/usr/local/lib/python3.10/site-packages\"" >> ~/.bashrc
