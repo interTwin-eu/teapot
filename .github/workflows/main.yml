@@ -63,8 +63,8 @@ jobs:
         run: |
           yum install -y libffi libffi-devel zlib-devel
           wget https://www.python.org/ftp/python/3.10.12/Python-3.10.12.tgz
-          tar -xzf Python-3.10.12.tgz 
-          rm Python-3.10.12.tgz 
+          tar -xzf Python-3.10.12.tgz
+          rm Python-3.10.12.tgz
           cd Python-3.10.12/
           ./configure --enable-optimizations
           make
@@ -73,7 +73,10 @@ jobs:
           cd ~
           echo "export PATH=\"\${PATH}:/usr/local/lib/python3.10/site-packages\"" >> ~/.bashrc
           pip3 install --upgrade pip
+          pip3 install pydantic
+          pip3 install regex
           pip3 install httpx
+          pip3 install liboidcagent
           pip3 install logging
           pip3 install uvicorn
           pip3 install requests
