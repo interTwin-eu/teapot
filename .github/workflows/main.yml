@@ -46,10 +46,10 @@ jobs:
           yum -y install perl-IPC-Cmd perl-Test-Simple
       - name: Install openssl
         run: |
-          cd /usr/src
           wget https://www.openssl.org/source/openssl-3.0.10.tar.gz
           tar -zxf openssl-3.0.10.tar.gz
           rm openssl-3.0.10.tar.gz
+          cp openssl-3.0.10 /usr/src/openssl-3.0.10
           cd /usr/src/openssl-3.0.10
           ./config
           make
