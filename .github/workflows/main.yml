@@ -46,7 +46,7 @@ jobs:
           rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
       - name: Install openssl and self-signed certs
         run: |
-          yum install wget
+          yum install -y wget
           wget https://www.openssl.org/source/openssl-3.0.10.tar.gz
           tar -zxf openssl-3.0.10.tar.gz
           rm openssl-3.0.10.tar.gz
