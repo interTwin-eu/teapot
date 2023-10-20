@@ -65,7 +65,7 @@ jobs:
           wget https://www.python.org/ftp/python/3.10.12/Python-3.10.12.tgz
           tar -xzf Python-3.10.12.tgz 
           rm Python-3.10.12.tgz 
-          Python-3.10.12/
+          cd Python-3.10.12/
           ./configure --enable-optimizations
           make
           make test
