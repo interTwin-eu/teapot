@@ -32,7 +32,11 @@ jobs:
     name: test
     needs: build
     runs-on: ubuntu-latest
-    container: centos:centos7
+    container:
+      image: centos:centos7
+      ports:
+        - 8081
+        - 8085
     steps:
       - uses: actions/download-artifact@v3
         with:
@@ -40,5 +44,22 @@ jobs:
       - name: Install the rpm package
         run: |
           rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
+      - name: Install openssl and self-signed certs
+        run: |
+          wget https://www.openssl.org/source/openssl-3.0.10.tar.gz
+          tar -zxf openssl-3.0.10.tar.gz
+          rm openssl-3.0.10.tar.gz
+          cd /usr/src/openssl-3.0.10
+          ./config
+          make
+          make test
+          make install
+          ln -s /usr/local/lib64/libssl.so.3 /usr/lib64/libssl.so.3
+          ln -s /usr/local/lib64/libcrypto.so.3 /usr/lib64/libcrypto.so.3
+          rm /usr/bin/openssl
+          ln -s /usr/local/bin/openssl /usr/bin/openssl
+          /usr/share/teapot/self-signed-cert-gen.sh
+      - name: Start teapot
+        run: |
           /usr/share/teapot/run-teapot.sh
 
