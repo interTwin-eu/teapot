@@ -44,9 +44,14 @@ jobs:
       - name: Install the rpm package
         run: |
           rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
+      - name: Install dependencies
+        run: |
+          yum -y update
+          yum -y install epel-release redhat-lsb-core wget tar yum-utils gfal2-all davix attr ntp acl nc
+          yum -y install initscripts java-11-openjdk
+          yum -y install perl-IPC-Cmd perl-Test-Simple
       - name: Install openssl and self-signed certs
         run: |
-          yum install -y wget
           wget https://www.openssl.org/source/openssl-3.0.10.tar.gz
           tar -zxf openssl-3.0.10.tar.gz
           rm openssl-3.0.10.tar.gz
