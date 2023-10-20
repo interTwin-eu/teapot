@@ -49,7 +49,7 @@ jobs:
           wget https://www.openssl.org/source/openssl-3.0.10.tar.gz
           tar -zxf openssl-3.0.10.tar.gz
           rm openssl-3.0.10.tar.gz
-          cp openssl-3.0.10 /usr/src/openssl-3.0.10
+          cp -r openssl-3.0.10 /usr/src/openssl-3.0.10
           cd /usr/src/openssl-3.0.10
           ./config
           make
