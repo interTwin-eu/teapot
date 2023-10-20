@@ -44,6 +44,7 @@ jobs:
           yum -y install epel-release redhat-lsb-core wget tar yum-utils gfal2-all davix attr ntp acl nc
           yum -y install initscripts java-11-openjdk
           yum -y install perl-IPC-Cmd perl-Test-Simple
+          yum -y group install "Development Tools" 
       - name: Install openssl
         run: |
           wget https://www.openssl.org/source/openssl-3.0.10.tar.gz
