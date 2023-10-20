@@ -38,20 +38,15 @@ jobs:
         - 8081
         - 8085
     steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: teapot-rpm
-      - name: Install the rpm package
-        run: |
-          rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
       - name: Install dependencies
         run: |
           yum -y update
           yum -y install epel-release redhat-lsb-core wget tar yum-utils gfal2-all davix attr ntp acl nc
           yum -y install initscripts java-11-openjdk
           yum -y install perl-IPC-Cmd perl-Test-Simple
-      - name: Install openssl and self-signed certs
+      - name: Install openssl
         run: |
+          cd /usr/src
           wget https://www.openssl.org/source/openssl-3.0.10.tar.gz
           tar -zxf openssl-3.0.10.tar.gz
           rm openssl-3.0.10.tar.gz
@@ -64,6 +59,12 @@ jobs:
           ln -s /usr/local/lib64/libcrypto.so.3 /usr/lib64/libcrypto.so.3
           rm /usr/bin/openssl
           ln -s /usr/local/bin/openssl /usr/bin/openssl
+      - uses: actions/download-artifact@v3
+        with:
+          name: teapot-rpm
+      - name: Install the rpm package and make self-signed certs
+        run: |
+          rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
           /usr/share/teapot/self-signed-cert-gen.sh
       - name: Start teapot
         run: |
