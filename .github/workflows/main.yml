@@ -5,8 +5,8 @@ on:
   push:
   pull_request:
 
-concurrency:
-  group: ${{ github.workflow }}
+#concurrency:
+#  group: ${{ github.workflow }}
 
 jobs:
   build:
