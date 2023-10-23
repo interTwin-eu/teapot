@@ -5,6 +5,9 @@ on:
   push:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}
+
 jobs:
   build:
     name: build
@@ -59,7 +62,7 @@ jobs:
           ln -s /usr/local/lib64/libssl.so.3 /usr/lib64/libssl.so.3
           ln -s /usr/local/lib64/libcrypto.so.3 /usr/lib64/libcrypto.so.3
           ln -s /usr/local/bin/openssl /usr/bin/openssl
-      - name: Install python dependencies
+      - name: Install python and python packages
         run: |
           yum install -y libffi libffi-devel zlib-devel
           wget https://www.python.org/ftp/python/3.10.12/Python-3.10.12.tgz
@@ -82,6 +85,8 @@ jobs:
           pip3 install requests
           pip3 install flaat
           pip3 install fastapi
+          pip3 install robotframework
+          pip3 install robotframework-requests
       - uses: actions/download-artifact@v3
         with:
           name: teapot-rpm
@@ -92,4 +97,11 @@ jobs:
       - name: Start teapot
         run: |
           /usr/share/teapot/run-teapot.sh
-
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Test Teapot
+        run: |
+          robot robot/storm-webdav-tests.robot
+          ls
+          pwd
