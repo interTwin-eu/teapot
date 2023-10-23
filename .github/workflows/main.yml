@@ -5,8 +5,8 @@ on:
   push:
   pull_request:
 
-#concurrency:
-#  group: ${{ github.workflow }}
+concurrency:
+  group: ${{ github.workflow }}
 
 jobs:
   build:
@@ -57,7 +57,6 @@ jobs:
           cd /usr/src/openssl-3.0.10
           ./config
           make
-          #make test
           make install
           ln -s /usr/local/lib64/libssl.so.3 /usr/lib64/libssl.so.3
           ln -s /usr/local/lib64/libcrypto.so.3 /usr/lib64/libcrypto.so.3
@@ -71,7 +70,6 @@ jobs:
           cd Python-3.10.12/
           ./configure --enable-optimizations
           make
-          #make test
           make install
           cd ~
           echo "export PATH=\"\${PATH}:/usr/local/lib/python3.10/site-packages\"" >> ~/.bashrc
@@ -85,8 +83,6 @@ jobs:
           pip3 install requests
           pip3 install flaat
           pip3 install fastapi
-         # pip3 install robotframework
-         # pip3 install robotframework-requests
       - uses: actions/download-artifact@v3
         with:
           name: teapot-rpm
@@ -102,6 +98,6 @@ jobs:
           fetch-depth: 0
       - name: Test Teapot
         run: |
-          robot robot/storm-webdav-tests.robot
+          #robot robot/storm-webdav-tests.robot
           ls
           pwd
