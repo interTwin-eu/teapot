@@ -83,6 +83,8 @@ jobs:
           pip3 install requests
           pip3 install flaat
           pip3 install fastapi
+          pip3 install robotframework
+          pip3 install robotframework-requests
       - uses: actions/download-artifact@v3
         with:
           name: teapot-rpm
@@ -99,5 +101,4 @@ jobs:
       - name: Test Teapot
         run: |
           #robot robot/storm-webdav-tests.robot
-          ls
-          pwd
+
