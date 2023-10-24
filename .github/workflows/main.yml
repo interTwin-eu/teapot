@@ -63,7 +63,7 @@ jobs:
           ln -s /usr/local/bin/openssl /usr/bin/openssl
       - name: Install python and python packages
         run: |
-          yum install -y libffi libffi-devel zlib-devel
+          yum -y install libffi libffi-devel zlib-devel
           wget https://www.python.org/ftp/python/3.10.12/Python-3.10.12.tgz
           tar -xzf Python-3.10.12.tgz
           rm Python-3.10.12.tgz
@@ -72,6 +72,8 @@ jobs:
           make
           make install
           cd ~
+          pwd
+          echo "this works"
           echo "export PATH=\"\${PATH}:/usr/local/lib/python3.10/site-packages\"" >> ~/.bashrc
           pip3 install --upgrade pip
           pip3 install pydantic
@@ -86,7 +88,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: teapot-rpm
-      - name: Install the rpm package and make self-signed certs
+      - name: Install the rpm package and self-signed certs
         run: |
           rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
           /usr/share/teapot/self-signed-cert-gen.sh
