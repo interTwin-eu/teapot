@@ -5,8 +5,8 @@ on:
   push:
   pull_request:
 
-#concurrency:
-#  group: ${{ github.workflow }}
+concurrency:
+  group: ${{ github.workflow }}
 
 jobs:
   build:
@@ -37,9 +37,11 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: centos:centos7
-      ports:
-        - 8081
-        - 8085
+    services:
+        postgres:
+            image: postgres
+        keycloak:
+            image: quay.io/keycloak/keycloak:22.0.1        
     steps:
       - name: Install dependencies
         run: |
