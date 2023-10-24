@@ -69,7 +69,7 @@ jobs:
           rm Python-3.10.12.tgz
           cd Python-3.10.12/
           ./configure --enable-optimizations
-          make
+          make clean
           make install
           cd ~
           echo "export PATH=\"\${PATH}:/usr/local/lib/python3.10/site-packages\"" >> ~/.bashrc
