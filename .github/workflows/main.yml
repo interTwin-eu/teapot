@@ -5,8 +5,8 @@ on:
   push:
   pull_request:
 
-concurrency:
-  group: ${{ github.workflow }}
+#concurrency:
+#  group: ${{ github.workflow }}
 
 jobs:
   build:
@@ -72,8 +72,6 @@ jobs:
           make
           make install
           cd ~
-          pwd
-          echo "this works"
           echo "export PATH=\"\${PATH}:/usr/local/lib/python3.10/site-packages\"" >> ~/.bashrc
           pip3 install --upgrade pip
           pip3 install pydantic
