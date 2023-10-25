@@ -58,5 +58,5 @@ jobs:
           fetch-depth: 0
       - name: Test Teapot
         run: |
-          #robot robot/storm-webdav-tests.robot
+          robot robot/storm-webdav-tests.robot
 
