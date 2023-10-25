@@ -72,6 +72,5 @@ jobs:
           fetch-depth: 0
       - name: Test Teapot
         run: |
-          eval $(oidc-agent)
-          ls
+          eval "$(oidc-agent)"
         #  robot robot/storm-webdav-tests.robot
