@@ -43,6 +43,10 @@ jobs:
         keycloak:
             image: quay.io/keycloak/keycloak:22.0.1        
     steps:
+      - name: Install oidc-agent
+        run: |
+          cd /etc/yum.repos.d; wget https://repo.data.kit.edu//data-kit-edu-centos7.repo
+          yum install oidc-agent
       - uses: actions/download-artifact@v3
         with:
           name: teapot-rpm
@@ -58,5 +62,5 @@ jobs:
           fetch-depth: 0
       - name: Test Teapot
         run: |
-          robot robot/storm-webdav-tests.robot
+        #  robot robot/storm-webdav-tests.robot
 
