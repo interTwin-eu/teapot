@@ -46,7 +46,8 @@ jobs:
       - name: Install oidc-agent
         run: |
           cd /etc/yum.repos.d; wget https://repo.data.kit.edu//data-kit-edu-centos7.repo
-          yum install oidc-agent
+          yum update
+          yum -y install oidc-agent
       - uses: actions/download-artifact@v3
         with:
           name: teapot-rpm
