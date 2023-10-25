@@ -40,20 +40,20 @@ jobs:
     services:
         keycloak:
             image: quay.io/keycloak/keycloak:22.0.1 
-        env:
-          KC_DB=postgres
-          KC_DB_URL_HOST=postgres
-          KC_DB_USER=keycloak
-          KC_DB_PASSWORD=testing
-          KC_DB_DATABASE=keycloak
-          KC_DB_SCHEMA=public
-          KC_HOSTNAME_STRICT=false
-          KC_HTTP_ENABLED=true
-          KEYCLOAK_ADMIN=admin
-          KEYCLOAK_ADMIN_PASSWORD=testing1
-          PROXY_ADDRESS_FORWARDING=false
-          VIRTUAL_HOST=keycloak
-          VIRTUAL_PORT=8080
+            env: 
+              KC_DB: postgres
+              KC_DB_URL_HOST: postgres
+              KC_DB_USER: keycloak
+              KC_DB_PASSWORD: testing
+              KC_DB_DATABASE: keycloak
+              KC_DB_SCHEMA: public
+              KC_HOSTNAME_STRICT: false
+              KC_HTTP_ENABLED: true
+              KEYCLOAK_ADMIN: admin
+              KEYCLOAK_ADMIN_PASSWORD: testing1
+              PROXY_ADDRESS_FORWARDING: false
+              VIRTUAL_HOST: keycloak
+              VIRTUAL_PORT: 8080
         postgres:
               image: postgres       
     steps:
@@ -73,4 +73,5 @@ jobs:
       - name: Test Teapot
         run: |
           eval $(oidc-agent)
+          ls
         #  robot robot/storm-webdav-tests.robot
