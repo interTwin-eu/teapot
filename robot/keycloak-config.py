@@ -1,7 +1,7 @@
 from keycloak import KeycloakAdmin, KeycloakOpenID, KeycloakOpenIDConnection
 
 # Configure client
-keycloak_openid = KeycloakOpenID(server_url="http://localhost:8080/auth/",
+keycloak_openid = KeycloakOpenID(server_url="keycloak:8080/auth/",
                                  client_id="test_client",
                                  realm_name="test_realm",
                                  client_secret_key="secret-key")
@@ -38,5 +38,9 @@ keycloak_connection = KeycloakOpenIDConnection(
 
 keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
 
-test_user1 = keycloak_admin.create_user({"username": "test_user1", "enabled": True, "credentials": [{"value": "secret1","type": "password"}]})
-test_user2 = keycloak_admin.create_user({"username": "test_user2", "enabled": True, "credentials": [{"value": "secret2","type": "password"}]})
+test_user1 = keycloak_admin.create_user({"username": "test_user1",
+                                       "enabled": True,
+                                       "credentials": [{"value": "secret1","type": "password"}]})
+test_user2 = keycloak_admin.create_user({"username": "test_user2",
+                                       "enabled": True,
+                                       "credentials": [{"value": "secret2","type": "password"}]})
