@@ -43,8 +43,7 @@ jobs:
             env: 
               KEYCLOAK_ADMIN: admin
               KEYCLOAK_ADMIN_PASSWORD: testing1 
-        postgres:
-              image: postgres       
+              VIRTUAL_HOST: keycloak     
     steps:
       - uses: actions/download-artifact@v3
         with:
