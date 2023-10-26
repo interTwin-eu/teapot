@@ -1,6 +1,4 @@
-from keycloak import KeycloakOpenID
-from keycloak import KeycloakAdmin
-from keycloak import KeycloakOpenIDConnection
+from keycloak import KeycloakAdmin, KeycloakOpenID, KeycloakOpenIDConnection
 
 # Configure client
 keycloak_openid = KeycloakOpenID(server_url="http://localhost:8080/auth/",
@@ -39,10 +37,6 @@ keycloak_connection = KeycloakOpenIDConnection(
                         verify=True)
 
 keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
-
-keycloak_admin.create_realm(payload={"realm": "demo"}, skip_exists=False)
-
-keycloak_admin.realm_name = "demo"
 
 test_user1 = keycloak_admin.create_user({"username": "test_user1",
                                        "enabled": True,

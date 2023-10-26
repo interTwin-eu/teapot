@@ -62,5 +62,5 @@ jobs:
       - name: Test Teapot
         run: |
           eval "$(oidc-agent)"
-          python3 keycloak-config.py
+          python3 robot/keycloak-config.py
         #  robot robot/storm-webdav-tests.robot
