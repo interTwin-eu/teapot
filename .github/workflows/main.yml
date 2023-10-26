@@ -42,8 +42,10 @@ jobs:
             image: quay.io/keycloak/keycloak:22.0.1 
             env: 
               KEYCLOAK_ADMIN: admin
-              KEYCLOAK_ADMIN_PASSWORD: testing1 
-              VIRTUAL_HOST: keycloak     
+              KEYCLOAK_ADMIN_PASSWORD: testing1   
+              KC_HOSTNAME: keycloak  
+#              KC_HTTPS_CERTIFICATE_FILE: /var/lib/teapot/webdav/localhost.crt
+#              KC_HTTPS_CERTIFICATE_KEY_FILE: /var/lib/teapot/webdav/localhost.key
     steps:
       - uses: actions/download-artifact@v3
         with:
