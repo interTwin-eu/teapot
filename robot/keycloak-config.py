@@ -40,7 +40,9 @@ keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
 
 test_user1 = keycloak_admin.create_user({"username": "test_user1",
                                          "enabled": True,
-                                         "credentials": [{"value": "secret1", "type": "password"}]})
+                                         "credentials": [{"value": "secret1", 
+                                                          "type": "password"}]})
 test_user2 = keycloak_admin.create_user({"username": "test_user2",
                                          "enabled": True,
-                                         "credentials": [{"value": "secret2", "type": "password"}]})
+                                         "credentials": [{"value": "secret2", 
+                                                          "type": "password"}]})
