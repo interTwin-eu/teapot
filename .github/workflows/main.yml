@@ -44,8 +44,7 @@ jobs:
               KEYCLOAK_ADMIN: admin
               KEYCLOAK_ADMIN_PASSWORD: testing1   
               KC_HOSTNAME: keycloak  
-#              KC_HTTPS_CERTIFICATE_FILE: /var/lib/teapot/webdav/localhost.crt
-#              KC_HTTPS_CERTIFICATE_KEY_FILE: /var/lib/teapot/webdav/localhost.key
+              KC_HTTP_ENABLED: true
     steps:
       - uses: actions/download-artifact@v3
         with:
