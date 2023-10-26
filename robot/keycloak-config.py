@@ -10,7 +10,9 @@ config_well_known = keycloak_openid.well_known()
 
 # Get Code With Oauth Authorization Request
 auth_url = keycloak_openid.auth_url(
-    redirect_uri="http://localhost:4242")
+    redirect_uri="http://localhost:4242",
+    scope="email",
+    state="your_state_info")
 
 # Get Access Token With Code
 access_token = keycloak_openid.token(
