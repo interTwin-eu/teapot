@@ -28,7 +28,7 @@ token = keycloak_openid.token("user", "password")
 userinfo = keycloak_openid.userinfo(token['access_token'])
 
 keycloak_connection = KeycloakOpenIDConnection(
-                        server_url="http://keycloak",
+                        server_url="http://keycloak/",
                         username='admin',
                         password='testing1',
                         realm_name="test_realm",
@@ -40,9 +40,9 @@ keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
 
 test_user1 = keycloak_admin.create_user({"username": "test_user1",
                                          "enabled": True,
-                                         "credentials": [{"value": "secret1", 
+                                         "credentials": [{"value": "secret1",
                                                           "type": "password"}]})
 test_user2 = keycloak_admin.create_user({"username": "test_user2",
                                          "enabled": True,
-                                         "credentials": [{"value": "secret2", 
+                                         "credentials": [{"value": "secret2",
                                                           "type": "password"}]})
