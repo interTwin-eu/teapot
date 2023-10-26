@@ -10,9 +10,7 @@ config_well_known = keycloak_openid.well_known()
 
 # Get Code With Oauth Authorization Request
 auth_url = keycloak_openid.auth_url(
-    redirect_uri="http://localhost:4242",
-    scope="email",
-    state="your_state_info")
+    redirect_uri="http://localhost:4242")
 
 # Get Access Token With Code
 access_token = keycloak_openid.token(
@@ -38,9 +36,5 @@ keycloak_connection = KeycloakOpenIDConnection(
 
 keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
 
-test_user1 = keycloak_admin.create_user({"username": "test_user1",
-                                       "enabled": True,
-                                       "credentials": [{"value": "secret1","type": "password",}]})
-test_user2 = keycloak_admin.create_user({"username": "test_user2",
-                                       "enabled": True,
-                                       "credentials": [{"value": "secret2","type": "password",}]})
+test_user1 = keycloak_admin.create_user({"username": "test_user1", "enabled": True, "credentials": [{"value": "secret1","type": "password"}]})
+test_user2 = keycloak_admin.create_user({"username": "test_user2", "enabled": True, "credentials": [{"value": "secret2","type": "password"}]})
