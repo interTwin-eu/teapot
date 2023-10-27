@@ -7,7 +7,7 @@ keycloak_openid = KeycloakOpenID(server_url="keycloak:8080/",
                                  client_secret_key="secret-key")
 
 # Get WellKnown
-config_well_known = keycloak_openid.well_known()
+#config_well_known = keycloak_openid.well_known()
 
 ## Get Code With Oauth Authorization Request
 #auth_url = keycloak_openid.auth_url(
