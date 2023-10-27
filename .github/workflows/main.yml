@@ -39,7 +39,7 @@ jobs:
       image: dvrbanec/repo:latest
     services:
         keycloak:
-            image: quay.io/keycloak/keycloak:22.0.1 
+            image: dvrbanec/keycloak-dev:latest
             env: 
               KEYCLOAK_ADMIN: admin
               KEYCLOAK_ADMIN_PASSWORD: testing1   
