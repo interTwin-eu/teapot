@@ -2,12 +2,12 @@ from keycloak import KeycloakAdmin, KeycloakOpenID, KeycloakOpenIDConnection
 
 # Configure client
 keycloak_openid = KeycloakOpenID(server_url="http://keycloak:8080/",
-                                 client_id="test_client",
-                                 realm_name="test_realm",
-                                 client_secret_key="secret-key")
+                                 client_id="TestClient",
+                                 realm_name="TestRealm",
+                                 client_secret_key="test-key")
 
 # Get WellKnown
-#config_well_known = keycloak_openid.well_known()
+config_well_known = keycloak_openid.well_known()
 
 ## Get Code With Oauth Authorization Request
 #auth_url = keycloak_openid.auth_url(
