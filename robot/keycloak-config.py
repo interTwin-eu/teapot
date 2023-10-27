@@ -19,7 +19,7 @@ auth_url = keycloak_openid.auth_url(
 access_token = keycloak_openid.token(
     grant_type='authorization_code',
     code='the_code_you_get_from_auth_url_callback',
-    redirect_uri="http://keycloak:4242")
+    redirect_uri="http://localhost:4242")
 
 # Get Token
 token = keycloak_openid.token("user", "password")
@@ -28,7 +28,7 @@ token = keycloak_openid.token("user", "password")
 userinfo = keycloak_openid.userinfo(token['access_token'])
 
 keycloak_connection = KeycloakOpenIDConnection(
-                        server_url="http://keycloak:8080/",
+                        server_url="http://localhost:8080/",
                         username='admin',
                         password='testing1',
                         realm_name="test_realm",
