@@ -1,7 +1,7 @@
 from keycloak import KeycloakAdmin, KeycloakOpenID, KeycloakOpenIDConnection
 
 # Configure client
-keycloak_openid = KeycloakOpenID(server_url="http://keycloak:8080/",
+keycloak_openid = KeycloakOpenID(server_url="http://localhost:8080/",
                                  client_id="test_client",
                                  realm_name="test_realm",
                                  client_secret_key="secret-key")
@@ -11,7 +11,7 @@ config_well_known = keycloak_openid.well_known()
 
 # Get Code With Oauth Authorization Request
 auth_url = keycloak_openid.auth_url(
-    redirect_uri="http://keycloak:4242/",
+    redirect_uri="http://localhost:4242/",
     scope="email",
     state="your_state_info")
 
