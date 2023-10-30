@@ -45,6 +45,9 @@ jobs:
               KEYCLOAK_ADMIN_PASSWORD: testing1   
               KC_HOSTNAME: keycloak  
               KC_HTTP_ENABLED: true
+              KC_HEALTH_ENABLED: true
+            options:
+              --health-cmd "curl --head keycloak/health/ready"
     steps:
       - uses: actions/download-artifact@v3
         with:
