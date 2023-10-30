@@ -1,7 +1,7 @@
 from keycloak import KeycloakAdmin, KeycloakOpenID, KeycloakOpenIDConnection
 
 # Configure client
-keycloak_openid = KeycloakOpenID(server_url="keycloak",
+keycloak_openid = KeycloakOpenID(server_url="http://keycloak",
                                  client_id="TestClient",
                                  realm_name="TestRealm",
                                  client_secret_key="test-key")
