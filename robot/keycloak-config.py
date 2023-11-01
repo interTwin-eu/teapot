@@ -33,20 +33,21 @@ test_user2 = keycloak_admin.create_user({"username": "test-user2",
                                          "credentials": [{"value": "secret2",
                                                           "type": "password"}]})
 
+# Get Code With Oauth Authorization Request
+auth_url = keycloak_openid.auth_url(
+    redirect_uri="http://keycloak:4242/",
+    scope="email",
+    state="your_state_info")
+
+# Get Access Token With Code
+access_token = keycloak_openid.token(
+    grant_type='authorization_code',
+    code='the_code_you_get_from_auth_url_callback',
+    redirect_uri="http://keycloak:4242/")
+
 # Get Token
 token = keycloak_openid.token("user", "password")
 
 # Get Userinfo
 userinfo = keycloak_openid.userinfo(token['access_token'])
 
-## Get Code With Oauth Authorization Request
-#auth_url = keycloak_openid.auth_url(
-#    redirect_uri="http://keycloak:4242/",
-#    scope="email",
-#    state="your_state_info")
-#
-## Get Access Token With Code
-#access_token = keycloak_openid.token(
-#    grant_type='authorization_code',
-#    code='the_code_you_get_from_auth_url_callback',
-#    redirect_uri="http://keycloak:4242/")
