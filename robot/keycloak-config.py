@@ -1,5 +1,6 @@
 from keycloak import KeycloakAdmin, KeycloakOpenID, KeycloakOpenIDConnection
 
+#Keycloak Admin
 keycloak_connection = KeycloakOpenIDConnection(
                         server_url="http://keycloak:8080/",
                         username='admin',
@@ -9,17 +10,28 @@ keycloak_connection = KeycloakOpenIDConnection(
 
 keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
 
+#Changing Realm
 keycloak_admin.create_realm(payload={"realm": "test-realm"}, skip_exists=False)
 keycloak_admin.realm_name = "test-realm"
 
+#Configuring client in the new Realm
 keycloak_openid = KeycloakOpenID(server_url="http://keycloak:8080/",
                                  client_id="test-client",
                                  realm_name="test-realm",
                                  client_secret_key="test-secret")
 
-clients = keycloak_admin.get_clients()
-
+#Get WellKnown
 config_well_known = keycloak_openid.well_known()
+
+#Adding Users
+test_user1 = keycloak_admin.create_user({"username": "test_user1",
+                                         "enabled": True,
+                                         "credentials": [{"value": "secret1",
+                                                          "type": "password"}]})
+test_user2 = keycloak_admin.create_user({"username": "test_user2",
+                                         "enabled": True,
+                                         "credentials": [{"value": "secret2",
+                                                          "type": "password"}]})
 
 ## Get Code With Oauth Authorization Request
 #auth_url = keycloak_openid.auth_url(
@@ -38,14 +50,3 @@ config_well_known = keycloak_openid.well_known()
 #
 ## Get Userinfo
 #userinfo = keycloak_openid.userinfo(token['access_token'])
-#
-#
-#test_user1 = keycloak_admin.create_user({"username": "test_user1",
-#                                         "enabled": True,
-#                                         "credentials": [{"value": "secret1",
-#                                                          "type": "password"}]})
-#test_user2 = keycloak_admin.create_user({"username": "test_user2",
-#                                         "enabled": True,
-#                                         "credentials": [{"value": "secret2",
-#                                                          "type": "password"}]})
-#
