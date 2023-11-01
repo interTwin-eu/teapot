@@ -5,8 +5,6 @@ keycloak_connection = KeycloakOpenIDConnection(
                         username='admin',
                         password='testing1',
                         realm_name="master",
-                        client_id="test-client",
-                        client_secret_key="test-secret",
                         verify=True)
 
 keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
