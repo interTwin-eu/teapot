@@ -21,17 +21,17 @@ keycloak_openid = KeycloakOpenID(server_url="http://keycloak:8080/",
                                  client_secret_key="test-secret")
 
 # Keycloak admin with new realm and a new client
-keycloak_connection = KeycloakOpenIDConnection(
-                        server_url="http://keycloak:8080/",
-                        username='admin',
-                        password='testing1',
-                        realm_name="master",
-                        user_realm_name="test-realm",
-                        client_id="test_client",
-                        client_secret_key="test-secret",
-                        verify=True)
-
-keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
+#keycloak_connection = KeycloakOpenIDConnection(
+#                        server_url="http://keycloak:8080/",
+#                        username='admin',
+#                        password='testing1',
+#                        realm_name="master",
+#                        user_realm_name="test-realm",
+#                        client_id="test_client",
+#                        client_secret_key="test-secret",
+#                        verify=True)
+#
+#keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
 
 # Get WellKnown
 config_well_known = keycloak_openid.well_known()
