@@ -9,14 +9,16 @@ keycloak_connection = KeycloakOpenIDConnection(
 
 keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
 
-#keycloak_admin.create_realm(payload={"realm": "test-realm"}, skip_exists=False)
-#keycloak_admin.realm_name = "test-realm"
-#
-#keycloak_openid = KeycloakOpenID(server_url="http://keycloak:8080/",
-#                                 client_id="test-client",
-#                                 realm_name="test-realm",
-#                                 client_secret_key="test-secret")
-#
+keycloak_admin.create_realm(payload={"realm": "test-realm"}, skip_exists=False)
+keycloak_admin.realm_name = "test-realm"
+
+keycloak_openid = KeycloakOpenID(server_url="http://keycloak:8080/",
+                                 client_id="test-client",
+                                 realm_name="test-realm",
+                                 client_secret_key="test-secret")
+
+clients = keycloak_admin.get_clients()
+
 # Get WellKnown
 #config_well_known = keycloak_openid.well_known()
 
