@@ -24,14 +24,20 @@ keycloak_openid = KeycloakOpenID(server_url="http://keycloak:8080/",
 config_well_known = keycloak_openid.well_known()
 
 #Adding Users
-test_user1 = keycloak_admin.create_user({"username": "test_user1",
+test_user1 = keycloak_admin.create_user({"username": "test-user1",
                                          "enabled": True,
                                          "credentials": [{"value": "secret1",
                                                           "type": "password"}]})
-test_user2 = keycloak_admin.create_user({"username": "test_user2",
+test_user2 = keycloak_admin.create_user({"username": "test-user2",
                                          "enabled": True,
                                          "credentials": [{"value": "secret2",
                                                           "type": "password"}]})
+
+# Get Token
+token = keycloak_openid.token("user", "password")
+
+# Get Userinfo
+userinfo = keycloak_openid.userinfo(token['access_token'])
 
 ## Get Code With Oauth Authorization Request
 #auth_url = keycloak_openid.auth_url(
@@ -44,9 +50,3 @@ test_user2 = keycloak_admin.create_user({"username": "test_user2",
 #    grant_type='authorization_code',
 #    code='the_code_you_get_from_auth_url_callback',
 #    redirect_uri="http://keycloak:4242/")
-#
-## Get Token
-#token = keycloak_openid.token("user", "password")
-#
-## Get Userinfo
-#userinfo = keycloak_openid.userinfo(token['access_token'])
