@@ -65,12 +65,13 @@ jobs:
       - name: Test Teapot
         run: |
           eval "$(oidc-agent)"
-          status=1
-          while [ ! $status -eq 0 ]; do
-              echo -n .
-              sleep 0.5s
-              curl http://localhost:8080/health/ready
-              status=$?
-          done
+          # status=1
+          # while [ ! $status -eq 0 ]; do
+          #     echo -n .
+          #     sleep 0.5s
+          #     curl http://localhost:8080/health/ready
+          #     status=$?
+          # done
+          sleep 60
           python3 robot/keycloak-config.py
         #  robot robot/storm-webdav-tests.robot
