@@ -65,7 +65,7 @@ jobs:
       - name: Test Teapot
         run: |
           eval "$(oidc-agent)"
-          sleep 20
+          sleep 30
           curl http://keycloak:8080/health
           curl http://keycloak:8080/health/live
           curl http://keycloak:8080/health/ready
