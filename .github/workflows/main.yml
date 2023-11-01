@@ -66,5 +66,8 @@ jobs:
         run: |
           eval "$(oidc-agent)"
           sleep 120
+          curl http://keycloak:8080/health
+          curl http://keycloak:8080/health/live
+          curl http://keycloak:8080/health/ready
           python3 robot/keycloak-config.py
         #  robot robot/storm-webdav-tests.robot
