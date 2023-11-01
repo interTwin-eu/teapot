@@ -40,14 +40,14 @@ jobs:
       ports:
         - 4242
     services:
-        keycloak:
-            image: dvrbanec/keycloak-dev:latest
-            env: 
-              KEYCLOAK_ADMIN: admin
-              KEYCLOAK_ADMIN_PASSWORD: testing1   
-              KC_HOSTNAME: keycloak  
-              KC_HTTP_ENABLED: true
-              KC_HEALTH_ENABLED: true
+      keycloak:
+          image: dvrbanec/keycloak-dev:latest
+          env: 
+            KEYCLOAK_ADMIN: admin
+            KEYCLOAK_ADMIN_PASSWORD: testing1   
+            KC_HOSTNAME: keycloak  
+            KC_HTTP_ENABLED: true
+            KC_HEALTH_ENABLED: true
     steps:
       - uses: actions/download-artifact@v3
         with:
