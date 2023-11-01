@@ -21,8 +21,8 @@ keycloak_openid = KeycloakOpenID(server_url="http://keycloak:8080/",
                                  client_secret_key="test-secret")
 
 # Keycloak admin with new realm and a new client
-keycloak_connection1 = KeycloakOpenIDConnection(
-                        server_url="http://keycloak:8080/auth/",
+keycloak_connection = KeycloakOpenIDConnection(
+                        server_url="http://keycloak:8080/",
                         username='admin',
                         password='testing1',
                         realm_name="master",
@@ -31,17 +31,17 @@ keycloak_connection1 = KeycloakOpenIDConnection(
                         client_secret_key="test-secret",
                         verify=True)
 
-keycloak_admin1 = KeycloakAdmin(connection=keycloak_connection1)
+keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
 
 # Get WellKnown
 config_well_known = keycloak_openid.well_known()
 
 # Adding Users
-test_user1 = keycloak_admin1.create_user({"username": "test-user1",
+test_user1 = keycloak_admin.create_user({"username": "test-user1",
                                           "enabled": True,
                                           "credentials": [{"value": "secret1",
                                                            "type": "password"}]})
-test_user2 = keycloak_admin1.create_user({"username": "test-user2",
+test_user2 = keycloak_admin.create_user({"username": "test-user2",
                                           "enabled": True,
                                           "credentials": [{"value": "secret2",
                                                            "type": "password"}]})
