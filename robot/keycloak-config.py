@@ -12,7 +12,7 @@ keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
 
 #Changing Realm
 keycloak_admin.create_realm(payload={"realm": "test-realm"}, skip_exists=False)
-keycloak_admin.realm_name = "test-realm"
+keycloak_connection.realm_name = "test-realm"
 
 #Configuring client in the new Realm
 keycloak_openid = KeycloakOpenID(server_url="http://keycloak:8080/",
