@@ -65,8 +65,7 @@ jobs:
       - name: Test Teapot
         run: |
           eval "$(oidc-agent)"
-          curl http://localhost:8080/health/ready
-          status=$?
+          status=1
           while [ ! $status -eq 0 ]; do
               echo -n .
               sleep 0.5s
