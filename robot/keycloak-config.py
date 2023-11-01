@@ -1,31 +1,31 @@
 from keycloak import KeycloakAdmin, KeycloakOpenID, KeycloakOpenIDConnection
 
 # Keycloak Admin
-# keycloak_connection = KeycloakOpenIDConnection(
-#                         server_url="http://keycloak:8080/",
-#                         username='admin',
-#                         password='testing1',
-#                         realm_name="master",
-#                         verify=True)
-# 
-# keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
-
-# Changing Realm
-# keycloak_admin.create_realm(payload={"realm": "test-realm"}, skip_exists=False)
-# keycloak_connection.realm_name = "test-realm"
-
-# Keycloak admin with new realm and a new client
 keycloak_connection = KeycloakOpenIDConnection(
                         server_url="http://keycloak:8080/",
                         username='admin',
                         password='testing1',
-                        realm_name="test-realm",
-                        user_realm_name="test-realm",
-                        client_id="test_client",
-                        client_secret_key="test-secret",
+                        realm_name="master",
                         verify=True)
-
+ 
 keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
+
+# Changing Realm
+keycloak_admin.create_realm(payload={"realm": "test-realm"}, skip_exists=False)
+keycloak_connection.realm_name = "test-realm"
+
+# Keycloak admin with new realm and a new client
+# keycloak_connection = KeycloakOpenIDConnection(
+#                        server_url="http://keycloak:8080/",
+#                        username='admin',
+#                        password='testing1',
+#                        realm_name="test-realm",
+#                        user_realm_name="test-realm",
+#                        client_id="test_client",
+#                        client_secret_key="test-secret",
+#                        verify=True)
+#
+# keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
 
 # Configuring client in the new Realm
 keycloak_openid = KeycloakOpenID(server_url="http://keycloak:8080/",
