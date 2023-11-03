@@ -21,7 +21,7 @@ keycloak_connection.realm_name = "test-realm"
 client = keycloak_admin.create_client(
     payload={
         "name": "test-client",
-        "id": "test-client",
+        "clientId": "test-client",
         "secret": "test-secret",
         "redirectUris": ["http://localhost:4242/"],
         "enabled": True,
