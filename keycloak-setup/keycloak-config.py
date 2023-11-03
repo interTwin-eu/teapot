@@ -25,6 +25,7 @@ client = keycloak_admin.create_client(
         "secret": "test-secret",
         "redirectUris": ["http://localhost:4242/"],
         "enabled": True,
+        "directAccessGrantsEnabled": True,
     }
 )
 

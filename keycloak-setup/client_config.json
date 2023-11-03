@@ -1,0 +1,9 @@
+{
+    "issuer_url": "http://keycloak:8080/realms/test-realm",
+    "client_id": "test-client",
+    "client_secret": "test-secret",
+    "scope": "max",
+    "redirect_uris": [
+        "http://localhost:4242"
+    ]
+}
