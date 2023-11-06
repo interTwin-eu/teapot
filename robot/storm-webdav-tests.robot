@@ -1,6 +1,6 @@
 *** Settings ***
 Library          RequestsLibrary
-Variables        /home/dijana/teapot/robot/variables.py
+Variables        robot/variables.py
 
 
 *** Test Cases ***

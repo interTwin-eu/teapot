@@ -39,6 +39,8 @@ jobs:
       image: dvrbanec/repo:latest
       ports:
         - 4242
+        - 8081
+        - 8085
     services:
       keycloak:
           image: dvrbanec/keycloak-dev:latest
@@ -62,4 +64,5 @@ jobs:
           python3 keycloak-setup/keycloak-config.py
           oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
           oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
-          #  robot robot/storm-webdav-tests.robot
+          sudo /usr/share/teapot/webdav-automation.sh test-user1 8085
+          robot robot/storm-webdav-tests.robot
