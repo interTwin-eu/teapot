@@ -68,6 +68,7 @@ jobs:
           adduser test-user2
           cp robot/storage-areas /etc/teapot/
           chmod 777 robot/User-sub_generator.sh
+          yum install jq
           robot/User-sub_generator.sh
           /usr/share/teapot/webdav-automation.sh test-user1 8085
           robot robot/storm-webdav-tests.robot
