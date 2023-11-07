@@ -66,8 +66,6 @@ jobs:
           cp robot/storage-areas /etc/teapot/
           chmod 777 robot/User-sub_generator.sh
           robot/User-sub_generator.sh
-          mkdir -p /etc/grid-security
-          mkdir -p /etc/grid-security/vomsdir
           /usr/share/teapot/webdav-automation.sh test-user1 8085
           # robot robot/storm-webdav-tests.robot
       - name: Upload log files

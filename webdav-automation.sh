@@ -87,4 +87,8 @@ if [ ! -d $USER_DIR/tmp ]; then
     echo "$USER_DIR/tmp was created"
 fi
 
+# vomaps
+mkdir -p /etc/grid-security
+mkdir -p /etc/grid-security/vomsdir
+
 su -c /usr/share/$name/webdav-server-start.sh $USER 
