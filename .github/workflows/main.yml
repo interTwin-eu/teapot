@@ -52,7 +52,6 @@ jobs:
         run: |
           rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
           /usr/share/teapot/self-signed-cert-gen.sh
-          #yum -y install jq-1.6
       - name: Start teapot
         run: |
           /usr/share/teapot/run-teapot.sh
@@ -77,5 +76,5 @@ jobs:
         with:
           name: log-files
           path: |
-           /var/lib/teapot/user-test-user1/log/
+           /var/lib/teapot/user-test-user1/
   
