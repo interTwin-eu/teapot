@@ -1,6 +1,6 @@
 *** Settings ***
 Library          RequestsLibrary
-Variables        robot/variables.py
+Variables        $GITHUB_WORKSPACE/robot/variables.py
 
 
 *** Test Cases ***
