@@ -1,6 +1,6 @@
 *** Settings ***
 Library          RequestsLibrary
-Variables        $GITHUB_WORKSPACE/robot/variables.py
+Variables        /__w/teapot/teapot/robot/variables.py
 
 
 *** Test Cases ***
