@@ -36,7 +36,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     container:
-      image: dvrbanec/repo:latest
+      image: dvrbanec/teapot_dependencies:latest
       ports:
         - 4242:4242
         - 8081:8081
@@ -52,7 +52,7 @@ jobs:
         run: |
           rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
           /usr/share/teapot/self-signed-cert-gen.sh
-          yum -y install jq-1.6
+          #yum -y install jq-1.6
       - name: Start teapot
         run: |
           /usr/share/teapot/run-teapot.sh
