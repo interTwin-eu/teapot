@@ -71,9 +71,7 @@ jobs:
           chmod 777 robot/User-sub_generator.sh
           robot/User-sub_generator.sh
           /usr/share/teapot/webdav-automation.sh test-user1 8085
-          ls /var/lib/teapot/
-          ls /var/lib/teapot/user-test-user1/
-          ls /var/lib/teapot/user-test-user1/log/
-          cat /var/lib/teapot/user-test-user1/log/server.log
+          cat /var/lib/teapot/user-test-user1/log/server.err
+          cat /var/lib/teapot/user-test-user1/log/server.out
           sleep 60
           robot robot/storm-webdav-tests.robot
