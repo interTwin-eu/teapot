@@ -52,9 +52,6 @@ jobs:
         run: |
           rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
           /usr/share/teapot/self-signed-cert-gen.sh
-      - name: Start teapot
-        run: |
-          /usr/share/teapot/run-teapot.sh
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -69,19 +66,8 @@ jobs:
           cp robot/storage-areas /etc/teapot/
           chmod 777 robot/User-sub_generator.sh
           robot/User-sub_generator.sh
+          mkdir -p /etc/grid-security
+          mkdir -p /etc/grid-security/vomsdir
           /usr/share/teapot/webdav-automation.sh test-user1 8085
-          #robot robot/storm-webdav-tests.robot
-          ls /var/lib/teapot/webdav/
-      - name: Upload log files
-        uses: actions/upload-artifact@v3
-        with:
-          name: user-files
-          path: |
-           /var/lib/teapot/user-test-user1/
-      - name: Upload log files
-        uses: actions/upload-artifact@v3
-        with:
-          name: etc-files
-          path: |
-            /etc/teapot/
+          robot robot/storm-webdav-tests.robot
   
