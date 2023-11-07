@@ -50,13 +50,13 @@ pid=$!
 echo "$pid" > $USER_DIR/server.pid
 echo "$port" > $USER_DIR/server.port
 
-nc -zvw 1 localhost $port &> /dev/null
-status=$?
-while [ ! $status -eq 0 ]; do
-    echo -n .
-    sleep 0.5s
-    nc -zvw 1 localhost $port &> /dev/null
-    status=$?
-done
+#nc -zvw 1 localhost $port &> /dev/null
+#status=$?
+#while [ ! $status -eq 0 ]; do
+#    echo -n .
+#    sleep 0.5s
+#    nc -zvw 1 localhost $port &> /dev/null
+#    status=$?
+#done
 
 exit 0
