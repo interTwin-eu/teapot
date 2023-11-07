@@ -38,9 +38,9 @@ jobs:
     container:
       image: dvrbanec/repo:latest
       ports:
-        - 4242
-        - 8081
-        - 8085
+        - 4242:4242
+        - 8081:8081
+        - 8085:8085
     services:
       keycloak:
           image: dvrbanec/keycloak-dev:latest
