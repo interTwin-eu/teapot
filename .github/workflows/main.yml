@@ -71,10 +71,17 @@ jobs:
           robot/User-sub_generator.sh
           /usr/share/teapot/webdav-automation.sh test-user1 8085
           #robot robot/storm-webdav-tests.robot
+          ls /var/lib/teapot/webdav/
       - name: Upload log files
         uses: actions/upload-artifact@v3
         with:
-          name: log-files
+          name: user-files
           path: |
            /var/lib/teapot/user-test-user1/
+      - name: Upload log files
+        uses: actions/upload-artifact@v3
+        with:
+         name: etc-files
+         path: |
+           /etc/teapot/
   
