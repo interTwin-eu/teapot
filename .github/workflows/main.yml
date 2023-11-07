@@ -43,7 +43,7 @@ jobs:
         - 8085:8085
     services:
       keycloak:
-          image: dvrbanec/keycloak-dev:latest
+        image: dvrbanec/keycloak-dev:latest
     steps:
       - uses: actions/download-artifact@v3
         with:
@@ -81,7 +81,7 @@ jobs:
       - name: Upload log files
         uses: actions/upload-artifact@v3
         with:
-         name: etc-files
-         path: |
-           /etc/teapot/
+          name: etc-files
+          path: |
+            /etc/teapot/
   
