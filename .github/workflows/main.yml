@@ -71,4 +71,5 @@ jobs:
           yum -y install jq
           robot/User-sub_generator.sh
           /usr/share/teapot/webdav-automation.sh test-user1 8085
+          pwd
           robot robot/storm-webdav-tests.robot
