@@ -12,9 +12,9 @@ STORM_DIR=/var/lib/$name/webdav
 echo "Starting StoRM WebDAV as user $USER"
 
 export STORM_WEBDAV_JVM_OPTS="-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
-export STORM_WEBDAV_SERVER_ADDRESS=localhost
+export STORM_WEBDAV_SERVER_ADDRESS=$IP_ADDRESS
 export STORM_WEBDAV_HTTPS_PORT=$port
-export STORM_WEBDAV_HTTP_PORT=1$port # FIXME remove 
+export STORM_WEBDAV_HTTP_PORT=1$port
 export STORM_WEBDAV_CERTIFICATE_PATH=$STORM_DIR/localhost.crt
 export STORM_WEBDAV_PRIVATE_KEY_PATH=$STORM_DIR/localhost.key
 export STORM_WEBDAV_TRUST_ANCHORS_DIR=/etc/ssl/certs
@@ -50,13 +50,13 @@ pid=$!
 echo "$pid" > $USER_DIR/server.pid
 echo "$port" > $USER_DIR/server.port
 
-#nc -zvw 1 localhost $port &> /dev/null
-#status=$?
-#while [ ! $status -eq 0 ]; do
-#    echo -n .
-#    sleep 0.5s
-#    nc -zvw 1 localhost $port &> /dev/null
-#    status=$?
-#done
+nc -zvw 1 $IP_ADDRESS $port &> /dev/null
+status=$?
+while [ ! $status -eq 0 ]; do
+    echo -n .
+    sleep 0.5s
+    nc -zvw 1 $IP_ADDRESS $port &> /dev/null
+    status=$?
+done
 
 exit 0
