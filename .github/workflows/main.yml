@@ -78,10 +78,10 @@ jobs:
           name: user-files
           path: |
            /var/lib/teapot/user-test-user1/
-      - name: Upload log files
+      - name: Upload internal log files
         uses: actions/upload-artifact@v3
         with:
-          name: etc-files
+          name: storm-webdav log
           path: |
-            /etc/teapot/
+           /tmp/storm-webdav
   
