@@ -10,13 +10,12 @@ USER_DIR=/var/lib/teapot/user-"$USER"
 STORM_DIR=/var/lib/teapot/webdav
 
 echo "Starting StoRM WebDAV as user $USER"
-echo "$IP_ADDRESS"
 export STORM_WEBDAV_JVM_OPTS="-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
-export STORM_WEBDAV_SERVER_ADDRESS="$IP_ADDRESS"
-export STORM_WEBDAV_HTTPS_PORT=$port
-export STORM_WEBDAV_HTTP_PORT=1$port
-export STORM_WEBDAV_CERTIFICATE_PATH=$STORM_DIR/localhost.crt
-export STORM_WEBDAV_PRIVATE_KEY_PATH=$STORM_DIR/localhost.key
+export STORM_WEBDAV_SERVER_ADDRESS=0.0.0.0
+export STORM_WEBDAV_HTTPS_PORT="$port"
+export STORM_WEBDAV_HTTP_PORT=1"$port"
+export STORM_WEBDAV_CERTIFICATE_PATH="$STORM_DIR"/localhost.crt
+export STORM_WEBDAV_PRIVATE_KEY_PATH="$STORM_DIR"/localhost.key
 export STORM_WEBDAV_TRUST_ANCHORS_DIR=/etc/ssl/certs
 export STORM_WEBDAV_TRUST_ANCHORS_REFRESH_INTERVAL=86400
 export STORM_WEBDAV_MAX_CONNECTIONS=300
@@ -30,8 +29,8 @@ export STORM_WEBDAV_OUT="$USER_DIR"/log/server.out
 export STORM_WEBDAV_ERR="$USER_DIR"/log/server.err
 
 ETC_DIR=/etc/teapot
-export STORM_WEBDAV_LOG_CONFIGURATION=$ETC_DIR/logback.xml
-export STORM_WEBDAV_ACCESS_LOG_CONFIGURATION=$ETC_DIR/logback-access.xml
+export STORM_WEBDAV_LOG_CONFIGURATION="$ETC_DIR"/logback.xml
+export STORM_WEBDAV_ACCESS_LOG_CONFIGURATION="$ETC_DIR"/logback-access.xml
 export STORM_WEBDAV_VO_MAP_FILES_ENABLE=false
 export STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL=21600
 export STORM_WEBDAV_TPC_MAX_CONNECTIONS=50
@@ -44,7 +43,7 @@ strace -e trace=file -o /tmp/storm-webdav \
     -Djava.io.tmpdir="$USER_DIR"/tmp \
     -Dlogging.config=${STORM_WEBDAV_LOG_CONFIGURATION} \
     -jar ${STORM_WEBDAV_JAR} >${STORM_WEBDAV_OUT} 2>${STORM_WEBDAV_ERR} \
-    --spring.config.additional-location=optional:file:/var/lib/teapot/user-$USER/config/application.yml&
+    --spring.config.additional-location=optional:file:/var/lib/teapot/user-"$USER"/config/application.yml&
 
 pid=$!
 echo "$pid" > "$USER_DIR"/server.pid
