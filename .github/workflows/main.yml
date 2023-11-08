@@ -31,15 +31,6 @@ jobs:
           path: |
             /github/home/rpmbuild/RPMS/noarch/teapot-v*-1.el7.noarch.rpm
 
-  IPtest:
-    name: IPtest
-    runs-on: ubuntu-latest
-    steps:
-      - name: Find IP address
-        run: |
-          #apt install curl
-          curl ifconfig.me
-
   test:
     name: test
     needs: build
@@ -75,6 +66,7 @@ jobs:
           cp robot/storage-areas /etc/teapot/
           chmod 777 robot/User-sub_generator.sh
           robot/User-sub_generator.sh
+          curl ifconfig.me
           /usr/share/teapot/webdav-automation.sh test-user1 8085
           #robot robot/storm-webdav-tests.robot
       - name: Upload log files
