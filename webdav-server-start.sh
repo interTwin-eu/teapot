@@ -10,7 +10,9 @@ USER_DIR=/var/lib/teapot/user-"$USER"
 STORM_DIR=/var/lib/teapot/webdav
 curl ifconfig.me
 HOST_IP=$1
-echo HOST_IP is $HOST_IP
+echo /n
+echo HOST_IP is "$HOST_IP"
+
 echo "Starting StoRM WebDAV as user $USER"
 export STORM_WEBDAV_JVM_OPTS="-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
 export STORM_WEBDAV_SERVER_ADDRESS="$HOST_IP"
@@ -43,8 +45,8 @@ export STORM_WEBDAV_TPC_USE_CONSCRYPT=true
 strace -e trace=file -o /tmp/storm-webdav \
 /usr/bin/java ${STORM_WEBDAV_JVM_OPTS} \
     -Djava.io.tmpdir="$USER_DIR"/tmp \
-    -Dlogging.config=${STORM_WEBDAV_LOG_CONFIGURATION} \
-    -jar ${STORM_WEBDAV_JAR} >${STORM_WEBDAV_OUT} 2>${STORM_WEBDAV_ERR} \
+    -Dlogging.config="${STORM_WEBDAV_LOG_CONFIGURATION}" \
+    -jar "${STORM_WEBDAV_JAR}" >"${STORM_WEBDAV_OUT}" 2>"${STORM_WEBDAV_ERR}" \
     --spring.config.additional-location=optional:file:/var/lib/teapot/user-"$USER"/config/application.yml&
 
 pid=$!
