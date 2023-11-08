@@ -39,7 +39,7 @@ export STORM_WEBDAV_TPC_VERIFY_CHECKSUM=false
 export STORM_WEBDAV_REQUIRE_CLIENT_CERT=false
 export STORM_WEBDAV_TPC_USE_CONSCRYPT=true
 
-#strace -e trace=file -o /tmp/storm-webdav \
+strace -e trace=file -o /tmp/storm-webdav \
 /usr/bin/java ${STORM_WEBDAV_JVM_OPTS} \
     -Djava.io.tmpdir=$USER_DIR/tmp \
     -Dlogging.config=${STORM_WEBDAV_LOG_CONFIGURATION} \
