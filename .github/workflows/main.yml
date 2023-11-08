@@ -67,14 +67,12 @@ jobs:
           cp robot/storage-areas /etc/teapot/
           chmod 777 robot/User-sub_generator.sh
           robot/User-sub_generator.sh
-          curl ifconfig.me
-          IP_ADDRESS=$1
           echo "$IP_ADDRESS"
           /usr/share/teapot/webdav-automation.sh test-user1 8085
           cp /tmp/storm-webdav /var/lib/teapot/user-test-user1/
           #robot robot/storm-webdav-tests.robot
         env:
-          IP_ADDRESS: $IP_ADDRESS
+          IP_ADDRESS: $(curl ifconfig.me)
       - name: Upload log files
         uses: actions/upload-artifact@v3
         with:
