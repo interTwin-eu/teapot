@@ -13,7 +13,7 @@ HOST_IP="$(curl ifconfig.me)"
 echo HOST_IP is "$HOST_IP"
 
 echo "Starting StoRM WebDAV as user $USER"
-export STORM_WEBDAV_JVM_OPTS="-Xms512m -Xmx512m -Djava.security.egd=file:/dev/./urandom"
+export STORM_WEBDAV_JVM_OPTS="-Xms512m -Xmx512m -Djava.security.egd=file:/dev/./random"
 export STORM_WEBDAV_SERVER_ADDRESS="$HOST_IP"
 export STORM_WEBDAV_HTTPS_PORT="$port"
 export STORM_WEBDAV_HTTP_PORT=1"$port"
