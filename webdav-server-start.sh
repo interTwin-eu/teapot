@@ -8,12 +8,12 @@
 
 USER_DIR=/var/lib/teapot/user-"$USER"
 STORM_DIR=/var/lib/teapot/webdav
+
 HOST_IP="$(curl ifconfig.me)"
-echo \n
 echo HOST_IP is "$HOST_IP"
 
 echo "Starting StoRM WebDAV as user $USER"
-export STORM_WEBDAV_JVM_OPTS="-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
+export STORM_WEBDAV_JVM_OPTS="-Xms2048M -Xmx2048M -Djava.security.egd=file:/dev/./urandom"
 export STORM_WEBDAV_SERVER_ADDRESS="$HOST_IP"
 export STORM_WEBDAV_HTTPS_PORT="$port"
 export STORM_WEBDAV_HTTP_PORT=1"$port"
@@ -52,13 +52,13 @@ pid=$!
 echo "$pid" > "$USER_DIR"/server.pid
 echo "$port" > "$USER_DIR"/server.port
 
-#nc -zvw 1 "$STORM_WEBDAV_SERVER_ADDRESS" "$port" &> /dev/null
-#status=$?
-#while [ ! $status -eq 0 ]; do
-#    echo -n .
-#    sleep 0.5s
-#    nc -zvw 1 "$STORM_WEBDAV_SERVER_ADDRESS" "$port" &> /dev/null
-#    status=$?
-#done
+nc -zvw 1 "$STORM_WEBDAV_SERVER_ADDRESS" "$port" &> /dev/null
+status=$?
+while [ ! $status -eq 0 ]; do
+    echo -n .
+    sleep 0.5s
+    nc -zvw 1 "$STORM_WEBDAV_SERVER_ADDRESS" "$port" &> /dev/null
+    status=$?
+done
 
 exit 0
