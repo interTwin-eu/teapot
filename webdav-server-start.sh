@@ -8,8 +8,7 @@
 
 USER_DIR=/var/lib/teapot/user-"$USER"
 STORM_DIR=/var/lib/teapot/webdav
-curl ifconfig.me
-HOST_IP=$1
+HOST_IP="${curl ifconfig.me}"
 echo /n
 echo HOST_IP is "$HOST_IP"
 
