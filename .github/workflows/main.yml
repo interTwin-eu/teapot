@@ -67,7 +67,7 @@ jobs:
           chmod 777 robot/User-sub_generator.sh
           robot/User-sub_generator.sh
           /usr/share/teapot/webdav-automation.sh test-user1 8085
-          # robot robot/storm-webdav-tests.robot
+          robot robot/storm-webdav-tests.robot
       - name: Upload log files
         uses: actions/upload-artifact@v3
         with:
