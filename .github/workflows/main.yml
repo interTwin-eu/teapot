@@ -37,7 +37,7 @@ jobs:
     steps:
       - name: Find IP address
         run: |
-          apt install curl
+          #apt install curl
           curl ifconfig.me
 
   test:
