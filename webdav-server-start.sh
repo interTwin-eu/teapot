@@ -6,13 +6,13 @@
 # This script will exit only once StoRM WebDAV is able to accept
 # requests.
 
-USER_DIR=/var/lib/teapot/user-$USER
+USER_DIR=/var/lib/teapot/user-"$USER"
 STORM_DIR=/var/lib/teapot/webdav
 
 echo "Starting StoRM WebDAV as user $USER"
 echo "$IP_ADDRESS"
 export STORM_WEBDAV_JVM_OPTS="-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
-export STORM_WEBDAV_SERVER_ADDRESS=$IP_ADDRESS
+export STORM_WEBDAV_SERVER_ADDRESS=127.0.0.1
 export STORM_WEBDAV_HTTPS_PORT=$port
 export STORM_WEBDAV_HTTP_PORT=1$port
 export STORM_WEBDAV_CERTIFICATE_PATH=$STORM_DIR/localhost.crt
@@ -22,12 +22,12 @@ export STORM_WEBDAV_TRUST_ANCHORS_REFRESH_INTERVAL=86400
 export STORM_WEBDAV_MAX_CONNECTIONS=300
 export STORM_WEBDAV_MAX_QUEUE_SIZE=900
 export STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME=30000
-export STORM_WEBDAV_SA_CONFIG_DIR=$USER_DIR/sa.d
+export STORM_WEBDAV_SA_CONFIG_DIR="$USER_DIR"/sa.d
 export STORM_WEBDAV_JAR=/usr/share/java/storm-webdav/storm-webdav-server.jar
 
-export STORM_WEBDAV_LOG=$USER_DIR/log/server.log
-export STORM_WEBDAV_OUT=$USER_DIR/log/server.out
-export STORM_WEBDAV_ERR=$USER_DIR/log/server.err
+export STORM_WEBDAV_LOG="$USER_DIR"/log/server.log
+export STORM_WEBDAV_OUT="$USER_DIR"/log/server.out
+export STORM_WEBDAV_ERR="$USER_DIR"/log/server.err
 
 ETC_DIR=/etc/teapot
 export STORM_WEBDAV_LOG_CONFIGURATION=$ETC_DIR/logback.xml
@@ -41,22 +41,22 @@ export STORM_WEBDAV_TPC_USE_CONSCRYPT=true
 
 strace -e trace=file -o /tmp/storm-webdav \
 /usr/bin/java ${STORM_WEBDAV_JVM_OPTS} \
-    -Djava.io.tmpdir=$USER_DIR/tmp \
+    -Djava.io.tmpdir="$USER_DIR"/tmp \
     -Dlogging.config=${STORM_WEBDAV_LOG_CONFIGURATION} \
     -jar ${STORM_WEBDAV_JAR} >${STORM_WEBDAV_OUT} 2>${STORM_WEBDAV_ERR} \
     --spring.config.additional-location=optional:file:/var/lib/teapot/user-$USER/config/application.yml&
 
 pid=$!
-echo "$pid" > $USER_DIR/server.pid
-echo "$port" > $USER_DIR/server.port
+echo "$pid" > "$USER_DIR"/server.pid
+echo "$port" > "$USER_DIR"/server.port
 
-#nc -zvw 1 $IP_ADDRESS $port &> /dev/null
-#status=$?
-#while [ ! $status -eq 0 ]; do
-#    echo -n .
-#    sleep 0.5s
-#    nc -zvw 1 $IP_ADDRESS $port &> /dev/null
-#    status=$?
-#done
+nc -zvw 1 "$STORM_WEBDAV_SERVER_ADDRESS" "$port" &> /dev/null
+status=$?
+while [ ! $status -eq 0 ]; do
+    echo -n .
+    sleep 0.5s
+    nc -zvw 1 "$STORM_WEBDAV_SERVER_ADDRESS" "$port" &> /dev/null
+    status=$?
+done
 
 exit 0
