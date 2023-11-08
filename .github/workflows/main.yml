@@ -66,7 +66,9 @@ jobs:
           cp robot/storage-areas /etc/teapot/
           chmod 777 robot/User-sub_generator.sh
           robot/User-sub_generator.sh
-          IP_ADDRESS=${curl ifconfig.me}
+          curl ifconfig.me
+          IP_ADDRESS=$1
+          echo $IP_ADDRESS
           export IP_ADDRESS
           /usr/share/teapot/webdav-automation.sh test-user1 8085
           #robot robot/storm-webdav-tests.robot
