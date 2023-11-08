@@ -17,12 +17,11 @@ fi
 
 export USER="$1"
 export port="$2"
-export name=teapot
 
 echo "StoRM-WebDAV instance for user $USER will be listening on the port $port"
 
 #creation of user-specific configuration directories
-USER_DIR=/var/lib/$name/user-$USER
+USER_DIR=/var/lib/teapot/user-$USER
 if [ ! -d $USER_DIR ]; then
     mkdir -p $USER_DIR
     chown $USER $USER_DIR
@@ -37,14 +36,14 @@ if [ ! -d $USER_DIR/log ]; then
 fi
 
 #creation of storage-properties files and folders for a new user
-CONFIG_DIR=/etc/$name
+CONFIG_DIR=/etc/teapot
 if [ ! -f $CONFIG_DIR/storage-areas ]; then
     echo "Error: $CONFIG_DIR/storage-areas file is missing."
     echo "It should consist of two variables per storage area: name of the storage area and root path to the storage area's directory separated by a single space." 
     exit 1
 fi
 
-TEMPL_DIR=/usr/share/$name
+TEMPL_DIR=/usr/share/teapot
 if [ ! -d $USER_DIR/sa.d ]; then
     mkdir -p $USER_DIR/sa.d
     cat $CONFIG_DIR/storage-areas | while read storage_area path; do \
@@ -91,4 +90,4 @@ fi
 mkdir -p /etc/grid-security
 mkdir -p /etc/grid-security/vomsdir
 
-su -c /usr/share/$name/webdav-server-start.sh $USER 
+su -c /usr/share/teapot/webdav-server-start.sh $USER 
