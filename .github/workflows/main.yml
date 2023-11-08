@@ -31,6 +31,15 @@ jobs:
           path: |
             /github/home/rpmbuild/RPMS/noarch/teapot-v*-1.el7.noarch.rpm
 
+  IPtest:
+    name: IPtest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find IP address
+        run: |
+          apt install curl
+          curl ifconfig.me
+
   test:
     name: test
     needs: build
