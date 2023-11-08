@@ -83,5 +83,5 @@ jobs:
         with:
           name: storm-webdav log
           path: |
-           /tmp/storm-webdav
+           /tmp
   
