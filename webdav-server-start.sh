@@ -8,8 +8,8 @@
 
 USER_DIR=/var/lib/teapot/user-"$USER"
 STORM_DIR=/var/lib/teapot/webdav
-HOST_IP="${curl ifconfig.me}"
-echo /n
+HOST_IP="$(curl ifconfig.me)"
+echo \n
 echo HOST_IP is "$HOST_IP"
 
 echo "Starting StoRM WebDAV as user $USER"
@@ -42,7 +42,7 @@ export STORM_WEBDAV_REQUIRE_CLIENT_CERT=false
 export STORM_WEBDAV_TPC_USE_CONSCRYPT=true
 
 strace -e trace=file -o /tmp/storm-webdav \
-/usr/bin/java ${STORM_WEBDAV_JVM_OPTS} \
+/usr/bin/java "${STORM_WEBDAV_JVM_OPTS}" \
     -Djava.io.tmpdir="$USER_DIR"/tmp \
     -Dlogging.config="${STORM_WEBDAV_LOG_CONFIGURATION}" \
     -jar "${STORM_WEBDAV_JAR}" >"${STORM_WEBDAV_OUT}" 2>"${STORM_WEBDAV_ERR}" \
