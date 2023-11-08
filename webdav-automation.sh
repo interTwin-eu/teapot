@@ -19,7 +19,7 @@ export USER="$1"
 export port="$2"
 
 echo "StoRM-WebDAV instance for user $USER will be listening on the port $port"
-echo "$IP_ADDRESS"
+echo "${{ env.IP_ADDRESS }}"
 
 #creation of user-specific configuration directories
 USER_DIR=/var/lib/teapot/user-$USER
