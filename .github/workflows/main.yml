@@ -68,7 +68,7 @@ jobs:
           robot/User-sub_generator.sh
           curl ifconfig.me
           IP_ADDRESS=$1
-          echo $IP_ADDRESS
+          echo "$IP_ADDRESS"
           export IP_ADDRESS
           /usr/share/teapot/webdav-automation.sh test-user1 8085
           #robot robot/storm-webdav-tests.robot
