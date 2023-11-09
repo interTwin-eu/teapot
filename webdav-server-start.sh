@@ -31,7 +31,7 @@ export STORM_WEBDAV_LOG=$USER_DIR/log/server.log
 export STORM_WEBDAV_OUT=$USER_DIR/log/server.out
 export STORM_WEBDAV_ERR=$USER_DIR/log/server.err
 
-ETC_DIR=/etc/$name
+ETC_DIR=/etc/teapot
 export STORM_WEBDAV_LOG_CONFIGURATION=$ETC_DIR/logback.xml
 export STORM_WEBDAV_ACCESS_LOG_CONFIGURATION=$ETC_DIR/logback-access.xml
 export STORM_WEBDAV_VO_MAP_FILES_ENABLE=false
@@ -46,8 +46,7 @@ strace -e trace=file -o /tmp/storm-webdav \
     -Djava.io.tmpdir=$USER_DIR/tmp \
     -Dlogging.config=${STORM_WEBDAV_LOG_CONFIGURATION} \
     -jar ${STORM_WEBDAV_JAR} >${STORM_WEBDAV_OUT} 2>${STORM_WEBDAV_ERR} \
-    --spring.config.additional-location=optional:file:/var/lib/$name/user-$US$
-
+    --spring.config.additional-location=optional:file:/var/lib/teapot/user-$USER/config/application.yml&
 
 pid=$!
 echo "$pid" > "$USER_DIR"/server.pid
