@@ -10,13 +10,13 @@ USER_DIR=/var/lib/teapot/user-"$USER"
 STORM_DIR=/var/lib/teapot/webdav
 
 HOST_IP="$(curl ifconfig.me)"
-echo HOST_IP is "$HOST_IP"
+echo HOST_IP is "D$HOST_IP"
 
 echo "Starting StoRM WebDAV as user $USER"
 export STORM_WEBDAV_JVM_OPTS="-Xms2048M -Xmx2048M -Djava.security.egd=file:/dev/./urandom"
-export STORM_WEBDAV_SERVER_ADDRESS=$HOST_IP
-export STORM_WEBDAV_HTTPS_PORT=$port
-export STORM_WEBDAV_HTTP_PORT=1$port 
+export STORM_WEBDAV_SERVER_ADDRESS="$HOST_IP"
+export STORM_WEBDAV_HTTPS_PORT="$port"
+export STORM_WEBDAV_HTTP_PORT="1$port" 
 export STORM_WEBDAV_CERTIFICATE_PATH=$STORM_DIR/localhost.crt
 export STORM_WEBDAV_PRIVATE_KEY_PATH=$STORM_DIR/localhost.key
 export STORM_WEBDAV_TRUST_ANCHORS_DIR=/etc/ssl/certs
