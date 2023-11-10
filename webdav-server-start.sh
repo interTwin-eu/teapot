@@ -6,7 +6,7 @@
 # This script will exit only once StoRM WebDAV is able to accept
 # requests.
 
-USER_DIR=/var/lib/teapot/user-"$USER"
+USER_DIR=/var/lib/teapot/user-$USER
 STORM_DIR=/var/lib/teapot/webdav
 
 HOST_IP="$(curl ifconfig.me)"
