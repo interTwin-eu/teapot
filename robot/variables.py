@@ -2,7 +2,7 @@ import subprocess
 
 PORT = "8085"
 PORT_MAIN = "8081"
-HOST = subprocess.check_output("curl ifconfig.me", shell=True)
+HOST = str(subprocess.check_output("curl ifconfig.me", shell=True))
 STORM_URL = "https://" + HOST + ":" + PORT
 MAIN_URL = "https://" + HOST + ":" + PORT_MAIN
 TOKEN1 = subprocess.check_output("oidc-token test-user1", shell=True)
