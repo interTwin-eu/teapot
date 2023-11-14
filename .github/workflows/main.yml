@@ -36,7 +36,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     container:
-      image: dvrbanec/teapot_dependencies:latest
+      image: dvrbanec/teapot-dependencies:latest
       ports:
         - 4242:4242
         - 8081:8081
@@ -67,12 +67,13 @@ jobs:
           chmod 777 robot/User-sub_generator.sh
           robot/User-sub_generator.sh
           /usr/share/teapot/webdav-automation.sh test-user1 8085
-          robot robot/storm-webdav-tests.robot
-      - name: Upload log files
+          mkdir robot/testOutput
+          robot robot/storm-webdav-tests.robot -- --outputdir robot/testOutput 
+      - name: Upload test output files
         uses: actions/upload-artifact@v3
         with:
-          name: user-files
+          name: tests-output
           path: |
-           /var/lib/teapot/user-test-user1/
+            robot/testOutput 
 
   
