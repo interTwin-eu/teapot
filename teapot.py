@@ -25,6 +25,8 @@ app = FastAPI()
 flaat = Flaat()
 security = HTTPBearer()
 
+HOST = str(subprocess.check_output("curl ifconfig.me", shell=True), encoding="utf-8")
+
 flaat.set_access_levels([AccessLevel("user", HasSubIss())])
 
 flaat.set_trusted_OP_list(
@@ -95,7 +97,7 @@ async def _return_or_create_storm_instance(sub):
         while not running:
             time.sleep(1)
             try:
-                resp = httpx.get(f"https://localhost:{port}/")
+                resp = httpx.get(f"https://{HOST}:{port}/")
                 if resp.status_code == 403 or resp.status_code == 200:
                     running = True
             except:
@@ -146,7 +148,7 @@ async def root(
         # no port returned, should not happen
         return 500
     if not redirect_host:
-        redirect_host = "localhost"
+        redirect_host = HOST
     logger.info(f"redirect_host: {redirect_host}, redirect_port: {redirect_port}")
 
     logger.info(f"request path: {request.url.path}")
