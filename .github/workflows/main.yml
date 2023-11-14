@@ -68,8 +68,9 @@ jobs:
           chmod 777 robot/User-sub_generator.sh
           robot/User-sub_generator.sh
           /usr/share/teapot/webdav-automation.sh test-user1 8085
-          kill -3 $(cat /var/lib/teapot/user-test-user1/server.pid)
+          #kill -3 $(cat /var/lib/teapot/user-test-user1/server.pid)
           cp -f /tmp/storm-webdav /var/lib/teapot/user-test-user1/
+          cp /etc/teapot /var/lib/teapot/user-test-user1/
           #robot robot/storm-webdav-tests.robot
       - name: Upload log files
         uses: actions/upload-artifact@v3
