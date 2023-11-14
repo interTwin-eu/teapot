@@ -47,7 +47,7 @@ TEMPL_DIR=/usr/share/teapot
 if [ ! -d "$USER_DIR"/sa.d ]; then
     mkdir -p "$USER_DIR"/sa.d
     cat "$CONFIG_DIR"/storage-areas | while read storage_area path; do \
-        echo -e  "name=$storage_area\nrootPath=$(su "$USER" -c "echo $path")\naccessPoints=/${storage_area}_area\n\n" >> "$USER_DIR"/sa.d/"$storage_area".properties \
+        echo -e  "name=$storage_area\nrootPath=$(su "$USER" -c "echo $path")\naccessPoints=/${storage_area}_area\n" >> "$USER_DIR"/sa.d/"$storage_area".properties \
         && cat $TEMPL_DIR/storage_element.properties >> $USER_DIR/sa.d/$storage_area.properties \
         && chown "$USER" "$USER_DIR"/sa.d/"$storage_area".properties \
         && chmod g+w "$USER_DIR"/sa.d/"$storage_area".properties \
