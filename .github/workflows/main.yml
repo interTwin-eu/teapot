@@ -68,7 +68,7 @@ jobs:
           robot/User-sub_generator.sh
           /usr/share/teapot/webdav-automation.sh test-user1 8085
           mkdir ~/testOutput
-          robot robot/storm-webdav-tests.robot --outputdir ~/testOutput 
+          robot /__w/teapot/teapot/robot/storm-webdav-tests.robot --outputdir ~/testOutput 
       - name: Upload test output files
         uses: actions/upload-artifact@v3
         with:
