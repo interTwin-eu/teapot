@@ -14,7 +14,7 @@ echo HOST_IP is "$HOST_IP"
 
 echo "Starting StoRM WebDAV as user $USER"
 export STORM_WEBDAV_JVM_OPTS="-Xms2048M -Xmx2048M -Djava.security.egd=file:/dev/./urandom"
-export STORM_WEBDAV_SERVER_ADDRESS=127.0.0.1
+export STORM_WEBDAV_SERVER_ADDRESS="127.0.0.1"
 export STORM_WEBDAV_HTTPS_PORT="$port"
 export STORM_WEBDAV_HTTP_PORT="1$port" 
 export STORM_WEBDAV_CERTIFICATE_PATH="$STORM_DIR"/localhost.crt
