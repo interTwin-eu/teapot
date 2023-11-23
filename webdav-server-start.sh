@@ -52,12 +52,12 @@ pid=$!
 echo "$pid" > "$USER_DIR"/server.pid
 echo "$port" > "$USER_DIR"/server.port
 
-nc -zvw 1 "$STORM_WEBDAV_SERVER_ADDRESS" "$port" &> /dev/null
+nc -zvw 1 $STORM_WEBDAV_SERVER_ADDRESS "$port" &> /dev/null
 status=$?
 while [ ! $status -eq 0 ]; do
     echo -n .
     sleep 0.5s
-    nc -zvw 1 "$STORM_WEBDAV_SERVER_ADDRESS" "$port" &> /dev/null
+    nc -zvw 1 $STORM_WEBDAV_SERVER_ADDRESS "$port" &> /dev/null
     status=$?
 done
 

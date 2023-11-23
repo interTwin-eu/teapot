@@ -68,6 +68,10 @@ jobs:
           robot/User-sub_generator.sh
           /usr/share/teapot/webdav-automation.sh test-user1 8085
           robot /__w/teapot/teapot/robot/storm-webdav-tests.robot
-
-
+      - name: Upload configs
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-config
+          path: |
+            /var/lib/teapot/user-test-user1
   
