@@ -9,11 +9,11 @@ fi
 
 USER="$1"
 
-USER_DIR=/var/lib/teapot/user-$USER
+USER_DIR=/var/lib/teapot/user-"$USER"
 
-pid=$(cat $USER_DIR/server.pid)
+pid=$(cat "$USER_DIR"/server.pid)
 
-kill -15 $pid
+kill -15 "$pid"
 
-rm $USER_DIR/server.pid
-rm $USER_DIR/server.port
+rm "$USER_DIR"/server.pid
+rm "$USER_DIR"/server.port

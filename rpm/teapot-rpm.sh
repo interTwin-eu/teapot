@@ -28,5 +28,5 @@ mv storm-webdav-server.tar.gz $HOME/rpmbuild/SOURCES/
 #building the RPM package
 rpmbuild -ba ~/rpmbuild/SPECS/teapot.spec
 
-cp $HOME/rpmbuild/RPMS/noarch/teapot-v*-1.el7.noarch.rpm $HOME/
-rm -r $HOME/rpmbuild
+# cp $HOME/rpmbuild/RPMS/noarch/teapot-v*-1.el7.noarch.rpm $HOME/
+# rm -r $HOME/rpmbuild
