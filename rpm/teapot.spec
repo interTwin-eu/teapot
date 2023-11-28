@@ -1,5 +1,5 @@
 Name:           teapot
-Version:        v0.0.1
+Version:        v0.5.0
 Release:        1%{?dist}
 Summary:        A WebDAV solution supporting multitenancy based on StoRM-WebDAV
 BuildArch:      noarch
@@ -24,9 +24,6 @@ rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/java/storm-webdav
 cp %{_builddir}/%name-%version/storm-webdav-server.jar $RPM_BUILD_ROOT/%{_datadir}/java/storm-webdav/storm-webdav-server.jar
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/%name/
-cp %{_builddir}/%name-%version/webdav-automation.sh $RPM_BUILD_ROOT/%{_datadir}/%name/
-cp %{_builddir}/%name-%version/webdav-server-start.sh $RPM_BUILD_ROOT/%{_datadir}/%name/
-cp %{_builddir}/%name-%version/webdav-server-stop.sh $RPM_BUILD_ROOT/%{_datadir}/%name/
 cp %{_builddir}/%name-%version/teapot.py $RPM_BUILD_ROOT/%{_datadir}/%name/
 cp %{_builddir}/%name-%version/run-teapot.sh $RPM_BUILD_ROOT/%{_datadir}/%name/
 cp %{_builddir}/%name-%version/self-signed-cert-gen.sh $RPM_BUILD_ROOT/%{_datadir}/%name/
@@ -45,9 +42,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %attr(644, root, root) %{_datadir}/java/storm-webdav/storm-webdav-server.jar
-%attr(744, root, root) %{_datadir}/%name/webdav-automation.sh
-%attr(755, root, root) %{_datadir}/%name/webdav-server-start.sh
-%attr(755, root, root) %{_datadir}/%name/webdav-server-stop.sh
 %attr(755, root, root) %{_datadir}/%name/run-teapot.sh
 %attr(777, root, root) %{_datadir}/%name/teapot.py
 %attr(744, root, root) %{_datadir}/%name/self-signed-cert-gen.sh
@@ -59,5 +53,5 @@ rm -rf $RPM_BUILD_ROOT
 %attr(666, root, root) %{_sharedstatedir}/%name/webdav/teapot.log
 
 %changelog
-* Thu Oct 05 2023 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Tue Nov 28 2023 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}

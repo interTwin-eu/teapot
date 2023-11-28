@@ -31,19 +31,16 @@ from os.path import exists
 from starlette.responses import StreamingResponse
 from starlette.background import BackgroundTask
 
-<<<<<<< HEAD
-=======
+github_host = str(
+    subprocess.check_output("curl ifconfig.me", shell=True), encoding="utf-8"
+)
 
->>>>>>> 44a6096 (Initial commit)
+
 # lifespan function for startup and shutdown functions
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # everything before the "yield" should be executed at startup.
-<<<<<<< HEAD
-    #check if json file for storing sessions exists, otherwise create it.
-=======
     # check if json file for storing sessions exists, otherwise create it.
->>>>>>> 44a6096 (Initial commit)
     await load_session_state()
 
     # set up task loop for stopping expired instances.
@@ -63,44 +60,25 @@ async def lifespan(app: FastAPI):
         app.state.session_state.pop(k)
     if exists(SESSION_STORE_PATH):
         pathlib.unlink(SESSION_STORE_PATH)
-<<<<<<< HEAD
-=======
 
->>>>>>> 44a6096 (Initial commit)
 
 # create fastAPI app and initialize flaat options
 app = FastAPI(lifespan=lifespan)
 flaat = Flaat()
 security = HTTPBearer()
 
-<<<<<<< HEAD
-flaat.set_access_levels(
-        [
-            AccessLevel("user", HasSubIss())
-        ])
-=======
 flaat.set_access_levels([AccessLevel("user", HasSubIss())])
->>>>>>> 44a6096 (Initial commit)
 
 flaat.set_trusted_OP_list(
-        [
+    [
         "https://aai-demo.egi.eu/auth/realms/egi",
-<<<<<<< HEAD
-        "https://keycloak.ci-cd-prep2.desy.de/realms/Testing"
-=======
-        "https://keycloak.ci-cd-prep2.desy.de/realms/Testing",
->>>>>>> 44a6096 (Initial commit)
+        "http://keycloak:8080/realms/test-realm",
     ]
 )
 
 # logging is important
-<<<<<<< HEAD
-LOGFILE=os.environ.get('TEAPOT_LOGFILE', '/home/teapot/logs/teapot.log')
-LOGLEVEL = os.environ.get('TEAPOT_LOGLEVEL', 'DEBUG').upper()
-=======
-LOGFILE = os.environ.get("TEAPOT_LOGFILE", "/home/teapot/logs/teapot.log")
+LOGFILE = os.environ.get("TEAPOT_LOGFILE", "/var/lib/teapot/webdav/teapot.log")
 LOGLEVEL = os.environ.get("TEAPOT_LOGLEVEL", "DEBUG").upper()
->>>>>>> 44a6096 (Initial commit)
 logging.basicConfig(filename=LOGFILE, level=logging.getLevelName(LOGLEVEL))
 logger = logging.getLogger(__name__)
 
@@ -108,24 +86,16 @@ logger = logging.getLogger(__name__)
 # TODO: load globals via config file on startup and reload on every run of stop_expired_instances,
 # maybe rename function to "housekeeping" or the like.
 
-<<<<<<< HEAD
-SESSION_STORE_PATH = os.environ.get('TEAPOT_SESSIONS', '/home/teapot/logs/teapot_sessions.json')
-=======
 SESSION_STORE_PATH = os.environ.get(
     "TEAPOT_SESSIONS", "/home/teapot/logs/teapot_sessions.json"
 )
->>>>>>> 44a6096 (Initial commit)
 APP_NAME = "teapot"
 # one less than the first port that is going to be used by any storm webdav instance, should be above 1024
 # as all ports below this are privileged and normal users will not be able to use them to run services.
 STARTING_PORT = 32399
 # toggle restarting teapot without deleting saved state and without terminating running webdav instances.
 # N.B. will only consider the value set at startup of this app.
-<<<<<<< HEAD
-RESTART = (os.environ.get('TEAPOT_RESTART', 'False') == 'True')
-=======
 RESTART = os.environ.get("TEAPOT_RESTART", "False") == "True"
->>>>>>> 44a6096 (Initial commit)
 # instance timeout, instances are deleted after this time without being accessed.
 # default: 10 minutes
 INSTANCE_TIMEOUT_SEC = 600
@@ -133,19 +103,11 @@ INSTANCE_TIMEOUT_SEC = 600
 # default: 3 minutes
 CHECK_INTERVAL_SEC = 180
 # number of times that teapot will try to connect to a recently started instance
-<<<<<<< HEAD
-STARTUP_TIMEOUT = int(os.environ.get('TEAPOT_STARTUP_TIMEOUT', 30))
-# standard mode for file creation, currently rwxr-x---
-# directories and files are created with the corresponding os.mkdir, os.chmod, os.chown commands.
-# those are using the bit patterns provided with the 'stat' module as below, combining them happens via bitwise OR
-STANDARD_MODE=S_IRWXU|S_IRGRP|S_IXGRP
-=======
 STARTUP_TIMEOUT = int(os.environ.get("TEAPOT_STARTUP_TIMEOUT", 30))
 # standard mode for file creation, currently rwxr-x---
 # directories and files are created with the corresponding os.mkdir, os.chmod, os.chown commands.
 # those are using the bit patterns provided with the 'stat' module as below, combining them happens via bitwise OR
 STANDARD_MODE = S_IRWXU | S_IRGRP | S_IXGRP
->>>>>>> 44a6096 (Initial commit)
 # session state is kept in this global dict for each username as primary key
 # data stored within each subdict is
 # pid, port, created_at, last_accessed
@@ -158,6 +120,7 @@ app.state.process_handles = {}
 # in an "async with app.state_lock:" environment.
 app.state.state_lock = anyio.Lock()
 app.state.process_lock = anyio.Lock()
+
 
 async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
     if not exists(dir):
@@ -291,9 +254,9 @@ async def _create_user_env(username, port):
     os.environ[
         "STORM_WEBDAV_JVM_OPTS"
     ] = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
-    os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = "127.0.0.1"
+    os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = github_host
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = f"{port}"
-    os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"  # FIXME remove
+    os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"
     os.environ["STORM_WEBDAV_CERTIFICATE_PATH"] = f"{storm_dir}/localhost.crt"
     os.environ["STORM_WEBDAV_PRIVATE_KEY_PATH"] = f"{storm_dir}/localhost.key"
     os.environ["STORM_WEBDAV_TRUST_ANCHORS_DIR"] = "/etc/ssl/certs"
@@ -385,6 +348,7 @@ async def _start_webdav_instance(username, port):
         p.wait()
         return None
 
+
 async def _stop_webdav_instance(username):
     logger.info(f"Stopping webdav instance for user {username}.")
 
@@ -417,6 +381,7 @@ async def _stop_webdav_instance(username):
     exit_code = p.wait()
 
     return exit_code
+
 
 # does this really work? I haven't seen any traces of this in the log files.
 # maybe have a look at lifespan events?
@@ -484,6 +449,7 @@ async def _find_usable_port_no():
             # should not happen :grimacing:
         return port
 
+
 async def _test_port(port):
     # function to recursively find an open port recursively.
     # TODO: enhance by adding a list of reserved ports that will be skipped
@@ -522,6 +488,7 @@ async def load_session_state():
                 except json.decoder.JSONDecodeError as e:
                     app.state.session_state = {}
 
+
 async def _map_fed_to_local(sub):
     # this func returns the local username for a federated user or None
     # for this prototype it could just be read from a mapping file on the local file system.  # noqa: E501
@@ -532,14 +499,15 @@ async def _map_fed_to_local(sub):
     # without headers and only the first hit for a federated sub claim is returned.
     # like this, it is possible to match different subs to a local username but not the other way around.  # noqa: E501
 
-    with open('/etc/teapot/user-mapping.csv', 'r') as mapping_file:
-        mappingreader = csv.reader(mapping_file, delimiter=' ')
+    with open("/etc/teapot/user-mapping.csv", "r") as mapping_file:
+        mappingreader = csv.reader(mapping_file, delimiter=" ")
         for row in mappingreader:
             logger.info(f"from mapping file: {row}")
             if row[1] == sub:
                 logger.info(f"found local user {row[0]}.")
                 return row[0]
     return None
+
 
 async def _return_or_create_storm_instance(sub):
     # returns redirect_host and redirect port for sub.
@@ -605,18 +573,37 @@ async def _return_or_create_storm_instance(sub):
         logger.info(f"Storm-WebDAV instance for {local_user} started on port {port}.")
     return None, port, local_user
 
-@app.api_route("/{filepath:path}", methods=["HEAD", "GET", "PUT", "POST", "DELETE", "PROPFIND", "MKCOL", "COPY", "MOVE"])
+
+@app.api_route(
+    "/{filepath:path}",
+    methods=[
+        "HEAD",
+        "GET",
+        "PUT",
+        "POST",
+        "DELETE",
+        "PROPFIND",
+        "MKCOL",
+        "COPY",
+        "MOVE",
+    ],
+)
 @flaat.is_authenticated()
-async def root(filepath: str, request: Request, response: Response, credentials: HTTPBasicCredentials = Depends(security)):  # noqa: E501
+async def root(
+    filepath: str,
+    request: Request,
+    response: Response,
+    credentials: HTTPBasicCredentials = Depends(security),
+):  # noqa: E501
     # get data from userinfo endpoint
     user_infos = flaat.get_user_infos_from_request(request)
     if not user_infos:
         return 403
 
     logger.info(f"user_info is: {user_infos['sub']}")
-    sub = user_infos.get('sub', None)
+    sub = user_infos.get("sub", None)
     if not sub:
-        #if there is no sub, user can not be authenticated
+        # if there is no sub, user can not be authenticated
         return 403
     # user is valid, so check if a storm instance is running for this sub
     redirect_host, redirect_port, local_user = await _return_or_create_storm_instance(
@@ -641,10 +628,12 @@ async def root(filepath: str, request: Request, response: Response, credentials:
     logger.info(f"redirect_url is formed as {redirect_url}.")
 
     async with httpx.AsyncClient(verify=False) as client:
-        forward_req = client.build_request(request.method, redirect_url,
-                                      headers=request.headers.raw,
-                                      content=request.stream()
-                                      )
+        forward_req = client.build_request(
+            request.method,
+            redirect_url,
+            headers=request.headers.raw,
+            content=request.stream(),
+        )
         forward_resp = await client.send(forward_req, stream=True)
         return StreamingResponse(
             forward_resp.aiter_raw(),

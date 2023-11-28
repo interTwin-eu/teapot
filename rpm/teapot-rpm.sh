@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export version=v0.0.1
+export version=v0.5.0
 
 #setting up a file tree for the RPM package in home directory
 rpmdev-setuptree

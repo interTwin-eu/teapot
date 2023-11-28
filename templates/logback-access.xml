@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <appender name="FILE"
+    class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>/var/lib/teapot/server-access.log</File>
+    <rollingPolicy
+      class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <FileNamePattern>/var/lib/teapot/server-access.%d{yyyyMMdd}.log.gz</FileNamePattern>
+    </rollingPolicy>
+
+    <!-- Check http://logback.qos.ch/manual/layouts.html#AccessPatternLayout to get the meaning of the fields -->
+    <encoder>
+      <pattern>%a %localPort "%reqAttribute{storm.remoteUser}" %date{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX", UTC} "%reqAttribute{storm.requestId}" "%m %U %H" %s %b %D</pattern>
+    </encoder>
+  </appender>
+
+  <appender-ref ref="FILE" />
+</configuration>
