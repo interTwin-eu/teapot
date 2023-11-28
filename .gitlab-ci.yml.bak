@@ -1,0 +1,63 @@
+image: centos:centos7
+variables:
+  KUBERNETES_RUNNER: kubernetes-executor
+
+before_script:
+  - 'command -v ssh-agent >/dev/null || ( yum update -y && yum install openssh-clients -y )'
+  - eval $(ssh-agent -s)
+  - chmod 400 "$gitlab_VM_key"
+  - ssh-add "$gitlab_VM_key"
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan $VM_IPADDRESS >> ~/.ssh/known_hosts
+  - ssh-keyscan $VM2_IPADDRESS >> ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+
+stages:
+  - build
+  - deploy
+#  - test
+#  - end
+
+build-job:
+  stage: build
+  artifacts:
+    paths:
+      - artifacts/teapot-v*-1.el7.noarch.rpm
+    expire_in: 3 days
+  script:
+     - pwd
+     - yum -y install rpmdevtools rpmlint rsync
+     - rpm/teapot-rpm.sh
+     - mkdir artifacts
+     - cp $HOME/teapot-v*-1.el7.noarch.rpm artifacts/
+
+deploy-job:
+    stage: deploy
+    dependencies:
+       - build-job
+    script:
+      - scp artifacts/teapot-v*-1.el7.noarch.rpm $VM_USER@$VM_IPADDRESS:/home/$VM_USER/
+      - ssh $VM_USER@$VM_IPADDRESS 'sudo rpm -i teapot-v*-1.el7.noarch.rpm --nodeps; rm teapot-v*-1.el7.noarch.rpm'
+#      - ssh $TEAPOT_USER@$VM_IPADDRESS 'git clone -b $CI_COMMIT_BRANCH https://oauth2:`cat $HOME/token`@gitlab.desy.de/intertwin/teapot.git'
+#      - ssh $VM_USER@$VM2_IPADDRESS 'sudo rm -rf teapot'
+#      - ssh $VM_USER@$VM2_IPADDRESS 'git clone https://oauth2:`cat $HOME/token`@gitlab.desy.de/intertwin/teapot.git'
+#      - ssh $VM_USER@$VM_IPADDRESS 'if [ ! -d git/teapot ]; then git clone https://oauth2:`cat $HOME/token`@gitlab.desy.de/intertwin/teapot.git git/teapot; fi'
+#      - ssh $VM_USER@$VM_IPADDRESS 'if [ -d git/teapot ]; then cd git/teapot && git pull; fi'
+#
+#test-job:
+#  stage: test
+#  script:
+#    - echo "This should be testing stuff."
+#    #- ssh $VM_USER@$VM_IPADDRESS '/usr/share/teapot/run-teapot.sh'
+#    #- ssh $VM_USER@$VM2_IPADDRESS 'eval `oidc-agent`; oidc-add test-kc1 --pw-file=/home/dijana/OIDC_PASS; oidc-add test-kc2 --pw-file=/home/dijana/OIDC_PASS; oidc-add test-kc3 --pw-file=/home/dijana/OIDC_PASS; ~/.local/bin/robot --outputdir /home/dijana/testOutput /home/dijana/teapot/robot/storm-webdav-tests.robot' 
+#    #- ssh $VM_USER@$VM_IPADDRESS '/usr/share/teapot/run-teapot.sh'
+#
+#  allow_failure: true
+#
+#end-job:
+#  stage: end
+#  when: manual
+#  script:
+#    - ssh $VM_USER@$VM_IPADDRESS "sudo rpm --verbose --erase teapot-v*-1.el7.noarch"
+#    - ssh $VM_USER@$VM2_IPADDRESS 'sudo rm -r teapot'
