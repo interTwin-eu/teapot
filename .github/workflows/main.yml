@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     container: centos:centos7
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Install build requisites
@@ -52,7 +52,7 @@ jobs:
         run: |
           rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
           /usr/share/teapot/self-signed-cert-gen.sh
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Test Teapot
