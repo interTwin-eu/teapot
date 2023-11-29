@@ -20,11 +20,11 @@ To start Teapot, run `python3 /usr/share/teapot.py`.
 
 ## Automated testing
 
-Functional tests can be found in `/robot`. Tests for testing the StoRM WebDAV server automatization only are separated into `storm-webdav-tests.robot` and tests for testing Teapot as a whole are separated into `teapot-tests.robot`. To execute them, run e.g. `robot teapot-tests.robot`.
+Functional tests can be found in `/robot`. To execute them, run e.g. `robot teapot-tests.robot`.
 
 ## Version
 
-The current version of Teapot is 0.0.1.
+The current version of Teapot is 0.5.0.
 
 ## Authors
 [Paul Millar](<paul.millar@desy.de>), [Dijana Vrbanec](dijana.vrbanec@desy.de), [Tim Wetzel](tim.wetzel@desy.de)

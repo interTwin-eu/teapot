@@ -1,5 +1,5 @@
 oauth:
   issuers:
-  - name: production
-    issuer: https://keycloak.ci-cd-prep2.desy.de/realms/Testing
+  - name: testing
+    issuer: http://keycloak:8080/realms/test-realm
 

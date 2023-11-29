@@ -1,0 +1,77 @@
+---
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    container: centos:centos7
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install build requisites
+        run: |
+          yum -y install rpmdevtools rpmlint rsync
+      - name: Build rpm
+        run: |
+          chmod 777 rpm/teapot-rpm.sh
+          rpm/teapot-rpm.sh
+      - name: Upload rpm
+        uses: actions/upload-artifact@v3
+        with:
+          name: teapot-rpm
+          path: |
+            /github/home/rpmbuild/RPMS/noarch/teapot-v*-1.el7.noarch.rpm
+
+  test:
+    name: test
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: dvrbanec/teapot-dependencies:latest
+      ports:
+        - 4242:4242
+        - 8081:8081
+        - 8085:8085
+    services:
+      keycloak:
+        image: dvrbanec/keycloak-dev:latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: teapot-rpm
+      - name: Install the rpm package and self-signed certs
+        run: |
+          rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
+          /usr/share/teapot/self-signed-cert-gen.sh
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Test Teapot
+        run: |
+          eval "$(oidc-agent)"
+          python3 keycloak-setup/keycloak-config.py
+          oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
+          oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
+          adduser test-user1
+          adduser test-user2
+          cp robot/storage-areas /etc/teapot/
+          chmod 777 robot/User-sub_generator.sh
+          robot/User-sub_generator.sh
+          /usr/share/teapot/webdav-automation.sh test-user1 8085
+          robot /__w/teapot/teapot/robot/storm-webdav-tests.robot
+      - name: Upload configs
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-config
+          path: |
+            /var/lib/teapot/user-test-user1
+  
