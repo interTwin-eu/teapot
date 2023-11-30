@@ -1,0 +1,7 @@
+anyio
+asyncio
+httpx
+uvicorn
+fastapi
+flaat
+starlette

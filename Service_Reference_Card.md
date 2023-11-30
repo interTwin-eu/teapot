@@ -6,6 +6,8 @@ Teapot provides a WebDAV that supports multi-tenancy. It is based on [StoRM-WebD
 
 All templates for configuration files are located in `/templates`. All configuration files for each user are automatically generated when user send its first request. The configuration files for each user can be found in `/var/lib/teapot/user-$USER/`. To provide the necessary information for configuration files and for more details on configuration files, please refer to [CONFIGURATION.md](https://gitlab.desy.de/intertwin/teapot/-/blob/main/CONFIGURATION.md?ref_type=heads).
 
+`teapot.py` has to be run as the user `teapot` (create if necessary) with the python modules installed from `teapot-setup/teapot-requirements.txt` and with the sudoers permissions from the file `teapot-setup/sudoers.teapot`.
+
 ## Log files
 
 Teapot log files for WebDAV traffic can be found in `teapot-proxy.log`. Log files for each user can be found in `/var/lib/teapot/user-$USER/log/`. Templates for user log files can be found in `/templates`.
