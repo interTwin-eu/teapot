@@ -36,7 +36,7 @@ cp %{_builddir}/%name-%version/templates/storage_authorizations.yml $RPM_BUILD_R
 cp %{_builddir}/%name-%version/templates/storage_element.properties $RPM_BUILD_ROOT/%{_datadir}/%name
 mkdir -p $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav
 cp %{_builddir}/%name-%version/templates/teapot.log $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav
-cp %{_builddir}/%name-%version/sudoers.teapot $RPM_BUILD_ROOT/%{_sysconfdir}/sudoers.d
+cp %{_builddir}/%name-%version/sudoers.teapot $RPM_BUILD_ROOT/%{_sysconfdir}/sudoers.d/*
 
 %clean
 rm -rf $RPM_BUILD_ROOT
