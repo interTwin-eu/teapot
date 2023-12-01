@@ -53,7 +53,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644, root, root) %{_datadir}/%name/storage_authorizations.yml
 %attr(644, root, root) %{_datadir}/%name/storage_element.properties
 %attr(666, root, root) %{_sharedstatedir}/%name/webdav/teapot.log
-%attr(740, root, root) %{_sysconfdir}/sudoers.d/sudoers.teapot
+%attr(440, root, root) %{_sysconfdir}/sudoers.d/sudoers.teapot
+
 %changelog
 * Fri Dec 01 2023 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}
