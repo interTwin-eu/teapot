@@ -31,12 +31,12 @@ mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/%name
 cp %{_builddir}/%name-%version/templates/issuers.yml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
 cp %{_builddir}/%name-%version/templates/logback.xml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
 cp %{_builddir}/%name-%version/templates/logback-access.xml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
+cp %{_builddir}/%name-%version/sudoers.teapot $RPM_BUILD_ROOT/%{_sysconfdir}/sudoers.d/
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/%name
 cp %{_builddir}/%name-%version/templates/storage_authorizations.yml $RPM_BUILD_ROOT/%{_datadir}/%name
 cp %{_builddir}/%name-%version/templates/storage_element.properties $RPM_BUILD_ROOT/%{_datadir}/%name
 mkdir -p $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav
 cp %{_builddir}/%name-%version/templates/teapot.log $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav
-cp %{_builddir}/%name-%version/sudoers.teapot $RPM_BUILD_ROOT/%{_sysconfdir}/sudoers.d/*
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -52,7 +52,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644, root, root) %{_datadir}/%name/storage_authorizations.yml
 %attr(644, root, root) %{_datadir}/%name/storage_element.properties
 %attr(666, root, root) %{_sharedstatedir}/%name/webdav/teapot.log
-%attr(440, root, root) %{_sysconfdir}/sudoers.d/sudoers.teapot
+%attr(740, root, root) %{_sysconfdir}/sudoers.d/sudoers.teapot
 %changelog
 * Fri Dec 01 2023 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}
