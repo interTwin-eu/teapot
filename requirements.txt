@@ -10,3 +10,5 @@ pydantic
 regex
 requests
 uvicorn
+anyio
+asyncio

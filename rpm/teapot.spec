@@ -7,7 +7,7 @@ BuildArch:      noarch
 License:        Apache 2.0
 Source0:        teapot-%version.tar.gz
 Source1:        storm-webdav-server.tar.gz
-Requires:       attr ntp acl java-11-openjdk openssl > 3 nc python3 python3-fastapi python3-flaat python3-httpx python3-liboidcagent python3-logging python3-pydantic python3-regex python3-requests python3-uvicorn
+Requires:       attr ntp acl java-11-openjdk openssl > 3 nc python3 python3-fastapi python3-flaat python3-httpx python3-liboidcagent python3-logging python3-pydantic python3-regex python3-requests python3-uvicorn python3-anyio python3-asyncio
 
 %description    
 A WebDAV solution supporting multitenancy based on StoRM-WebDAV
@@ -31,6 +31,8 @@ mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/%name
 cp %{_builddir}/%name-%version/templates/issuers.yml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
 cp %{_builddir}/%name-%version/templates/logback.xml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
 cp %{_builddir}/%name-%version/templates/logback-access.xml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
+mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/sudoers.d/
+cp %{_builddir}/%name-%version/sudoers.teapot $RPM_BUILD_ROOT/%{_sysconfdir}/sudoers.d/
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/%name
 cp %{_builddir}/%name-%version/templates/storage_authorizations.yml $RPM_BUILD_ROOT/%{_datadir}/%name
 cp %{_builddir}/%name-%version/templates/storage_element.properties $RPM_BUILD_ROOT/%{_datadir}/%name
@@ -51,7 +53,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644, root, root) %{_datadir}/%name/storage_authorizations.yml
 %attr(644, root, root) %{_datadir}/%name/storage_element.properties
 %attr(666, root, root) %{_sharedstatedir}/%name/webdav/teapot.log
+%attr(440, root, root) %{_sysconfdir}/sudoers.d/sudoers.teapot
 
 %changelog
-* Tue Nov 28 2023 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Fri Dec 01 2023 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}
