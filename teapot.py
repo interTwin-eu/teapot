@@ -57,7 +57,6 @@ async def lifespan(app: FastAPI):
     handles = app.state.session_state.keys()
     for k in handles:
         _stop_webdav_instance(k)
-        app.state.session_state.pop(k)
     if exists(SESSION_STORE_PATH):
         pathlib.unlink(SESSION_STORE_PATH)
 
@@ -555,8 +554,10 @@ async def _return_or_create_storm_instance(sub):
             if loops >= STARTUP_TIMEOUT:
                 logger.info(
                     f"instance for user {local_user} not reachable after {STARTUP_TIMEOUT} tries... stop trying."
+                    async with app.state.state_lock:
+                        app.state.session_state.pop(local_user)
                 )
-                return None, None, local_user
+                return None, -1, local_user
             try:
                 logger.debug(
                     f"checking if instance for user {local_user} is listening on port {port}."
