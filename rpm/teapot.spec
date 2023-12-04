@@ -36,8 +36,6 @@ cp %{_builddir}/%name-%version/teapot $RPM_BUILD_ROOT/%{_sysconfdir}/sudoers.d/
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/%name
 cp %{_builddir}/%name-%version/templates/storage_authorizations.yml $RPM_BUILD_ROOT/%{_datadir}/%name
 cp %{_builddir}/%name-%version/templates/storage_element.properties $RPM_BUILD_ROOT/%{_datadir}/%name
-mkdir -p $RPM_BUILD_ROOT/%{_sharedstatedir}/%name
-chown -R teapot:teapot $RPM_BUILD_ROOT/%{_sharedstatedir}/%name
 mkdir -p $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav
 cp %{_builddir}/%name-%version/templates/teapot.log $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav
 mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/run/%name
@@ -59,6 +57,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(666, teapot, teapot) %{_sharedstatedir}/%name/webdav/teapot.log
 %attr(440, root, root) %{_sysconfdir}/sudoers.d/teapot
 %attr(664, teapot, teapot) %{_localstatedir}/run/%name/teapot_sessions.json
+%attr(774, teapot, teapot) %{_sharedstatedir}/%name/webdav
 
 %changelog
 * Mon Dec 04 2023 Dijana Vrbanec <dijana.vrbanec@desy.de>
