@@ -71,7 +71,7 @@ flaat.set_access_levels([AccessLevel("user", HasSubIss())])
 flaat.set_trusted_OP_list(
     [
         "https://aai-demo.egi.eu/auth/realms/egi",
-        "http://keycloak:8080/realms/test-realm"
+        "http://keycloak:8080/realms/test-realm",
         "https://keycloak.ci-cd-prep2.desy.de/realms/Testing",
     ]
 )
