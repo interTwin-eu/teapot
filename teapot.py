@@ -554,9 +554,9 @@ async def _return_or_create_storm_instance(sub):
             if loops >= STARTUP_TIMEOUT:
                 logger.info(
                     f"instance for user {local_user} not reachable after {STARTUP_TIMEOUT} tries... stop trying."
-                    async with app.state.state_lock:
-                        app.state.session_state.pop(local_user)
-                )
+                    )
+                async with app.state.state_lock:
+                    app.state.session_state.pop(local_user)
                 return None, -1, local_user
             try:
                 logger.debug(
