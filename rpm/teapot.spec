@@ -32,7 +32,7 @@ cp %{_builddir}/%name-%version/templates/issuers.yml $RPM_BUILD_ROOT/%{_sysconfd
 cp %{_builddir}/%name-%version/templates/logback.xml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
 cp %{_builddir}/%name-%version/templates/logback-access.xml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/sudoers.d/
-cp %{_builddir}/%name-%version/teapot $RPM_BUILD_ROOT/%{_sysconfdir}/sudoers.d/
+cp %{_builddir}/%name-%version/templates/teapot $RPM_BUILD_ROOT/%{_sysconfdir}/sudoers.d/
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/%name
 cp %{_builddir}/%name-%version/templates/storage_authorizations.yml $RPM_BUILD_ROOT/%{_datadir}/%name
 cp %{_builddir}/%name-%version/templates/storage_element.properties $RPM_BUILD_ROOT/%{_datadir}/%name
