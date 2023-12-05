@@ -86,7 +86,7 @@ logger = logging.getLogger(__name__)
 # maybe rename function to "housekeeping" or the like.
 
 SESSION_STORE_PATH = os.environ.get(
-    "TEAPOT_SESSIONS", "/home/teapot/logs/teapot_sessions.json"
+    "TEAPOT_SESSIONS", "/var/run/teapot/teapot_sessions.json"
 )
 APP_NAME = "teapot"
 # one less than the first port that is going to be used by any storm webdav instance, should be above 1024
