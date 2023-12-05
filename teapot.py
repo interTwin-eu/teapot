@@ -32,7 +32,7 @@ from starlette.responses import StreamingResponse
 from starlette.background import BackgroundTask
 
 github_host = str(
-    subprocess.check_output("curl ifconfig.me", shell=True), encoding="utf-8"
+    subprocess.check_output("curl ifconfig.me -4", shell=True), encoding="utf-8"
 )
 
 
@@ -71,7 +71,8 @@ flaat.set_access_levels([AccessLevel("user", HasSubIss())])
 flaat.set_trusted_OP_list(
     [
         "https://aai-demo.egi.eu/auth/realms/egi",
-        "http://keycloak:8080/realms/test-realm",
+        "http://keycloak:8080/realms/test-realm"
+        "https://keycloak.ci-cd-prep2.desy.de/realms/Testing",
     ]
 )
 
@@ -554,7 +555,7 @@ async def _return_or_create_storm_instance(sub):
             if loops >= STARTUP_TIMEOUT:
                 logger.info(
                     f"instance for user {local_user} not reachable after {STARTUP_TIMEOUT} tries... stop trying."
-                    )
+                )
                 async with app.state.state_lock:
                     app.state.session_state.pop(local_user)
                 return None, -1, local_user
