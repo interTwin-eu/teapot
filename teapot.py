@@ -56,7 +56,7 @@ async def lifespan(app: FastAPI):
     # everything after the yield should be executed after shutdown
     handles = app.state.session_state.keys()
     for k in handles:
-        _stop_webdav_instance(k)
+        await _stop_webdav_instance(k)
     if exists(SESSION_STORE_PATH):
         pathlib.unlink(SESSION_STORE_PATH)
 
