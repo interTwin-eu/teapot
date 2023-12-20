@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import pathlib
+import psutil
 import socket
 import subprocess
 import uvicorn
@@ -311,17 +312,21 @@ async def _start_webdav_instance(username, port):
     # using os.setsid() as a function handle before execution should execute the process in it's own process group
     # such that it can be managed on its own.
     logger.info(f"trying to start process for user {username}.")
-    p = subprocess.Popen(
-        f"/usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
+    full_cmd = f"/usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
     -Djava.io.tmpdir=/var/lib/user-{username}/tmp \
     -Dlogging.config=$STORM_WEBDAV_LOG_CONFIGURATION \
      1>$STORM_WEBDAV_OUT 2>$STORM_WEBDAV_ERR \
-    --spring.config.additional-location=optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml&",
+    --spring.config.additional-location=optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml&"
+
+    p = subprocess.Popen(
+    full_cmd,
     shell=True,
     user=username,
     start_new_session=True,
     env=env_pass
     )
+
+    kill_proc =  await _get_proc(full_cmd)
     #sudo -b --preserve-env={','.join(env_pass)} -u {username} 
     # we can remove all env vars for the user process from teapot now as they were given to the forked process as a copy
     await _remove_user_env()
@@ -330,23 +335,37 @@ async def _start_webdav_instance(username, port):
     await anyio.sleep(1)
     # poll process to determine whether it is running and set returncode if exited.
     # if the process has not exited yet, the returncode will be "None"
-    p.poll()
+    kill_proc.poll()
     ret = p.returncode
     if ret in [None, 0]:
         logger.debug(
-            f"start_webdav_instance: instance for user {username} is running under PID {p.pid}."
+            f"start_webdav_instance: instance for user {username} is running under PID {kill_proc.pid}."
         )
         async with app.state.process_lock:
-            app.state.process_handles["username"] = p
-        return p.pid
+            app.state.process_handles["username"] = kill_proc
+        return kill_proc.pid
     else:
         logger.error(
             f"_start_webdav_instance: instance for user {username} could not be started. pid was {p.pid}, returncode of instance was {ret}"
         )
         # if there was a returncode, we wait for the process and terminate it.
-        p.wait()
+        kill_proc.wait()
         return None
 
+async def _get_proc(full_cmd):
+    # here we are simply looking through all processes and try to find a match for the full command 
+    # that was issued to start the instance in question. then return the process handle.
+    # it should contain the process that is running as root and forked the storm instance for
+    # the user themselves.
+    # looking through all processes seems a bit overkill but at the moment this is the only
+    # halfway surefire method I could find to accomplish this task.
+    # shamelessly stolen from 
+    # https://codereview.stackexchange.com/questions/183091/start-a-sub-process-with-sudo-as-head-of-new-process-group-kill-it-after-time
+    for pid in psutil.pids():
+        proc = psutil.Process(pid)
+        if full_cmd == proc.cmdline():
+            return proc
+    raise RuntimeError(f"process with for full command {full_cmd} does not exist.")
 
 async def _stop_webdav_instance(username):
     logger.info(f"Stopping webdav instance for user {username}.")
@@ -381,9 +400,6 @@ async def _stop_webdav_instance(username):
 
     return exit_code
 
-
-# does this really work? I haven't seen any traces of this in the log files.
-# maybe have a look at lifespan events?
 async def stop_expired_instances():
     # checks for expired instances still running
     # TODO: incorporate config reload once implemented.
