@@ -376,7 +376,7 @@ async def _get_proc(full_cmd):
     # https://codereview.stackexchange.com/questions/183091/start-a-sub-process-with-sudo-as-head-of-new-process-group-kill-it-after-time
     for pid in psutil.pids():
         proc = psutil.Process(pid)
-        if full_cmd == proc.cmdline():
+        if full_cmd == " ".join(proc.cmdline()):
             return proc
     raise RuntimeError(f"process with for full command {full_cmd} does not exist.")
 
