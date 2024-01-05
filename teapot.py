@@ -348,9 +348,8 @@ async def _start_webdav_instance(username, port):
 
     # poll process to determine whether it is running and set returncode if exited.
     # if the process has not exited yet, the returncode will be "None"
-    kill_proc.poll()
-    ret = p.returncode
-    if ret in [None, 0]:
+    ret = kill_proc.status()
+    if ret in [psutil.STATUS_RUNNING, psutil.STATUS_SLEEPING]:
         logger.debug(
             f"start_webdav_instance: instance for user {username} is running under PID {kill_proc.pid}."
         )
@@ -359,7 +358,7 @@ async def _start_webdav_instance(username, port):
         return kill_proc.pid
     else:
         logger.error(
-            f"_start_webdav_instance: instance for user {username} could not be started. pid was {p.pid}, returncode of instance was {ret}"
+            f"_start_webdav_instance: instance for user {username} could not be started. pid was {kill_proc.pid}, returncode of instance was {ret}"
         )
         # if there was a returncode, we wait for the process and terminate it.
         kill_proc.wait()
@@ -377,6 +376,7 @@ async def _get_proc(full_cmd):
     for pid in psutil.pids():
         proc = psutil.Process(pid)
         if full_cmd == " ".join(proc.cmdline()):
+            logger.info(f"PID found: {pid}")
             return proc
     raise RuntimeError(f"process with for full command {full_cmd} does not exist.")
 
