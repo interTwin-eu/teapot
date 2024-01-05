@@ -424,32 +424,32 @@ async def stop_expired_instances():
         logger.info("checking for expired instances")
         async with app.state.state_lock:
             users = app.state.session_state.keys()
-            now = datetime.datetime.now()
-            for user in users:
-                user_dict = app.state.session_state.get(user, None)
-                if user_dict is not None:
-                    last_accessed = user_dict.get("last_accessed", None)
-                    if last_accessed is not None:
-                        diff = now - datetime.datetime.fromisoformat(last_accessed)
-                        if diff.seconds >= INSTANCE_TIMEOUT_SEC:
-                            res = await _stop_webdav_instance(user)
-                            # TODO: remove instance from session_state
-                            if res != 0:
-                                logger.error(
-                                    f"Instance for user {user} exited with code {res}."
-                                )
-                            else:
-                                logger.info(
-                                    f"Instance for user {user} has been terminated after timeout."
-                                )
-                    else:
-                        logger.error(
-                            f"_stop_expired_instances: Session for user {user} does not have the property 'last_accessed'."
-                        )
+        now = datetime.datetime.now()
+        for user in users:
+            user_dict = app.state.session_state.get(user, None)
+            if user_dict is not None:
+                last_accessed = user_dict.get("last_accessed", None)
+                if last_accessed is not None:
+                    diff = now - datetime.datetime.fromisoformat(last_accessed)
+                    if diff.seconds >= INSTANCE_TIMEOUT_SEC:
+                        res = await _stop_webdav_instance(user)
+                        # TODO: remove instance from session_state
+                        if res != 0:
+                            logger.error(
+                                f"Instance for user {user} exited with code {res}."
+                            )
+                        else:
+                            logger.info(
+                                f"Instance for user {user} has been terminated after timeout."
+                            )
                 else:
                     logger.error(
-                        f"_stop_expired_instances: No session object for user {user} in session_state."
+                        f"_stop_expired_instances: Session for user {user} does not have the property 'last_accessed'."
                     )
+            else:
+                logger.error(
+                    f"_stop_expired_instances: No session object for user {user} in session_state."
+                )
 
 
 async def _find_usable_port_no():
