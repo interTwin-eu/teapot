@@ -329,19 +329,20 @@ async def _start_webdav_instance(username, port):
     preexec_fn=os.setsid
     )
 
+    # wait for it...
+    await anyio.sleep(1)
     # poll the process to get rid of the zombiefied subprocess attached to teapot
     p.poll()
-
 
     #sudo -b --preserve-env={','.join(env_pass)} -u {username} 
     # we can remove all env vars for the user process from teapot now as they were given to the forked process as a copy
     await _remove_user_env()
 
+    # get rid of additional whitespace and trailing "&" from cmdline
+    full_cmd=" ".join(full_cmd.split())[:-1]
     # get the process pid for terminating it later.
     kill_proc =  await _get_proc(full_cmd)
 
-    # wait for it...
-    await anyio.sleep(1)
     # poll process to determine whether it is running and set returncode if exited.
     # if the process has not exited yet, the returncode will be "None"
     kill_proc.poll()
