@@ -59,8 +59,7 @@ async def lifespan(app: FastAPI):
     for k in handles:
         await _stop_webdav_instance(k)
     if exists(SESSION_STORE_PATH):
-        pathlib.unlink(SESSION_STORE_PATH)
-
+        pathlib.Path.unlink(SESSION_STORE_PATH)
 
 # create fastAPI app and initialize flaat options
 app = FastAPI(lifespan=lifespan)
@@ -400,8 +399,10 @@ async def _stop_webdav_instance(username):
     # n.b.: while spawning an instance with sudo --preserve-env, a process with the list on env vars is created in root's context as well
     #       how do we kill that together with the storm instance here?
 
-    pid = session.get(pid, 'None')
+    pid = session.get("pid", 'None')
+
     if pid:
+        logger.info(f"Stopping webdav instance with PID {pid}.")
         kill_proc = subprocess.Popen(f"sudo kill {pid}")
         kill_exit_code = kill_proc.wait()
         if kill_exit_code != 0:
@@ -410,6 +411,7 @@ async def _stop_webdav_instance(username):
 
         exit_code = kill_exit_code
     else:
+        logger.info(f"No PID found.")
         exit_code = -1
 
     return exit_code
