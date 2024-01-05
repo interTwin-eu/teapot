@@ -423,7 +423,7 @@ async def stop_expired_instances():
         await asyncio.sleep(CHECK_INTERVAL_SEC)
         logger.info("checking for expired instances")
         async with app.state.state_lock:
-            users = app.state.session_state.keys()
+            users = list(app.state.session_state.keys())
         now = datetime.datetime.now()
         for user in users:
             user_dict = app.state.session_state.get(user, None)
