@@ -305,14 +305,17 @@ async def _start_webdav_instance(username, port):
         logger.error(f"could not create user env for {username}")
         return False
 
+    # as a dict for subprocess.Popen
+    # env_pass = {key: value for key,value in os.environ.items() if key.startswith("STORM_WEBDAV_")}
+
     # add STORM_WEBDAV_* env vars to a list that can be passed to the sudo command and be preserved for the forked process
-    env_pass = {key: value for key,value in os.environ.items() if key.startswith("STORM_WEBDAV_")}
+    env_pass = [key for key in os.environ.keys() if key.startswith("STORM_WEBDAV_")]
 
     # starting subprocess with all necessary options now.
     # using os.setsid() as a function handle before execution should execute the process in it's own process group
     # such that it can be managed on its own.
     logger.info(f"trying to start process for user {username}.")
-    full_cmd = f"sudo -b -u {username} /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
+    full_cmd = f"sudo -b -u {username} --preserve-env={','.join(env_pass)} /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
     -Djava.io.tmpdir=/var/lib/user-{username}/tmp \
     -Dlogging.config=$STORM_WEBDAV_LOG_CONFIGURATION \
      1>$STORM_WEBDAV_OUT 2>$STORM_WEBDAV_ERR \
@@ -323,13 +326,15 @@ async def _start_webdav_instance(username, port):
     p = subprocess.Popen(
     full_cmd,
     shell=True,
-    env=env_pass
+    preexec_fn=os.setsid
     )
 
-    kill_proc =  await _get_proc(full_cmd)
     #sudo -b --preserve-env={','.join(env_pass)} -u {username} 
     # we can remove all env vars for the user process from teapot now as they were given to the forked process as a copy
     await _remove_user_env()
+
+    # get the process pid for terminating it later.
+    kill_proc =  await _get_proc(full_cmd)
 
     # wait for it...
     await anyio.sleep(1)
