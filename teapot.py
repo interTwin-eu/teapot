@@ -346,10 +346,8 @@ async def _start_webdav_instance(username, port):
     # get the process pid for terminating it later.
     kill_proc =  await _get_proc(full_cmd)
 
-    # poll process to determine whether it is running and set returncode if exited.
-    # if the process has not exited yet, the returncode will be "None"
-    ret = kill_proc.status()
-    if ret in [psutil.STATUS_RUNNING, psutil.STATUS_SLEEPING]:
+    # check process status and store the handle.
+    if kill_proc.status() in [psutil.STATUS_RUNNING, psutil.STATUS_SLEEPING]:
         logger.debug(
             f"start_webdav_instance: instance for user {username} is running under PID {kill_proc.pid}."
         )
@@ -383,12 +381,12 @@ async def _get_proc(full_cmd):
 async def _stop_webdav_instance(username):
     logger.info(f"Stopping webdav instance for user {username}.")
 
-    async with app.state.process_lock:
+    async with app.state.state_lock:
         try:
-            p = app.state.process_handles.pop(username)
+            session = app.state.session_state.pop(username)
         except KeyError as e:
             logger.error(
-                f"_stop_webdav_instance: Process handle for user {username} doesn't exist."
+                f"_stop_webdav_instance: session state for user {username} doesn't exist."
             )
             return -1
 
@@ -402,14 +400,17 @@ async def _stop_webdav_instance(username):
     # n.b.: while spawning an instance with sudo --preserve-env, a process with the list on env vars is created in root's context as well
     #       how do we kill that together with the storm instance here?
 
-    pid = os.getpgid(p.pid)
-    kill_proc = subprocess.Popen(f"sudo -u {username} kill {pid}")
-    kill_exit_code = kill_proc.wait()
-    if kill_exit_code != 0:
-        # what now?
-        logger.info(f"could not kill process with PID {pid}.")
+    pid = session.get(pid, 'None')
+    if pid:
+        kill_proc = subprocess.Popen(f"sudo kill {pid}")
+        kill_exit_code = kill_proc.wait()
+        if kill_exit_code != 0:
+            # what now?
+            logger.info(f"could not kill process with PID {pid}.")
 
-    exit_code = p.wait()
+        exit_code = kill_exit_code
+    else:
+        exit_code = -1
 
     return exit_code
 
