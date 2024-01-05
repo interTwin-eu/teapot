@@ -334,10 +334,11 @@ async def _start_webdav_instance(username, port):
     # poll the process to get rid of the zombiefied subprocess attached to teapot
     p.poll()
 
-    # get rid of additional whitespace and trailing "&" from cmdline
+    # get rid of additional whitespace, trailing "&" and output redirects from cmdline, expand env vars
     full_cmd=" ".join(full_cmd.split())[:-1]
     full_cmd=" ".join(full_cmd.split(','))
     full_cmd=os.path.expandvars(full_cmd)
+    full_cmd=full_cmd.split('1>')[0].rstrip()
     
     # we can remove all env vars for the user process from teapot now as they were given to the forked process as a copy
     await _remove_user_env()
