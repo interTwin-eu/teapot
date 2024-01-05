@@ -341,6 +341,7 @@ async def _start_webdav_instance(username, port):
     # get rid of additional whitespace and trailing "&" from cmdline
     full_cmd=" ".join(full_cmd.split())[:-1]
     full_cmd=" ".join(full_cmd.split(','))
+    full_cmd=os.path.expandvars(full_cmd)
     # get the process pid for terminating it later.
     kill_proc =  await _get_proc(full_cmd)
 
