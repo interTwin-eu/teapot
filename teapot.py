@@ -380,7 +380,9 @@ async def _get_proc(full_cmd):
 async def _stop_webdav_instance(username):
     logger.info(f"Stopping webdav instance for user {username}.")
 
+    logger.debug(f"_stop_webdav_instance: trying to acquire lock at {datetime.datetime.now().isoformat()}")
     async with app.state.state_lock:
+        logger.debug(f"_stop_webdav_instance: acquired lock at {datetime.datetime.now().isoformat()}")
         try:
             session = app.state.session_state.pop(username)
         except KeyError as e:
@@ -422,11 +424,16 @@ async def stop_expired_instances():
     while True:
         await asyncio.sleep(CHECK_INTERVAL_SEC)
         logger.info("checking for expired instances")
+        logger.debug(f"stop_expired_instances: trying to acquire 'users' lock at {datetime.datetime.now().isoformat()}")
         async with app.state.state_lock:
+            logger.debug(f"stop_expired_instances: acquired 'users' lock at {datetime.datetime.now().isoformat()}")
             users = list(app.state.session_state.keys())
         now = datetime.datetime.now()
         for user in users:
-            user_dict = app.state.session_state.get(user, None)
+            logger.debug(f"stop_expired_instances: trying to acquire 'user_dict' lock at {datetime.datetime.now().isoformat()}")
+            async with app.state.state_lock:
+                logger.debug(f"stop_expired_instances: acquired 'user_dict' lock at {datetime.datetime.now().isoformat()}")
+                user_dict = app.state.session_state.get(user, None)
             if user_dict is not None:
                 last_accessed = user_dict.get("last_accessed", None)
                 if last_accessed is not None:
@@ -454,7 +461,9 @@ async def stop_expired_instances():
 
 async def _find_usable_port_no():
     used_ports = []
+    logger.debug(f"_find_usable_port_no: trying to acquire lock at {datetime.datetime.now().isoformat()}")
     async with app.state.state_lock:
+        logger.debug(f"_find_usable_port_no: acquired lock at {datetime.datetime.now().isoformat()}")
         users = app.state.session_state.keys()
         if users:
             for user in users:
@@ -551,7 +560,9 @@ async def _return_or_create_storm_instance(sub):
 
     # now check if an instance is running by checking the global state
     if local_user in app.state.session_state.keys():
+        logger.debug(f"_return_or_create_storm_instance: trying to acquire 'get' lock at {datetime.datetime.now().isoformat()}")
         async with app.state.state_lock:
+            logger.debug(f"_return_or_create_storm_instance: acquired 'get' lock at {datetime.datetime.now().isoformat()}")
             port = app.state.session_state[local_user].get("port", None)
             app.state.session_state[local_user]["last_accessed"] = str(
                 datetime.datetime.now()
@@ -572,7 +583,9 @@ async def _return_or_create_storm_instance(sub):
                 f"something went wrong while starting instance for user {local_user}."
             )
             return None, -1, local_user
+        logger.debug(f"_return_or_create_storm_instance: trying to acquire 'set' lock at {datetime.datetime.now().isoformat()}")
         async with app.state.state_lock:
+            logger.debug(f"_return_or_create_storm_instance: acquired 'set' lock at {datetime.datetime.now().isoformat()}")
             app.state.session_state[local_user] = {
                 "pid": pid,
                 "port": port,
@@ -587,7 +600,9 @@ async def _return_or_create_storm_instance(sub):
                 logger.info(
                     f"instance for user {local_user} not reachable after {STARTUP_TIMEOUT} tries... stop trying."
                 )
+                logger.debug(f"_return_or_create_storm_instance: trying to acquire 'pop' lock at {datetime.datetime.now().isoformat()}")
                 async with app.state.state_lock:
+                    logger.debug(f"_return_or_create_storm_instance: acquired 'pop' lock at {datetime.datetime.now().isoformat()}")
                     app.state.session_state.pop(local_user)
                 return None, -1, local_user
             try:
