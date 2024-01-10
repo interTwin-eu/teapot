@@ -78,7 +78,7 @@ flaat.set_trusted_OP_list(
 
 # logging is important
 LOGFILE = os.environ.get("TEAPOT_LOGFILE", "/var/lib/teapot/webdav/teapot.log")
-LOGLEVEL = os.environ.get("TEAPOT_LOGLEVEL", "DEBUG").upper()
+LOGLEVEL = os.environ.get("TEAPOT_LOGLEVEL", "INFO").upper()
 logging.basicConfig(filename=LOGFILE, level=logging.getLevelName(LOGLEVEL))
 logger = logging.getLogger(__name__)
 
@@ -112,15 +112,9 @@ STANDARD_MODE = S_IRWXU | S_IRGRP | S_IXGRP
 # data stored within each subdict is
 # pid, port, created_at, last_accessed
 app.state.session_state = {}
-# for each instance started, a process handle is kept with the username a
-# primary key so instances can be stopped after a timeout and at shutdown
-# they are not kept in the session state because saving them is not possible
-app.state.process_handles = {}
 # lock for the state. any write operation on the state should only be done
 # in an "async with app.state_lock:" environment.
 app.state.state_lock = anyio.Lock()
-app.state.process_lock = anyio.Lock()
-
 
 async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
     if not exists(dir):
@@ -139,7 +133,6 @@ async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
         #    os.chown(dir, uid, gid)
         # except PermissionError:
         #    logger.error(f"Could not chown directory {dir}, not allowed to change ownership to {uid}, {gid}.")
-
 
 async def _create_user_dirs(username):
     # need to create
@@ -350,8 +343,6 @@ async def _start_webdav_instance(username, port):
         logger.debug(
             f"start_webdav_instance: instance for user {username} is running under PID {kill_proc.pid}."
         )
-        async with app.state.process_lock:
-            app.state.process_handles["username"] = kill_proc
         return kill_proc.pid
     else:
         logger.error(
@@ -397,9 +388,7 @@ async def _stop_webdav_instance(username):
     # os.killpg(os.getpgid(p.pid), signal.SIGTERM)
     # now we run subprocess.Popen in the user context to let it terminate the process in that user's context.
     # but as we don't want to let teapot be able to just kill any process (by sudoers mechanism), we need to find a way around this,
-    # maybe with a dedicated script that can only kill certain processes
-    # n.b.: while spawning an instance with sudo --preserve-env, a process with the list on env vars is created in root's context as well
-    #       how do we kill that together with the storm instance here?
+    # maybe with a dedicated script that can only kill certain processes?
 
     pid = session.get("pid", 'None')
 
