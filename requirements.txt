@@ -1,14 +1,10 @@
-java-11
-openssl>3.0
-python3
 fastapi
 flaat
 httpx
-liboidcagent
 logging
 pydantic
-regex
 requests
 uvicorn
 anyio
 asyncio
+psutil
