@@ -1,3 +1,6 @@
+java-11
+openssl>3.0
+python3
 fastapi
 flaat
 httpx

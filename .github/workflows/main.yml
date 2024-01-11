@@ -25,7 +25,7 @@ jobs:
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
       - name: Upload rpm
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: teapot-rpm
           path: |
@@ -45,7 +45,7 @@ jobs:
       keycloak:
         image: dvrbanec/keycloak-dev:latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v3
         with:
           name: teapot-rpm
       - name: Install the rpm package and self-signed certs
@@ -70,7 +70,7 @@ jobs:
           # curl -k -H "Authorization: Bearer $(oidc-token test-user1)" https://
           # robot /__w/teapot/teapot/robot/storm-webdav-tests.robot
       - name: Upload configs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: test-config
           path: |
