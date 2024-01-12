@@ -6,13 +6,13 @@ This application provides a WebDAV that supports multi-tenancy. It is based on [
 
 ### Requirements
 
-Software requirements for installing Teapot can be found in [requirements.txt](https://gitlab.desy.de/intertwin/teapot/-/blob/main/requirements.txt?ref_type=heads).
+Software requirements for installing Teapot can be found in [requirements.txt](https://github.com/interTwin-eu/teapot/blob/main/requirements.txt).
 
 ### Installation & Configuration
 
 To install Teapot, first build the rpm package from source by running `./rpm/teapot-rpm.sh`, then install it. 
 
-Please refer to [CONFIGURATION.md](https://gitlab.desy.de/intertwin/teapot/-/blob/main/CONFIGURATION.md?ref_type=heads) for information on how to configure Teapot. 
+Please refer to [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md) for information on how to configure Teapot. 
 
 ### Starting
 
