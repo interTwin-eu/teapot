@@ -6,12 +6,11 @@ We have added a manager level that accepts requests, authenticates the user, ide
 starts a StoRM-WebDAV server for that local user with a randomly assigned port to listen on, and forwards the user's
 request to that port. The StoRM-WebDAV server will then handle the request in the usual way. If the StoRM-WebDAV server
 is inactive for 10 minutes, it will be shut down by the manager.
-If another request comes in for a different user, the manager will start another StoRM-WebDAV
-server for that user in the same way.
+If another request comes in for a different user, the manager will start another StoRM-WebDAV server for that user in the same way.
 
 ## List of configuration files
 
-All templates for configuration files are located in `/templates`. All configuration files for each user are automatically generated when user sends its first request in `/var/lib/teapot/user-$USER/`. To provide the necessary information for configuration files and for more details on configuration files, please refer to [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md).
+All templates for configuration files are located in `/templates`. All configuration files for each user are automatically generated in `/var/lib/teapot/user-$USER/` when user sends its first request. To provide the necessary information for configuration files and for more details on configuration files, please refer to [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md).
 
 `teapot.py` has to be run as the user `teapot` (create if necessary) with the python modules installed from `requirements.txt` and with the sudoers permissions from the file `templates/teapot`.
 

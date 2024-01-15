@@ -16,7 +16,7 @@ Please refer to [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/m
 
 ### Starting
 
-To start Teapot, run `python3 /usr/share/teapot.py`.
+To start Teapot, run `python3 /usr/share/teapot/teapot.py`.
 
 ## Automated testing
 

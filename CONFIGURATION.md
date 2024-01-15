@@ -14,6 +14,7 @@ To configure the OIDC provider information, make the following changes:
 1. Modify the OIDC provider in `issuers.yml` by changing the `name` and `issuer` information.
 2. Modify the OIDC provider in `storage_authorizations.yml` by modifying the `iss` information which stands for issuer. 
 3. Modify the OIDC providers that have access to the storage area by modifying the `org` information in `storage_element.properties`.
+4. Modify the OIDC provider list in `teapot.py` under `flaat.set_trusted_OP_list`. 
 
 StoRM WebDAV servers require `SSL` certificates. To generate self-signed certificates, run `sudo self-signed-cert-gen.sh`.
 
