@@ -37,9 +37,10 @@ mkdir -p $RPM_BUILD_ROOT/%{_datadir}/%name
 cp %{_builddir}/%name-%version/templates/storage_authorizations.yml $RPM_BUILD_ROOT/%{_datadir}/%name
 cp %{_builddir}/%name-%version/templates/storage_element.properties $RPM_BUILD_ROOT/%{_datadir}/%name
 mkdir -p $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav
-cp %{_builddir}/%name-%version/templates/teapot.log $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav
-mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/run/%name
-cp %{_builddir}/%name-%version/templates/teapot_sessions.json $RPM_BUILD_ROOT/%{_localstatedir}/run/%name/teapot_sessions.json
+cp %{_builddir}/%name-%version/templates/teapot_sessions.json $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav/teapot_sessions.json
+mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
+cp %{_builddir}/%name-%version/templates/teapot.log $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
+
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -54,9 +55,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(744, root, root) %{_sysconfdir}/%name/logback-access.xml
 %attr(644, root, root) %{_datadir}/%name/storage_authorizations.yml
 %attr(644, root, root) %{_datadir}/%name/storage_element.properties
-%attr(666, teapot, teapot) %{_sharedstatedir}/%name/webdav/teapot.log
+%attr(666, teapot, teapot) %{_localstatedir}/log/%name/teapot.log
 %attr(440, root, root) %{_sysconfdir}/sudoers.d/teapot
-%attr(664, teapot, teapot) %{_localstatedir}/run/%name/teapot_sessions.json
+%attr(664, teapot, teapot) %{_sharedstatedir}/%name/webdav/teapot_sessions.json
 %attr(774, teapot, teapot) %{_sharedstatedir}/%name/webdav
 
 %changelog

@@ -61,6 +61,7 @@ async def lifespan(app: FastAPI):
     if exists(SESSION_STORE_PATH):
         pathlib.Path.unlink(SESSION_STORE_PATH)
 
+
 # create fastAPI app and initialize flaat options
 app = FastAPI(lifespan=lifespan)
 flaat = Flaat()
@@ -77,7 +78,7 @@ flaat.set_trusted_OP_list(
 )
 
 # logging is important
-LOGFILE = os.environ.get("TEAPOT_LOGFILE", "/var/lib/teapot/webdav/teapot.log")
+LOGFILE = os.environ.get("TEAPOT_LOGFILE", "/var/log/teapot/teapot.log")
 LOGLEVEL = os.environ.get("TEAPOT_LOGLEVEL", "INFO").upper()
 logging.basicConfig(filename=LOGFILE, level=logging.getLevelName(LOGLEVEL))
 logger = logging.getLogger(__name__)
@@ -87,7 +88,7 @@ logger = logging.getLogger(__name__)
 # maybe rename function to "housekeeping" or the like.
 
 SESSION_STORE_PATH = os.environ.get(
-    "TEAPOT_SESSIONS", "/var/run/teapot/teapot_sessions.json"
+    "TEAPOT_SESSIONS", "/var/lib/teapot/webdav/teapot_sessions.json"
 )
 APP_NAME = "teapot"
 # one less than the first port that is going to be used by any storm webdav instance, should be above 1024
@@ -116,6 +117,7 @@ app.state.session_state = {}
 # in an "async with app.state_lock:" environment.
 app.state.state_lock = anyio.Lock()
 
+
 async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
     if not exists(dir):
         try:
@@ -133,6 +135,7 @@ async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
         #    os.chown(dir, uid, gid)
         # except PermissionError:
         #    logger.error(f"Could not chown directory {dir}, not allowed to change ownership to {uid}, {gid}.")
+
 
 async def _create_user_dirs(username):
     # need to create
@@ -315,11 +318,7 @@ async def _start_webdav_instance(username, port):
 
     logger.info(f"full_cmd={full_cmd}")
 
-    p = subprocess.Popen(
-    full_cmd,
-    shell=True,
-    preexec_fn=os.setsid
-    )
+    p = subprocess.Popen(full_cmd, shell=True, preexec_fn=os.setsid)
 
     # wait for it...
     await anyio.sleep(1)
@@ -327,16 +326,16 @@ async def _start_webdav_instance(username, port):
     p.poll()
 
     # get rid of additional whitespace, trailing "&" and output redirects from cmdline, expand env vars
-    full_cmd=" ".join(full_cmd.split())[:-1]
-    full_cmd=" ".join(full_cmd.split(','))
-    full_cmd=os.path.expandvars(full_cmd)
-    full_cmd=full_cmd.split('1>')[0].rstrip()
-    
+    full_cmd = " ".join(full_cmd.split())[:-1]
+    full_cmd = " ".join(full_cmd.split(","))
+    full_cmd = os.path.expandvars(full_cmd)
+    full_cmd = full_cmd.split("1>")[0].rstrip()
+
     # we can remove all env vars for the user process from teapot now as they were given to the forked process as a copy
     await _remove_user_env()
 
     # get the process pid for terminating it later.
-    kill_proc =  await _get_proc(full_cmd)
+    kill_proc = await _get_proc(full_cmd)
 
     # check process status and store the handle.
     if kill_proc.status() in [psutil.STATUS_RUNNING, psutil.STATUS_SLEEPING]:
@@ -352,14 +351,15 @@ async def _start_webdav_instance(username, port):
         kill_proc.wait()
         return None
 
+
 async def _get_proc(full_cmd):
-    # here we are simply looking through all processes and try to find a match for the full command 
+    # here we are simply looking through all processes and try to find a match for the full command
     # that was issued to start the instance in question. then return the process handle.
     # it should contain the process that is running as root and forked the storm instance for
     # the user themselves.
     # looking through all processes seems a bit overkill but at the moment this is the only
     # halfway surefire method I could find to accomplish this task.
-    # shamelessly stolen from 
+    # shamelessly stolen from
     # https://codereview.stackexchange.com/questions/183091/start-a-sub-process-with-sudo-as-head-of-new-process-group-kill-it-after-time
     for pid in psutil.pids():
         proc = psutil.Process(pid)
@@ -368,12 +368,17 @@ async def _get_proc(full_cmd):
             return proc
     raise RuntimeError(f"process with for full command {full_cmd} does not exist.")
 
+
 async def _stop_webdav_instance(username):
     logger.info(f"Stopping webdav instance for user {username}.")
 
-    logger.debug(f"_stop_webdav_instance: trying to acquire lock at {datetime.datetime.now().isoformat()}")
+    logger.debug(
+        f"_stop_webdav_instance: trying to acquire lock at {datetime.datetime.now().isoformat()}"
+    )
     async with app.state.state_lock:
-        logger.debug(f"_stop_webdav_instance: acquired lock at {datetime.datetime.now().isoformat()}")
+        logger.debug(
+            f"_stop_webdav_instance: acquired lock at {datetime.datetime.now().isoformat()}"
+        )
         try:
             session = app.state.session_state.pop(username)
         except KeyError as e:
@@ -390,7 +395,7 @@ async def _stop_webdav_instance(username):
     # but as we don't want to let teapot be able to just kill any process (by sudoers mechanism), we need to find a way around this,
     # maybe with a dedicated script that can only kill certain processes?
 
-    pid = session.get("pid", 'None')
+    pid = session.get("pid", "None")
 
     if pid:
         logger.info(f"Stopping webdav instance with PID {pid}.")
@@ -407,21 +412,30 @@ async def _stop_webdav_instance(username):
 
     return exit_code
 
+
 async def stop_expired_instances():
     # checks for expired instances still running
     # TODO: incorporate config reload once implemented.
     while True:
         await asyncio.sleep(CHECK_INTERVAL_SEC)
         logger.info("checking for expired instances")
-        logger.debug(f"stop_expired_instances: trying to acquire 'users' lock at {datetime.datetime.now().isoformat()}")
+        logger.debug(
+            f"stop_expired_instances: trying to acquire 'users' lock at {datetime.datetime.now().isoformat()}"
+        )
         async with app.state.state_lock:
-            logger.debug(f"stop_expired_instances: acquired 'users' lock at {datetime.datetime.now().isoformat()}")
+            logger.debug(
+                f"stop_expired_instances: acquired 'users' lock at {datetime.datetime.now().isoformat()}"
+            )
             users = list(app.state.session_state.keys())
         now = datetime.datetime.now()
         for user in users:
-            logger.debug(f"stop_expired_instances: trying to acquire 'user_dict' lock at {datetime.datetime.now().isoformat()}")
+            logger.debug(
+                f"stop_expired_instances: trying to acquire 'user_dict' lock at {datetime.datetime.now().isoformat()}"
+            )
             async with app.state.state_lock:
-                logger.debug(f"stop_expired_instances: acquired 'user_dict' lock at {datetime.datetime.now().isoformat()}")
+                logger.debug(
+                    f"stop_expired_instances: acquired 'user_dict' lock at {datetime.datetime.now().isoformat()}"
+                )
                 user_dict = app.state.session_state.get(user, None)
             if user_dict is not None:
                 last_accessed = user_dict.get("last_accessed", None)
@@ -450,9 +464,13 @@ async def stop_expired_instances():
 
 async def _find_usable_port_no():
     used_ports = []
-    logger.debug(f"_find_usable_port_no: trying to acquire lock at {datetime.datetime.now().isoformat()}")
+    logger.debug(
+        f"_find_usable_port_no: trying to acquire lock at {datetime.datetime.now().isoformat()}"
+    )
     async with app.state.state_lock:
-        logger.debug(f"_find_usable_port_no: acquired lock at {datetime.datetime.now().isoformat()}")
+        logger.debug(
+            f"_find_usable_port_no: acquired lock at {datetime.datetime.now().isoformat()}"
+        )
         users = app.state.session_state.keys()
         if users:
             for user in users:
@@ -549,9 +567,13 @@ async def _return_or_create_storm_instance(sub):
 
     # now check if an instance is running by checking the global state
     if local_user in app.state.session_state.keys():
-        logger.debug(f"_return_or_create_storm_instance: trying to acquire 'get' lock at {datetime.datetime.now().isoformat()}")
+        logger.debug(
+            f"_return_or_create_storm_instance: trying to acquire 'get' lock at {datetime.datetime.now().isoformat()}"
+        )
         async with app.state.state_lock:
-            logger.debug(f"_return_or_create_storm_instance: acquired 'get' lock at {datetime.datetime.now().isoformat()}")
+            logger.debug(
+                f"_return_or_create_storm_instance: acquired 'get' lock at {datetime.datetime.now().isoformat()}"
+            )
             port = app.state.session_state[local_user].get("port", None)
             app.state.session_state[local_user]["last_accessed"] = str(
                 datetime.datetime.now()
@@ -572,9 +594,13 @@ async def _return_or_create_storm_instance(sub):
                 f"something went wrong while starting instance for user {local_user}."
             )
             return None, -1, local_user
-        logger.debug(f"_return_or_create_storm_instance: trying to acquire 'set' lock at {datetime.datetime.now().isoformat()}")
+        logger.debug(
+            f"_return_or_create_storm_instance: trying to acquire 'set' lock at {datetime.datetime.now().isoformat()}"
+        )
         async with app.state.state_lock:
-            logger.debug(f"_return_or_create_storm_instance: acquired 'set' lock at {datetime.datetime.now().isoformat()}")
+            logger.debug(
+                f"_return_or_create_storm_instance: acquired 'set' lock at {datetime.datetime.now().isoformat()}"
+            )
             app.state.session_state[local_user] = {
                 "pid": pid,
                 "port": port,
@@ -589,9 +615,13 @@ async def _return_or_create_storm_instance(sub):
                 logger.info(
                     f"instance for user {local_user} not reachable after {STARTUP_TIMEOUT} tries... stop trying."
                 )
-                logger.debug(f"_return_or_create_storm_instance: trying to acquire 'pop' lock at {datetime.datetime.now().isoformat()}")
+                logger.debug(
+                    f"_return_or_create_storm_instance: trying to acquire 'pop' lock at {datetime.datetime.now().isoformat()}"
+                )
                 async with app.state.state_lock:
-                    logger.debug(f"_return_or_create_storm_instance: acquired 'pop' lock at {datetime.datetime.now().isoformat()}")
+                    logger.debug(
+                        f"_return_or_create_storm_instance: acquired 'pop' lock at {datetime.datetime.now().isoformat()}"
+                    )
                     app.state.session_state.pop(local_user)
                 return None, -1, local_user
             try:
