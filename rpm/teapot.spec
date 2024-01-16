@@ -40,7 +40,7 @@ mkdir -p $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav
 cp %{_builddir}/%name-%version/templates/teapot_sessions.json $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav/teapot_sessions.json
 mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
 cp %{_builddir}/%name-%version/templates/teapot.log $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
-
+mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -48,17 +48,18 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %attr(644, root, root) %{_datadir}/java/storm-webdav/storm-webdav-server.jar
 %attr(755, root, root) %{_datadir}/%name/run-teapot.sh
-%attr(777, root, root) %{_datadir}/%name/teapot.py
+%attr(774, teapot, teapot) %{_datadir}/%name/teapot.py
 %attr(744, root, root) %{_datadir}/%name/self-signed-cert-gen.sh
 %attr(644, root, root) %{_sysconfdir}/%name/issuers.yml
-%attr(744, root, root) %{_sysconfdir}/%name/logback.xml
-%attr(744, root, root) %{_sysconfdir}/%name/logback-access.xml
+%attr(744, teapot, teapot) %{_sysconfdir}/%name/logback.xml
+%attr(744, teapot, teapot) %{_sysconfdir}/%name/logback-access.xml
 %attr(644, root, root) %{_datadir}/%name/storage_authorizations.yml
 %attr(644, root, root) %{_datadir}/%name/storage_element.properties
 %attr(666, teapot, teapot) %{_localstatedir}/log/%name/teapot.log
 %attr(440, root, root) %{_sysconfdir}/sudoers.d/teapot
 %attr(664, teapot, teapot) %{_sharedstatedir}/%name/webdav/teapot_sessions.json
 %attr(774, teapot, teapot) %{_sharedstatedir}/%name/webdav
+%attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 
 %changelog
 * Mon Dec 04 2023 Dijana Vrbanec <dijana.vrbanec@desy.de>
