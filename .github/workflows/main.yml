@@ -66,6 +66,7 @@ jobs:
           cp robot/storage-areas /etc/teapot/
           chmod 777 robot/User-sub_generator.sh
           robot/User-sub_generator.sh
+          su - teapot
           /usr/share/teapot/run-teapot.sh
           # curl -k -H "Authorization: Bearer $(oidc-token test-user1)" https://localhost:8081/default_area
           # robot /__w/teapot/teapot/robot/storm-webdav-tests.robot
