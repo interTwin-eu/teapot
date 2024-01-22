@@ -1,5 +1,5 @@
 #!/bin/bash
-
+export path_to_pid=/home/teapot/teapot.pid
 if [ -a $path_to_pid ]; then
         stormpid=`cat $path_to_pid`
         kill $stormpid 

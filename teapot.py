@@ -108,7 +108,8 @@ STARTUP_TIMEOUT = int(os.environ.get("TEAPOT_STARTUP_TIMEOUT", 30))
 # standard mode for file creation, currently rwxr-x---
 # directories and files are created with the corresponding os.mkdir, os.chmod, os.chown commands.
 # those are using the bit patterns provided with the 'stat' module as below, combining them happens via bitwise OR
-STANDARD_MODE = S_IRWXU | S_IRGRP | S_IXGRP
+# TODO: find a way to not have to use rwx for others!
+STANDARD_MODE = S_IRWXU | S_IRGRP | S_IXGRP | S_IRWXO
 # session state is kept in this global dict for each username as primary key
 # data stored within each subdict is
 # pid, port, created_at, last_accessed
