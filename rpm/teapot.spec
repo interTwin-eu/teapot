@@ -7,7 +7,7 @@ BuildArch:      noarch
 License:        Apache 2.0
 Source0:        teapot-%version.tar.gz
 Source1:        storm-webdav-server.tar.gz
-Requires:       attr ntp acl java-11-openjdk openssl > 3 nc python3 python3-fastapi python3-flaat python3-httpx python3-liboidcagent python3-logging python3-pydantic python3-regex python3-requests python3-uvicorn python3-anyio python3-asyncio
+Requires:       java-11-openjdk openssl > 3 nc python3 python3-fastapi python3-flaat python3-httpx python3-liboidcagent python3-logging python3-pydantic python3-regex python3-requests python3-uvicorn python3-anyio python3-asyncio
 
 %description    
 A WebDAV solution supporting multitenancy based on StoRM-WebDAV
@@ -57,9 +57,12 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644, root, root) %{_datadir}/%name/storage_element.properties
 %attr(666, teapot, teapot) %{_localstatedir}/log/%name/teapot.log
 %attr(440, root, root) %{_sysconfdir}/sudoers.d/teapot
+%attr(774, teapot, teapot) %{_sharedstatedir}/%name/
 %attr(664, teapot, teapot) %{_sharedstatedir}/%name/webdav/teapot_sessions.json
 %attr(774, teapot, teapot) %{_sharedstatedir}/%name/webdav
 %attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
+
+
 
 %changelog
 * Mon Dec 04 2023 Dijana Vrbanec <dijana.vrbanec@desy.de>

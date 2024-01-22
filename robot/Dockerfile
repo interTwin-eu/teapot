@@ -8,15 +8,15 @@ RUN \
     yum -y install initscripts java-11-openjdk && \
     yum -y install perl-IPC-Cmd perl-Test-Simple && \
     yum -y group install "Development Tools" && \
-    yum -y install tar jq-1.6
+    yum -y install tar jq-1.6 sudo
 
 WORKDIR /usr/src
-ADD https://www.openssl.org/source/openssl-3.0.10.tar.gz .
+ADD https://www.openssl.org/source/openssl-3.0.12.tar.gz .
 RUN \
-    tar -zxf openssl-3.0.10.tar.gz && \
-    rm openssl-3.0.10.tar.gz
+    tar -zxf openssl-3.0.12.tar.gz && \
+    rm openssl-3.0.12.tar.gz
 
-WORKDIR /usr/src/openssl-3.0.10 
+WORKDIR /usr/src/openssl-3.0.12 
 RUN \
     ./config && \
     make && \
@@ -79,3 +79,10 @@ RUN yum -y install rpmdevtools rpmlint rsync tree nano
 
 RUN adduser teapot
 WORKDIR /home/teapot/
+
+EXPOSE 32400
+EXPOSE 32401
+EXPOSE 32402
+EXPOSE 32403
+EXPOSE 32404
+
