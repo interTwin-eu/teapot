@@ -61,7 +61,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(664, teapot, teapot) %{_sharedstatedir}/%name/webdav/teapot_sessions.json
 %attr(774, teapot, teapot) %{_sharedstatedir}/%name/webdav
 %attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
-
+%attr(774, root, root) %{_sysconfdir}/grid-security/vomsdir
 
 
 %changelog
