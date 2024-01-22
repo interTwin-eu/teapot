@@ -41,6 +41,7 @@ cp %{_builddir}/%name-%version/templates/teapot_sessions.json $RPM_BUILD_ROOT/%{
 mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
 cp %{_builddir}/%name-%version/templates/teapot.log $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/storm/webdav/vo-mapfiles.d/
+mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/grid-security/vomsdir/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
