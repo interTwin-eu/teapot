@@ -80,6 +80,7 @@ RUN yum -y install rpmdevtools rpmlint rsync tree nano
 RUN adduser teapot
 WORKDIR /home/teapot/
 
+EXPOSE 8081
 EXPOSE 32400
 EXPOSE 32401
 EXPOSE 32402
