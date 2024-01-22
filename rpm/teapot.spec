@@ -58,11 +58,11 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644, root, root) %{_datadir}/%name/storage_element.properties
 %attr(666, teapot, teapot) %{_localstatedir}/log/%name/teapot.log
 %attr(440, root, root) %{_sysconfdir}/sudoers.d/teapot
-%attr(774, teapot, teapot) %{_sharedstatedir}/%name/
+%attr(775, teapot, teapot) %{_sharedstatedir}/%name/
 %attr(664, teapot, teapot) %{_sharedstatedir}/%name/webdav/teapot_sessions.json
 %attr(774, teapot, teapot) %{_sharedstatedir}/%name/webdav
 %attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
-%attr(774, root, root) %{_sysconfdir}/grid-security/vomsdir
+%attr(775, root, root) %{_sysconfdir}/grid-security/vomsdir/
 
 
 %changelog
