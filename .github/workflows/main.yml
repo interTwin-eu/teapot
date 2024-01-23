@@ -25,7 +25,7 @@ jobs:
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
       - name: Upload rpm
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: teapot-rpm
           path: /github/home/rpmbuild/RPMS/noarch/teapot-v*-1.el7.noarch.rpm
