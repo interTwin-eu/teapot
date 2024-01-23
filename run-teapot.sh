@@ -5,6 +5,6 @@ if [ -a $path_to_pid ]; then
         kill $stormpid 
         rm $path_to_pid
 else
-python3 /usr/share/teapot/teapot.py &> $/var/log/teapot/tmp-storm-proxy.log &
+python3 /usr/share/teapot/teapot.py &> /var/log/teapot/uvicorn.log &
         echo $! > $path_to_pid
 fi

@@ -58,12 +58,12 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644, root, root) %{_datadir}/%name/storage_authorizations.yml
 %attr(644, root, root) %{_datadir}/%name/storage_element.properties
 %attr(755, teapot, teapot) %{_localstatedir}/log/%name/
-%attr(666, teapot, teapot) %{_localstatedir}/log/%name/teapot.log
-%attr(666, teapot, teapot) %{_localstatedir}/log/%name/uvicorn.log
+%attr(644, teapot, teapot) %{_localstatedir}/log/%name/teapot.log
+%attr(644, teapot, teapot) %{_localstatedir}/log/%name/uvicorn.log
 %attr(440, root, root) %{_sysconfdir}/sudoers.d/teapot
 %attr(775, teapot, teapot) %{_sharedstatedir}/%name/
 %attr(664, teapot, teapot) %{_sharedstatedir}/%name/webdav/teapot_sessions.json
-%attr(774, teapot, teapot) %{_sharedstatedir}/%name/webdav
+%attr(775, teapot, teapot) %{_sharedstatedir}/%name/webdav
 %attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 %attr(775, root, root) %{_sysconfdir}/grid-security/vomsdir/
 
