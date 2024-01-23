@@ -69,7 +69,7 @@ jobs:
           robot/User-sub_generator.sh
           adduser test-user1
           adduser test-user2
-          su -c "mkdir -p /home/test-user1/interTwin" test-user1
+          su -c "mkdir /home/test-user1/interTwin" test-user1
           # chown test-user1 /home/test-user1/interTwin
           su -c "mkdir -p /home/test-user1/interTwin_extra" test-user1
           # chown test-user1 /home/test-user1/interTwin_extra
@@ -79,7 +79,7 @@ jobs:
           # chown test-user2 /home/test-user2/interTwin_extra
           su -c /usr/share/teapot/run-teapot.sh teapot 
           ps faux | grep teapot > /var/lib/teapot/webdav/test
-          # curl -k -v -H "Authorization: Bearer $(oidc-token test-user1)" https://$(curl ifconfig.me)/default_area 
+          # curl -k -H "Authorization: Bearer $(oidc-token test-user1)" https://$(curl ifconfig.me)/default_area 
           # robot /__w/teapot/teapot/robot/storm-webdav-tests.robot
       - name: Upload configs
         uses: actions/upload-artifact@v3
