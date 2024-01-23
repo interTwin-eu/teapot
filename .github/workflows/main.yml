@@ -89,4 +89,6 @@ jobs:
           path: |
             /var/lib/teapot/user-test-user1
             /var/log/teapot
+            /usr/share/teapot
+            /etc/teapot
   
