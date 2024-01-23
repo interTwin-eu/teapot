@@ -79,6 +79,7 @@ jobs:
           mkdir /home/test-user2/interTwin_extra
           chown test-user2 /home/test-user2/interTwin_extra
           su - teapot
+          touch /var/lib/teapot/webdav/test
           /usr/share/teapot/run-teapot.sh
           # curl -k -H "Authorization: Bearer $(oidc-token test-user1)" https://localhost:8081/default_area
           # robot /__w/teapot/teapot/robot/storm-webdav-tests.robot
@@ -87,7 +88,7 @@ jobs:
         with:
           name: test-config
           path: |
-            /var/lib/teapot/user-test-user1
+            /var/lib/teapot
             /var/log/teapot
             /usr/share/teapot
             /etc/teapot
