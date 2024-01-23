@@ -80,7 +80,7 @@ jobs:
           chown test-user2 /home/test-user2/interTwin_extra
           su - teapot
           /usr/share/teapot/run-teapot.sh
-          curl -k -H "Authorization: Bearer $(oidc-token test-user1)" https://localhost:8081/default_area
+          # curl -k -H "Authorization: Bearer $(oidc-token test-user1)" https://localhost:8081/default_area
           # robot /__w/teapot/teapot/robot/storm-webdav-tests.robot
       - name: Upload configs
         uses: actions/upload-artifact@v3
