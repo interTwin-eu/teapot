@@ -40,7 +40,7 @@ mkdir -p $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav
 cp %{_builddir}/%name-%version/templates/teapot_sessions.json $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav/teapot_sessions.json
 mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
 cp %{_builddir}/%name-%version/templates/teapot.log $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
-cp %{_builddir}/%name-%version/templates/tmp-storm-proxy.log $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
+cp %{_builddir}/%name-%version/templates/uvicorn.log $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/grid-security/vomsdir/
 
@@ -59,7 +59,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644, root, root) %{_datadir}/%name/storage_element.properties
 %attr(755, teapot, teapot) $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
 %attr(666, teapot, teapot) %{_localstatedir}/log/%name/teapot.log
-%attr(666, teapot, teapot) %{_localstatedir}/log/%name/tmp-storm-proxy.log
+%attr(666, teapot, teapot) %{_localstatedir}/log/%name/uvicorn.log
 %attr(440, root, root) %{_sysconfdir}/sudoers.d/teapot
 %attr(775, teapot, teapot) %{_sharedstatedir}/%name/
 %attr(664, teapot, teapot) %{_sharedstatedir}/%name/webdav/teapot_sessions.json
