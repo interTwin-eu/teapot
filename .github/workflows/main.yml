@@ -79,8 +79,7 @@ jobs:
           mkdir /home/test-user2/interTwin_extra
           chown test-user2 /home/test-user2/interTwin_extra
           su - teapot
-          python3 teapot.py
-          #/usr/share/teapot/run-teapot.sh
+          /usr/share/teapot/run-teapot.sh
           # curl -k -H "Authorization: Bearer $(oidc-token test-user1)" https://localhost:8081/default_area
           # robot /__w/teapot/teapot/robot/storm-webdav-tests.robot
       - name: Upload configs
