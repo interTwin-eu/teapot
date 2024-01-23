@@ -38,13 +38,12 @@ jobs:
       image: dvrbanec/teapot-dependencies:latest
       ports:
         - 8081:8081
+        - 4242:4242
         - 32400:32400
         - 32401:32401
         - 32402:32402
         - 32403:32403
         - 32404:32404
-        - 32405:32405
-        - 32406:32406
     services:
       keycloak:
         image: dvrbanec/keycloak-dev:latest
@@ -65,6 +64,7 @@ jobs:
           python3 keycloak-setup/keycloak-config.py
           oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
           oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
+          oidc-token test-user1 > /var/lib/teapot/webdav/test
           cp robot/storage-areas /etc/teapot/
           chmod 777 robot/User-sub_generator.sh
           robot/User-sub_generator.sh
@@ -79,7 +79,6 @@ jobs:
           mkdir /home/test-user2/interTwin_extra
           chown test-user2 /home/test-user2/interTwin_extra
           su - teapot
-          touch /var/lib/teapot/webdav/test
           python3 teapot.py
           #/usr/share/teapot/run-teapot.sh
           # curl -k -H "Authorization: Bearer $(oidc-token test-user1)" https://localhost:8081/default_area
