@@ -1,4 +1,4 @@
-
+*.log
 *.xml
 *.html
 teapot-venv/*

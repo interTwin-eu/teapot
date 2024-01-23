@@ -49,7 +49,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %attr(644, root, root) %{_datadir}/java/storm-webdav/storm-webdav-server.jar
-%attr(755, root, root) %{_datadir}/%name/run-teapot.sh
+%attr(755, teapot, teapot) %{_datadir}/%name/run-teapot.sh
 %attr(774, teapot, teapot) %{_datadir}/%name/teapot.py
 %attr(744, root, root) %{_datadir}/%name/self-signed-cert-gen.sh
 %attr(644, root, root) %{_sysconfdir}/%name/issuers.yml
@@ -57,7 +57,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(744, teapot, teapot) %{_sysconfdir}/%name/logback-access.xml
 %attr(644, root, root) %{_datadir}/%name/storage_authorizations.yml
 %attr(644, root, root) %{_datadir}/%name/storage_element.properties
-%attr(755, teapot, teapot) $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
+%attr(755, teapot, teapot) %{_localstatedir}/log/%name/
 %attr(666, teapot, teapot) %{_localstatedir}/log/%name/teapot.log
 %attr(666, teapot, teapot) %{_localstatedir}/log/%name/uvicorn.log
 %attr(440, root, root) %{_sysconfdir}/sudoers.d/teapot
