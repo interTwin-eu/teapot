@@ -49,7 +49,9 @@ jobs:
       keycloak:
         image: dvrbanec/keycloak-dev:latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v3
+        with:
+          name: teapot-rpm
       - name: Install the rpm package and self-signed certs
         run: |
           rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
@@ -81,7 +83,7 @@ jobs:
           curl -k -H "Authorization: Bearer $(oidc-token test-user1)" https://localhost:8081/default_area
           # robot /__w/teapot/teapot/robot/storm-webdav-tests.robot
       - name: Upload configs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: test-config
           path: |
