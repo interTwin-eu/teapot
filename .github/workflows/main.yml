@@ -89,4 +89,5 @@ jobs:
           name: test-config
           path: |
             /var/lib/teapot/user-test-user1
+            /var/log/teapot
   
