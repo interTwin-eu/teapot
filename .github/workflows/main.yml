@@ -67,13 +67,10 @@ jobs:
           adduser test-user1
           adduser test-user2
           su -c "mkdir -p /home/test-user1/interTwin" test-user1
-          echo "Hello world" > /home/test-user1/interTwin/file
-          mkdir /home/test-user1/interTwin_extra
-          chown test-user1 /home/test-user1/interTwin_extra
-          mkdir -p /home/test-user2/interTwin
-          chown test-user2 /home/test-user2/interTwin
-          mkdir -p /home/test-user2/interTwin_extra
-          chown test-user2 /home/test-user2/interTwin_extra
+          su -c "echo Hello world" > /home/test-user1/interTwin/file
+          su -c "mkdir /home/test-user1/interTwin_extra" test-user1
+          su -c "mkdir -p /home/test-user2/interTwin" test-user2
+          su -c "mkdir -p /home/test-user2/interTwin_extra" test-user2
           cp robot/storage-areas /etc/teapot/
           chmod 777 robot/User-sub_generator.sh
           robot/User-sub_generator.sh
