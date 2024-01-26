@@ -1,0 +1,9 @@
+FROM centos:centos7
+
+USER root 
+
+RUN \
+    yum -y update && \
+    yum -y upgrade && \
+    yum -y install gcc gcc-c++ && \
+    yum -y install rpmdevtools rpmlint rsync 
