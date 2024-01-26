@@ -68,6 +68,7 @@ jobs:
           adduser test-user2
           mkdir /home/test-user1/interTwin
           chown test-user1 /home/test-user1/interTwin
+          echo "Hello world" > /home/test-user1/interTwin/file
           mkdir /home/test-user1/interTwin_extra
           chown test-user1 /home/test-user1/interTwin_extra
           mkdir -p /home/test-user2/interTwin
