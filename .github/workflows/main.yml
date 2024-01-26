@@ -66,7 +66,7 @@ jobs:
           oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
           adduser test-user1
           adduser test-user2
-          su -c "mkdir -p /home/test-user1/interTwin: test-user1
+          su -c "mkdir -p /home/test-user1/interTwin" test-user1
           echo "Hello world" > /home/test-user1/interTwin/file
           mkdir /home/test-user1/interTwin_extra
           chown test-user1 /home/test-user1/interTwin_extra
