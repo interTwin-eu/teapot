@@ -69,6 +69,8 @@ jobs:
           robot/User-sub_generator.sh
           adduser test-user1
           adduser test-user2
+          cd /home/test-user1/
+          mkdir interTwin
           mkdir -p /home/test-user1/interTwin
           chown test-user1 /home/test-user1/interTwin
           mkdir /home/test-user1/interTwin_extra
