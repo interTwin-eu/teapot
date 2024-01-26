@@ -64,13 +64,8 @@ jobs:
           python3 keycloak-setup/keycloak-config.py
           oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
           oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
-          cp robot/storage-areas /etc/teapot/
-          chmod 777 robot/User-sub_generator.sh
-          robot/User-sub_generator.sh
           adduser test-user1
           adduser test-user2
-          cd /home/test-user1/
-          mkdir interTwin
           mkdir -p /home/test-user1/interTwin
           chown test-user1 /home/test-user1/interTwin
           mkdir /home/test-user1/interTwin_extra
@@ -79,6 +74,9 @@ jobs:
           chown test-user2 /home/test-user2/interTwin
           mkdir -p /home/test-user2/interTwin_extra
           chown test-user2 /home/test-user2/interTwin_extra
+          cp robot/storage-areas /etc/teapot/
+          chmod 777 robot/User-sub_generator.sh
+          robot/User-sub_generator.sh
           su -c /usr/share/teapot/run-teapot.sh teapot 
           ps faux | grep teapot > /var/lib/teapot/webdav/test
           # curl -k -H "Authorization: Bearer $(oidc-token test-user1)" https://$(curl ifconfig.me)/default_area 
