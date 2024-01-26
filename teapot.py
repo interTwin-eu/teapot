@@ -32,9 +32,10 @@ from os.path import exists
 from starlette.responses import StreamingResponse
 from starlette.background import BackgroundTask
 
-github_host = str(
-    subprocess.check_output("curl ifconfig.me -4", shell=True), encoding="utf-8"
-)
+github_host = "127.0.0.1"
+# str(
+#     subprocess.check_output("curl ifconfig.me -4", shell=True), encoding="utf-8"
+# )
 
 
 # lifespan function for startup and shutdown functions

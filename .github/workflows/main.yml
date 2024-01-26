@@ -75,7 +75,7 @@ jobs:
           robot/User-sub_generator.sh
           su -c /usr/share/teapot/run-teapot.sh teapot 
           ps faux | grep teapot > /home/test-user1/interTwin/test
-          curl -k -v -H "Authorization: Bearer $(oidc-token test-user1)" https://$(curl ifconfig.me):8081/default_area 
+          curl -k -v -H "Authorization: Bearer $(oidc-token test-user1)" https://127.0.0.1:8081/default_area # https://$(curl ifconfig.me):8081/default_area 
           # robot /__w/teapot/teapot/robot/storm-webdav-tests.robot
       - name: Upload configs
         uses: actions/upload-artifact@v3
