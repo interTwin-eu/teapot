@@ -12,7 +12,7 @@ jobs:
   build:
     name: build
     runs-on: ubuntu-latest
-    container: dvrbanec/centos7:latest
+    container: centos:centos7
     steps:
       - uses: actions/checkout@v3
         with:
@@ -20,12 +20,12 @@ jobs:
       - name: Install build requisites
         run: |
           yum -y install rpmdevtools rpmlint rsync
-          
       - name: Build rpm
         run: |
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
-      - uses: actions/upload-artifact@v4
+      - name: Upload rpm
+        uses: actions/upload-artifact@v3
         with:
           name: teapot-rpm
           path: /github/home/rpmbuild/RPMS/noarch/teapot-v*-1.el7.noarch.rpm
