@@ -32,10 +32,9 @@ from os.path import exists
 from starlette.responses import StreamingResponse
 from starlette.background import BackgroundTask
 
-github_host = "127.0.0.1"
-# str(
-#     subprocess.check_output("curl ifconfig.me -4", shell=True), encoding="utf-8"
-# )
+github_host = str(
+    subprocess.check_output("curl ifconfig.me -4", shell=True), encoding="utf-8"
+)
 
 
 # lifespan function for startup and shutdown functions
@@ -716,7 +715,7 @@ def main():
     key = "/var/lib/teapot/webdav/localhost.key"
     cert = "/var/lib/teapot/webdav/localhost.crt"
 
-    uvicorn.run(app, host="0.0.0.0", port=8081, ssl_keyfile=key, ssl_certfile=cert)
+    uvicorn.run(app, host=github_host, port=8081, ssl_keyfile=key, ssl_certfile=cert)
 
 
 if __name__ == "__main__":
