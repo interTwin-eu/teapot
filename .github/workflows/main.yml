@@ -77,7 +77,7 @@ jobs:
           ps faux | grep teapot > /home/test-user1/interTwin/test
           curl ifconfig.me >> /home/test-user1/interTwin/test
           hostname -i  >> /home/test-user1/interTwin/test
-          curl -k -v -H "Authorization: Bearer $(oidc-token test-user1)" https://$(hostname -i):8081/default_area 
+          # curl -k -v -H "Authorization: Bearer $(oidc-token test-user1)" https://$(hostname -i):8081/default_area 
           # robot /__w/teapot/teapot/robot/storm-webdav-tests.robot
       - name: Upload configs
         uses: actions/upload-artifact@v3
