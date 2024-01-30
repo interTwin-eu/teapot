@@ -76,7 +76,7 @@ jobs:
           su -c /usr/share/teapot/run-teapot.sh teapot 
           ps faux | grep teapot > /home/test-user1/interTwin/test
           yum -y install net-tools
-          net-tools -tulpn | grep LISTEN >> /home/test-user1/interTwin/test
+          netstat -tulpn | grep LISTEN >> /home/test-user1/interTwin/test
           # curl -k -v -H "Authorization: Bearer $(oidc-token test-user1)" https://127.0.0.1:8081/default_area 
           # robot /__w/teapot/teapot/robot/storm-webdav-tests.robot
       - name: Upload configs
