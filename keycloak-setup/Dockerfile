@@ -19,7 +19,7 @@ ENV KC_HEALTH_ENABLED=true
 WORKDIR /opt/keycloak/data/import/
 ADD https://syncandshare.desy.de/index.php/s/eq6HqmkSr7AFgMy/download/keycloak-export.json .
 
-CMD [ "start-dev --import-realm --verbose"]
+CMD [ "start-dev --import-realm" ]
 
 HEALTHCHECK --interval=10s --start-period=30s --retries=15 CMD curl --fail http://keycloak:8080 || exit 1
 
