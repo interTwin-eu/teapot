@@ -1,4 +1,4 @@
-from keycloak import KeycloakAdmin, KeycloakOpenID, KeycloakOpenIDConnection
+from keycloak import KeycloakAdmin, KeycloakOpenIDConnection
 
 # Keycloak Admin
 keycloak_connection = KeycloakOpenIDConnection(
