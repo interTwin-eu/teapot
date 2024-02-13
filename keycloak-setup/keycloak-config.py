@@ -6,7 +6,6 @@ keycloak_connection = KeycloakOpenIDConnection(
     username="admin",
     password="testing1",
     realm_name="master",
-    user_realm_name="test-realm",
     verify=True,
 )
 
