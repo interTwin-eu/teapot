@@ -13,7 +13,7 @@ keycloak_connection = KeycloakOpenIDConnection(
 keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
 
 # Changing Realm
-# keycloak_connection.realm_name = "test-realm"
+keycloak_connection.realm_name = "test-realm"
 
 # Create a client
 client = keycloak_admin.create_client(
