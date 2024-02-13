@@ -17,7 +17,7 @@ ENV KC_HTTP_ENABLED=true
 ENV KC_HEALTH_ENABLED=true
 
 WORKDIR /opt/keycloak/data/import/
-ADD https://syncandshare.desy.de/index.php/s/eq6HqmkSr7AFgMy/download/keycloak-export.json .
+ADD --chown=keycloak https://syncandshare.desy.de/index.php/s/eq6HqmkSr7AFgMy/download/keycloak-export.json .
 
 CMD [ "start-dev --import-realm" ]
 
