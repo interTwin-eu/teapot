@@ -70,8 +70,7 @@ jobs:
           su -c "mkdir -p /home/test-user2/interTwin" test-user2
           su -c "mkdir -p /home/test-user2/interTwin_extra" test-user2
           cp robot/storage-areas /etc/teapot/
-          chmod 777 robot/User-sub_generator.sh
-          robot/User-sub_generator.sh
+          cp robot/user-mapping.csv /etc/teapot/
           su -c /usr/share/teapot/run-teapot.sh teapot 
           # curl -k -v -H "Authorization: Bearer $token1" https://localhost:8081/default_area 
           # robot /__w/teapot/teapot/robot/storm-webdav-tests.robot
