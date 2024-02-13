@@ -6,16 +6,14 @@ keycloak_connection = KeycloakOpenIDConnection(
     username="admin",
     password="testing1",
     realm_name="master",
+    user_realm_name="test-realm",
     verify=True,
 )
 
 keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
 
 # Changing Realm
-keycloak_admin.create_realm(
-    payload={"realm": "test-realm", "enabled": True}, skip_exists=False
-)
-keycloak_connection.realm_name = "test-realm"
+# keycloak_connection.realm_name = "test-realm"
 
 # Create a client
 client = keycloak_admin.create_client(
@@ -35,23 +33,4 @@ keycloak_openid = KeycloakOpenID(
     client_id="test-client",
     realm_name="test-realm",
     client_secret_key="test-secret",
-)
-
-# Get WellKnown
-config_well_known = keycloak_openid.well_known()
-
-# Adding Users
-test_user1 = keycloak_admin.create_user(
-    {
-        "username": "test-user1",
-        "enabled": True,
-        "credentials": [{"value": "secret1", "type": "password"}],
-    }
-)
-test_user2 = keycloak_admin.create_user(
-    {
-        "username": "test-user2",
-        "enabled": True,
-        "credentials": [{"value": "secret2", "type": "password"}],
-    }
 )
