@@ -9,30 +9,30 @@ concurrency:
   group: ${{ github.workflow }}
 
 jobs:
-  build:
-    name: build
-    runs-on: ubuntu-latest
-    container: centos:centos7
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Install build requisites
-        run: |
-          yum -y install rpmdevtools rpmlint rsync
-      - name: Build rpm
-        run: |
-          chmod 777 rpm/teapot-rpm.sh
-          rpm/teapot-rpm.sh
-      - name: Upload rpm
-        uses: actions/upload-artifact@v3
-        with:
-          name: teapot-rpm
-          path: /github/home/rpmbuild/RPMS/noarch/teapot-v*-1.el7.noarch.rpm
+  # build:
+  #   name: build
+  #   runs-on: ubuntu-latest
+  #   container: centos:centos7
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
+  #     - name: Install build requisites
+  #       run: |
+  #         yum -y install rpmdevtools rpmlint rsync
+  #     - name: Build rpm
+  #       run: |
+  #         chmod 777 rpm/teapot-rpm.sh
+  #         rpm/teapot-rpm.sh
+  #     - name: Upload rpm
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: teapot-rpm
+  #         path: /github/home/rpmbuild/RPMS/noarch/teapot-v*-1.el7.noarch.rpm
 
   test:
     name: test
-    needs: build
+    # needs: build
     runs-on: ubuntu-latest
     container:
       image: dvrbanec/teapot-dependencies:latest
@@ -47,14 +47,9 @@ jobs:
     services:
       keycloak:
         image: dvrbanec/keycloak-dev:latest
+      teapot:
+        image: dvrbanec/teapot:latest
     steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: teapot-rpm
-      - name: Install the rpm package and self-signed certs
-        run: |
-          rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
-          /usr/share/teapot/self-signed-cert-gen.sh
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -63,15 +58,6 @@ jobs:
           eval "$(oidc-agent)"
           oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
           oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
-          adduser test-user1
-          adduser test-user2
-          su -c "mkdir -p /home/test-user1/interTwin" test-user1
-          su -c "mkdir /home/test-user1/interTwin_extra" test-user1
-          su -c "mkdir -p /home/test-user2/interTwin" test-user2
-          su -c "mkdir -p /home/test-user2/interTwin_extra" test-user2
-          cp robot/storage-areas /etc/teapot/
-          cp robot/user-mapping.csv /etc/teapot/
-          su -c /usr/share/teapot/run-teapot.sh teapot 
           # curl -k -v -H "Authorization: Bearer $token1" https://localhost:8081/default_area 
           # robot /__w/teapot/teapot/robot/storm-webdav-tests.robot
       - name: Upload configs
