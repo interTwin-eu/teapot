@@ -66,7 +66,8 @@ RUN update-ca-trust
 
 WORKDIR /usr/local/lib/python3.10/site-packages/certifi/
 RUN rm cacert.pem && \
-    ln -s /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem cacert.pem
+    ln -s /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem cacert.pem && \
+    yum clean all
 
 # installing teapot
 WORKDIR /tmp
@@ -103,5 +104,3 @@ WORKDIR /home/teapot
 USER teapot 
 
 CMD [ "/usr/share/teapot/run-teapot.sh" ]
-
-HEALTHCHECK --interval=10s --start-period=30s --retries=15 CMD curl --fail https://teapot:8081 || exit 1
