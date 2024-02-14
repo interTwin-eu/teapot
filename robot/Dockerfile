@@ -102,6 +102,6 @@ EXPOSE 32404
 WORKDIR /home/teapot
 USER teapot 
 
-CMD [/usr/share/teapot/run-teapot.sh]
+CMD [ "/usr/share/teapot/run-teapot.sh" ]
 
 HEALTHCHECK --interval=10s --start-period=30s --retries=15 CMD curl --fail https://teapot:8081 || exit 1
