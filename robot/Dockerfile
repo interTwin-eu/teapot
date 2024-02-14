@@ -100,7 +100,7 @@ EXPOSE 32402
 EXPOSE 32403
 EXPOSE 32404
 
-WORKDIR /usr/share/teapot/
-USER teapot 
+# WORKDIR /usr/share/teapot/
+# USER teapot 
 
-CMD  python3 /usr/share/teapot/teapot.py
+# CMD  python3 /usr/share/teapot/teapot.py
