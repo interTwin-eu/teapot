@@ -103,4 +103,4 @@ EXPOSE 32404
 WORKDIR /usr/share/teapot/
 USER teapot 
 
-CMD  python3 /usr/share/teapot/teapot.py
+CMD  curl -vLI http://keycloak:8080
