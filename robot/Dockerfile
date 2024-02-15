@@ -60,7 +60,7 @@ RUN ln -s /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem cert.pem
 WORKDIR /etc/pki/ca-trust/source/anchors
 ADD https://letsencrypt.org/certs/isrgrootx1.pem .
 ADD https://letsencrypt.org/certs/lets-encrypt-r3.pem .
-# ADD http://crt.comodoca.com/USERTrustRSACertificationAuthority.crt .
+ADD http://crl.usertrust.com/USERTrustRSACertificationAuthority.crl .
 ADD http://crt.usertrust.com/USERTrustRSAAddTrustCA.crt .
 RUN update-ca-trust 
 
@@ -100,7 +100,7 @@ EXPOSE 32402
 EXPOSE 32403
 EXPOSE 32404
 
-# WORKDIR /usr/share/teapot/
-# USER teapot 
+WORKDIR /usr/share/teapot/
+USER teapot 
 
-# CMD  python3 /usr/share/teapot/teapot.py
+CMD  python3 /usr/share/teapot/teapot.py
