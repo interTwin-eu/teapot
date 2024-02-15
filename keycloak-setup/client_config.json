@@ -1,5 +1,5 @@
 {
-    "issuer_url": "http://keycloak:8080/realms/test-realm",
+    "issuer_url": "https://keycloak.ci-cd-prep2.desy.de/realms/Testing",
     "client_id": "test-client",
     "client_secret": "d7dTo9jvXufxeMy0TjZWmiYWbyH3VIwA",
     "scope": "max",

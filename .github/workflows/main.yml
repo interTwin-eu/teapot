@@ -37,10 +37,8 @@ jobs:
     container:
       image: dvrbanec/teapot-dependencies:latest
     services:
-      keycloak:
-        image: dvrbanec/keycloak-dev:latest
       teapot:
-        image: dvrbanec/teapot:latest
+        image: dvrbanec/teapot-vm_keycloak:latest
     steps:
       - uses: actions/checkout@v3
         with:
