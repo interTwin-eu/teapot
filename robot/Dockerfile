@@ -79,6 +79,10 @@ RUN \
     rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
 
 
+WORKDIR /var/lib/teapot/webdav/
+ADD https://syncandshare.desy.de/index.php/s/AT4LMp9qJ3yxs9x/download/teapot.crt .
+ADD https://syncandshare.desy.de/index.php/s/zY6agLE29TAtkke/download/teapot.key .
+
 # configuring teapot for testing
 WORKDIR /etc/teapot
 ADD https://syncandshare.desy.de/index.php/s/Gt7bEoNits4Sp9Z/download/storage-areas .
@@ -92,10 +96,6 @@ RUN \
     su -c "mkdir -p /home/test-user1/interTwin_extra" test-user1 && \
     su -c "mkdir -p /home/test-user2/interTwin" test-user2 && \
     su -c "mkdir -p /home/test-user2/interTwin_extra" test-user2
-
-WORKDIR /var/lib/teapot/webdav/
-ADD https://syncandshare.desy.de/index.php/s/AT4LMp9qJ3yxs9x/download/teapot.crt .
-ADD https://syncandshare.desy.de/index.php/s/zY6agLE29TAtkke/download/teapot.key .
 
 EXPOSE 8081
 EXPOSE 32400

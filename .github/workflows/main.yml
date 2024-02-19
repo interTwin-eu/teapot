@@ -12,9 +12,9 @@ jobs:
   build:
     name: build
     runs-on: ubuntu-latest
-    container: centos:centos7
+    container: centos:centos8.4.2105
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Install build requisites
@@ -25,7 +25,7 @@ jobs:
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
       - name: Upload rpm
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: teapot-rpm
           path: /github/home/rpmbuild/RPMS/noarch/teapot-v*-1.el7.noarch.rpm
