@@ -62,6 +62,7 @@ ADD https://letsencrypt.org/certs/isrgrootx1.pem .
 ADD https://letsencrypt.org/certs/lets-encrypt-r3.pem .
 ADD http://crl.usertrust.com/USERTrustRSACertificationAuthority.crl .
 ADD http://crt.usertrust.com/USERTrustRSAAddTrustCA.crt .
+ADD https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
 RUN update-ca-trust 
 
 WORKDIR /usr/local/lib/python3.10/site-packages/certifi/
@@ -71,7 +72,7 @@ RUN rm cacert.pem && \
 
 # installing teapot
 WORKDIR /tmp
-ADD https://syncandshare.desy.de/index.php/s/57HSZDjBQP6NQDk/download/teapot-rpm.zip .
+ADD change .
 RUN \
     adduser teapot && \
     unzip teapot-rpm.zip && \
@@ -90,8 +91,11 @@ RUN \
     su -c "mkdir -p /home/test-user1/interTwin" test-user1 && \
     su -c "mkdir -p /home/test-user1/interTwin_extra" test-user1 && \
     su -c "mkdir -p /home/test-user2/interTwin" test-user2 && \
-    su -c "mkdir -p /home/test-user2/interTwin_extra" test-user2 && \
-    /usr/share/teapot/self-signed-cert-gen.sh
+    su -c "mkdir -p /home/test-user2/interTwin_extra" test-user2
+
+WORKDIR /var/lib/teapot/webdav/
+ADD https://syncandshare.desy.de/index.php/s/AT4LMp9qJ3yxs9x/download/teapot.crt .
+ADD https://syncandshare.desy.de/index.php/s/zY6agLE29TAtkke/download/teapot.key .
 
 EXPOSE 8081
 EXPOSE 32400

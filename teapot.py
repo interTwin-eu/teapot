@@ -255,8 +255,8 @@ async def _create_user_env(username, port):
     os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = github_host
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = f"{port}"
     os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"
-    os.environ["STORM_WEBDAV_CERTIFICATE_PATH"] = f"{storm_dir}/localhost.crt"
-    os.environ["STORM_WEBDAV_PRIVATE_KEY_PATH"] = f"{storm_dir}/localhost.key"
+    os.environ["STORM_WEBDAV_CERTIFICATE_PATH"] = f"{storm_dir}/teapot.crt"
+    os.environ["STORM_WEBDAV_PRIVATE_KEY_PATH"] = f"{storm_dir}/teapot.key"
     os.environ["STORM_WEBDAV_TRUST_ANCHORS_DIR"] = "/etc/ssl/certs"
     os.environ["STORM_WEBDAV_TRUST_ANCHORS_REFRESH_INTERVAL"] = "86400"
     os.environ["STORM_WEBDAV_MAX_CONNECTIONS"] = "300"

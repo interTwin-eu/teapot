@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  keycloak:
+    image: dvrbanec/keycloak-dev:latest
+    networks:
+      - test
+  teapot:
+    image: dvrbanec/teapot:latest
+    environment:
+      - TEAPOT_LOGLEVEL=DEBUG
+    networks:
+      - test
+    volumes:
+      - ./logs:/var/log/teapot
+
+  curl:
+    image: curlimages/curl:latest
+    command: sh -c "while true; do sleep 1; done"
+    networks:
+      - test
+
+  main:
+    image: dvrbanec/teapot-dependencies:latest
+    command: |
+      sh -c 'eval "$(oidc-agent)"
+      oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
+      oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
+      curl -k -v -H "Authorization: Bearer $(oidc-token test-user1)" "https://teapot:8081/default_area"
+      while true; do sleep 1; done
+      echo bla'
+    networks:
+      - test
+    volumes:
+      - ../../keycloak-setup:/home/teapot/keycloak-setup
+      - ./logs:/home/teapot/logs
+
+networks:
+  test:
+
+
