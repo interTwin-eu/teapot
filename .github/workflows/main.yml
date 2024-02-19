@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
       - name: Install build requisites
         run: |
-          yum -y install rpmdevtools rpmlint rsync
+          dnf -y install rpmdevtools rpmlint rsync
       - name: Build rpm
         run: |
           chmod 777 rpm/teapot-rpm.sh
