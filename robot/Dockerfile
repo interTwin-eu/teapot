@@ -72,10 +72,10 @@ RUN rm cacert.pem && \
 
 # installing teapot
 WORKDIR /tmp
-ADD change .
+ADD https://syncandshare.desy.de/index.php/s/KjnD5mStyGxpAEg/download/teapot-v0.5.0-1.el7.noarch.rpm .
 RUN \
     adduser teapot && \
-    unzip teapot-rpm.zip && \
+    # unzip teapot-rpm.zip && \
     rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
 
 
