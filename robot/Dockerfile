@@ -76,7 +76,7 @@ ADD https://syncandshare.desy.de/index.php/s/KjnD5mStyGxpAEg/download/teapot-v0.
 RUN \
     adduser teapot && \
     # unzip teapot-rpm.zip && \
-    rpm -i teapot-v*-1.el7.noarch.rpm --nodeps
+    rpm -i teapot-v*.noarch.rpm --nodeps
 
 
 WORKDIR /var/lib/teapot/webdav/
@@ -107,4 +107,4 @@ EXPOSE 32404
 WORKDIR /usr/share/teapot/
 USER teapot 
 
-CMD  curl -vLI http://keycloak:8080
+CMD  python3 teapot.py

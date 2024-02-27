@@ -713,8 +713,8 @@ async def root(
 
 
 def main():
-    key = "/var/lib/teapot/webdav/localhost.key"
-    cert = "/var/lib/teapot/webdav/localhost.crt"
+    key = "/var/lib/teapot/webdav/teapot.key"
+    cert = "/var/lib/teapot/webdav/teapot.crt"
 
     uvicorn.run(app, host="0.0.0.0", port=8081, ssl_keyfile=key, ssl_certfile=cert)
 

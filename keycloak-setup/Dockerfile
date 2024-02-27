@@ -11,16 +11,15 @@ COPY --from=ubi-micro-build /mnt/rootfs /
 
 ENV KEYCLOAK_ADMIN=admin 
 ENV KEYCLOAK_ADMIN_PASSWORD=testing1 
-ENV KC_HOSTNAME=keycloak 
-ENV KC_HTTP_ENABLED=true 
+ENV KC_HOSTNAME=keycloak
 ENV KC_HEALTH_ENABLED=true
 
 WORKDIR /opt/keycloak/data/import/
-ADD --chown=keycloak https://syncandshare.desy.de/index.php/s/byaGFbzNqYc4GrR/download/keycloak-export.json .
-ADD https://syncandshare.desy.de/index.php/s/6rz5dLFD3NewHb2/download/keycloak.crt /etc/pki/tls/certs/
-ADD https://syncandshare.desy.de/index.php/s/nK5LjNkb2eYKMni/download/keycloak.key /etc/pki/tls/certs/
+ADD --chown=1000:0 https://syncandshare.desy.de/index.php/s/byaGFbzNqYc4GrR/download/keycloak-export.json .
+ADD --chown=1000:0 https://syncandshare.desy.de/index.php/s/WXK5Qwrw882bytg/download/keycloak.pem /etc/pki/tls/certs/
+ADD --chown=1000:0 https://syncandshare.desy.de/index.php/s/ZxjmXAeH76q9jtQ/download/keycloak-key.pem /etc/pki/tls/certs/
 
-CMD [ "start-dev --import-realm --https-certificate-file=/etc/pki/tls/certs/keycloak.crt --https-certificate-key-file=keycloak.key" ]
+CMD start --import-realm --https-certificate-file=/etc/pki/tls/certs/keycloak.pem --https-certificate-key-file=/etc/pki/tls/certs/keycloak-key.pem
 
-HEALTHCHECK --interval=10s --start-period=30s --retries=15 CMD curl --fail http://keycloak:8080 || exit 1
+HEALTHCHECK --interval=10s --start-period=30s --retries=15 CMD curl --fail https://keycloak:8443 || exit 1
 

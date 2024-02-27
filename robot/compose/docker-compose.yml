@@ -3,6 +3,8 @@ version: "3.8"
 services:
   keycloak:
     image: dvrbanec/keycloak-dev:latest
+    ports:
+      - 8443:8443
     networks:
       - test
   teapot:
