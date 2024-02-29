@@ -25,12 +25,14 @@ services:
   main:
     image: dvrbanec/teapot-dependencies:latest
     command: |
-      sh -c 'eval "$(oidc-agent)"
+      /bin/sh -c 'curl -o /etc/pki/ca-trust/source/anchors/Teapot.crt "https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt"
+      update-ca-trust 
+      eval "$(oidc-agent)"
       oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
       oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
-      curl -k -v -H "Authorization: Bearer $(oidc-token test-user1)" "https://teapot:8081/default_area"
-      while true; do sleep 1; done
-      echo bla'
+      curl -v -H "Authorization: Bearer $(oidc-token test-user1)" "https://teapot:8081/default_area"
+      echo bla bla bla
+      while true; do sleep 1; done'
     networks:
       - test
     volumes:

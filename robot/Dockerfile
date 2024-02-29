@@ -9,7 +9,7 @@ RUN \
     yum -y install perl-IPC-Cmd perl-Test-Simple && \
     yum -y group install "Development Tools" && \
     yum -y install tar jq-1.6 sudo unzip && \
-    yum -y install rpmdevtools rpmlint rsync
+    yum -y install rpmdevtools rpmlint rsync 
 
 WORKDIR /usr/src
 ADD https://www.openssl.org/source/openssl-3.0.12.tar.gz .
@@ -45,7 +45,7 @@ RUN \
     pip3 install logging && \
     pip3 install uvicorn && \
     pip3 install requests && \
-    pip3 install flaat && \
+    pip3 install flaat==1.1.18 && \
     pip3 install fastapi && \
     pip3 install anyio && \
     pip3 install asyncio && \
@@ -78,10 +78,10 @@ RUN \
     # unzip teapot-rpm.zip && \
     rpm -i teapot-v*.noarch.rpm --nodeps
 
-
+# certificates
 WORKDIR /var/lib/teapot/webdav/
-ADD https://syncandshare.desy.de/index.php/s/AT4LMp9qJ3yxs9x/download/teapot.crt .
-ADD https://syncandshare.desy.de/index.php/s/zY6agLE29TAtkke/download/teapot.key .
+ADD --chown=teapot https://syncandshare.desy.de/index.php/s/AT4LMp9qJ3yxs9x/download/teapot.crt .
+ADD --chown=teapot https://syncandshare.desy.de/index.php/s/zY6agLE29TAtkke/download/teapot.key .
 
 # configuring teapot for testing
 WORKDIR /etc/teapot
@@ -105,6 +105,6 @@ EXPOSE 32403
 EXPOSE 32404
 
 WORKDIR /usr/share/teapot/
-USER teapot 
+USER teapot
 
-CMD  python3 teapot.py
+CMD python3 teapot.py
