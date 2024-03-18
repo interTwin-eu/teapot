@@ -9,11 +9,10 @@ RUN \
     dnf -y install tar jq unzip && \
     dnf -y install rpmdevtools rpmlint rsync && \
     dnf -y install libffi libffi-devel openssl && \
-    dnf -y install python3.10 python3-pip && \
+    dnf -y install python3.12 python3-pip && \
     pip install --upgrade pip && \
-    pip install pydantic httpx logging uvicorn requests flaat==1.1.18 fastapi anyio asyncio psutil robotframework robotframework-requests python-keycloak
-
-
+    pip install pydantic httpx logging uvicorn requests flaat==1.1.18 fastapi anyio  && \
+    pip install asyncio psutil robotframework robotframework-requests python-keycloak
 
 WORKDIR /usr/local/ssl
 RUN ln -s /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem cert.pem
@@ -26,9 +25,8 @@ ADD http://crt.usertrust.com/USERTrustRSAAddTrustCA.crt .
 ADD https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
 RUN update-ca-trust 
 
-WORKDIR /usr/local/lib/python3.10/site-packages/certifi/
-RUN ln -s /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem cacert.pem && \
-    dnf clean all
+# WORKDIR /usr/local/lib/python3.12/site-packages/certifi/
+# RUN ln -s /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem cacert.pem
 
 # installing teapot
 WORKDIR /tmp
