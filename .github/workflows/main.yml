@@ -35,7 +35,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     container:
-      image: dvrbanec/teapot-dependencies:latest
+      image: opensciencegrid/oidc-agent
     services:
       keycloak:
         image: dvrbanec/keycloak-dev:1
