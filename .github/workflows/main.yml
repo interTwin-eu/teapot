@@ -38,7 +38,7 @@ jobs:
       image: dvrbanec/main:latest
     services:
       keycloak:
-        image: dvrbanec/keycloak-dev:1
+        image: dvrbanec/keycloak-dev:latest
       teapot:
         image: dvrbanec/teapot:latest
     steps:
