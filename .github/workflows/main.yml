@@ -35,7 +35,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     container:
-      image: opensciencegrid/oidc-agent
+      image: dvrbanec/main:latest
     services:
       keycloak:
         image: dvrbanec/keycloak-dev:1
