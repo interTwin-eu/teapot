@@ -2,7 +2,7 @@ FROM dvrbanec/teapot-requirements
 
 # installing teapot
 WORKDIR /tmp
-COPY /home/runner/work/teapot/teapot/teapot-rpm.zip .
+COPY /home/runner/work/teapot/teapot/robot/teapot-rpm.zip .
 RUN \
     adduser teapot && \
     unzip teapot-rpm.zip && \
