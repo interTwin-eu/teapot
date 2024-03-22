@@ -39,9 +39,8 @@ jobs:
           fetch-depth: 0
       - name: Building Teapot docker image
         run: |
-          ls
-          pwd
-          # docker build /robot/ --tag dvrbanec/teapot:latest
+          cd robot
+          docker build . --tag dvrbanec/teapot:latest
 
   test:
     name: test
