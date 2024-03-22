@@ -41,11 +41,13 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: teapot-rpm
-          path: /home/runner/work/teapot/teapot/robot
+          path: /home/runner/work/teapot/teapot/robot/rpm
       - name: Building Teapot docker image
         run: |
+          cd /home/runner/work/teapot/teapot/robot/rpm
+          ls
           cd robot
-          docker build . --tag dvrbanec/teapot:latest
+          # docker build . --tag dvrbanec/teapot:latest
 
   test:
     name: test
