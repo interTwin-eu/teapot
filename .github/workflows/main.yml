@@ -29,18 +29,25 @@ jobs:
         with:
           name: teapot-rpm
           path: /github/home/rpmbuild/RPMS/noarch/teapot-v*.noarch.rpm
+
   containerization:
     name: containerization
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: teapot-rpm
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Building Teapot docker image
         run: |
           cd robot
-          docker build . --tag dvrbanec/teapot:latest
+          cd ~
+          ls 
+          pwd
+          #docker build . --tag dvrbanec/teapot:latest
 
   test:
     name: test
