@@ -29,10 +29,21 @@ jobs:
         with:
           name: teapot-rpm
           path: /github/home/rpmbuild/RPMS/noarch/teapot-v*.noarch.rpm
+  containerization:
+    name: containerization
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Building Teapot docker image
+        run: |
+           docker build /robot/ --tag dvrbanec/teapot:latest
 
   test:
     name: test
-    needs: build
+    needs: [build, containerization]
     runs-on: ubuntu-latest
     container:
       image: dvrbanec/main:latest
@@ -52,7 +63,7 @@ jobs:
           oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
           echo $(oidc-token test-user1)
           curl -k -v -H "Authorization: Bearer $(oidc-token test-user1)" https://teapot:8081/default_area 
-          
+
 
 
 
