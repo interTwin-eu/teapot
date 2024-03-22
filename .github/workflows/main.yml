@@ -44,9 +44,8 @@ jobs:
       - name: Building Teapot docker image
         run: |
           cd robot
-          cd ~
+          cd /home/runner/work/
           ls 
-          pwd
           #docker build . --tag dvrbanec/teapot:latest
 
   test:
