@@ -2,10 +2,9 @@ FROM dvrbanec/teapot-requirements
 
 # installing teapot
 WORKDIR /tmp
-COPY /home/runner/work/teapot/teapot/robot/teapot-rpm.zip .
+COPY /home/runner/work/teapot/teapot/robot/teapot-v*-1.fc41.noarch.rpm .
 RUN \
     adduser teapot && \
-    unzip teapot-rpm.zip && \
     rpm -i teapot-v*.noarch.rpm --nodeps
 # certificates
 WORKDIR /var/lib/teapot/webdav/
