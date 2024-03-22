@@ -1,11 +1,15 @@
 FROM dvrbanec/teapot-requirements
 
-# installing teapot
+# copying teapot rpm
 WORKDIR /tmp
-COPY /home/runner/work/teapot/teapot/robot/teapot-v*-1.fc41.noarch.rpm .
+COPY rpm/ .
+
+# installing teapot
+WORKDIR /tmp/rpm
 RUN \
     adduser teapot && \
     rpm -i teapot-v*.noarch.rpm --nodeps
+
 # certificates
 WORKDIR /var/lib/teapot/webdav/
 ADD --chown=teapot https://syncandshare.desy.de/index.php/s/AT4LMp9qJ3yxs9x/download/teapot.crt .
