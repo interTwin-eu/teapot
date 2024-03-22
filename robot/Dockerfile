@@ -1,11 +1,8 @@
 FROM dvrbanec/teapot-requirements
 
-# copying teapot rpm
+# installing Teapot
 WORKDIR /tmp
-COPY rpm/ .
-
-# installing teapot
-WORKDIR /tmp/rpm
+COPY teapot-v*.noarch.rpm .
 RUN \
     adduser teapot && \
     rpm -i teapot-v*.noarch.rpm --nodeps
