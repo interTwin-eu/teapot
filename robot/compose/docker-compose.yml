@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.9"
 
 services:
   keycloak:
@@ -25,8 +25,7 @@ services:
   main:
     image: dvrbanec/main:latest
     command: |
-      /bin/sh -c 'curl -o /etc/pki/ca-trust/source/anchors/Teapot.crt "https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt"
-      update-ca-trust 
+      /bin/sh -c ' 
       eval "$(oidc-agent)"
       oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
       oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
