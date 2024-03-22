@@ -21,5 +21,4 @@ ADD --chown=1000:0 https://syncandshare.desy.de/index.php/s/ZxjmXAeH76q9jtQ/down
 
 CMD [" start-dev --import-realm --https-certificate-file=/etc/pki/tls/certs/keycloak.pem --https-certificate-key-file=/etc/pki/tls/certs/keycloak-key.pem "]
 
-# HEALTHCHECK --interval=10s --start-period=30s --retries=15 CMD curl --fail https://0.0.0.0:8443 || exit 1
 
