@@ -2,7 +2,7 @@ FROM dvrbanec/teapot-requirements
 
 # installing teapot
 WORKDIR /tmp
-ADD https://github.com/interTwin-eu/teapot/actions/runs/8389159500/artifacts/1349681563 .
+COPY /home/runner/work/teapot/teapot/teapot-rpm.zip .
 RUN \
     adduser teapot && \
     unzip teapot-rpm.zip && \

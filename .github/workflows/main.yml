@@ -35,23 +35,17 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: teapot-rpm
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: teapot-rpm
+          path: /home/runner/work/teapot/teapot/robot/
       - name: Building Teapot docker image
         run: |
           cd robot
-          echo "this is actions"
-          cd /home/runner/work/_actions/actions/download-artifact/v4
-          ls 
-          echo "this is actions completed"
-          cd /home/runner/work/_actions/actions/download-artifact/v4.completed
-          ls 
-          cd /home/runner/work/teapot/teapot
-          #docker build . --tag dvrbanec/teapot:latest
+          docker build . --tag dvrbanec/teapot:latest
 
   test:
     name: test
