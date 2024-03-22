@@ -45,9 +45,11 @@ jobs:
         run: |
           cd robot
           echo "this is actions"
-          cd /home/runner/work/_actions/actions/download-artifact/
+          cd /home/runner/work/_actions/actions/download-artifact/v4
           ls 
-          echo "teapot"
+          echo "this is actions completed"
+          cd /home/runner/work/_actions/actions/download-artifact/v4.completed
+          ls 
           cd /home/runner/work/teapot/teapot
           #docker build . --tag dvrbanec/teapot:latest
 
