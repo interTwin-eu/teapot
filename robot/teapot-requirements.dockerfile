@@ -21,7 +21,6 @@ ADD https://letsencrypt.org/certs/isrgrootx1.pem .
 ADD https://letsencrypt.org/certs/lets-encrypt-r3.pem .
 ADD http://crl.usertrust.com/USERTrustRSACertificationAuthority.crl .
 ADD http://crt.usertrust.com/USERTrustRSAAddTrustCA.crt .
-ADD https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
 RUN update-ca-trust 
 
 # WORKDIR /usr/local/lib/python3.12/site-packages/certifi/

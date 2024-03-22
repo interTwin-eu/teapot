@@ -9,13 +9,13 @@ RUN \
 
 # certificates
 WORKDIR /var/lib/teapot/webdav/
-ADD --chown=teapot https://syncandshare.desy.de/index.php/s/AT4LMp9qJ3yxs9x/download/teapot.crt .
-ADD --chown=teapot https://syncandshare.desy.de/index.php/s/zY6agLE29TAtkke/download/teapot.key .
+COPY --chown=teapot testing-configurations/teapot.crt .
+COPY --chown=teapot testing-configurations/teapot.key .
 
 # configuring teapot for testing
 WORKDIR /etc/teapot
-ADD https://syncandshare.desy.de/index.php/s/Gt7bEoNits4Sp9Z/download/storage-areas .
-ADD https://syncandshare.desy.de/index.php/s/oEAQ6q4coPA82ag/download/user-mapping.csv .
+ADD testing-configurations/storage-areas .
+ADD testing-configurations/user-mapping.csv .
 RUN \
     chmod +r storage-areas && \
     chmod +r user-mapping.csv && \
@@ -25,6 +25,10 @@ RUN \
     su -c "mkdir -p /home/test-user1/interTwin_extra" test-user1 && \
     su -c "mkdir -p /home/test-user2/interTwin" test-user2 && \
     su -c "mkdir -p /home/test-user2/interTwin_extra" test-user2
+
+WORKDIR /etc/pki/ca-trust/source/anchors
+COPY testing-configurations/Teapot-testing.crt .
+RUN update-ca-trust 
 
 EXPOSE 8081
 EXPOSE 32400
