@@ -43,11 +43,14 @@ jobs:
           name: teapot-rpm
           path: /home/runner/work/teapot/teapot/robot
       - name: Building Teapot docker image
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
         run: |
           cd robot
           docker build . --tag intertwin-eu/teapot:latest
           echo $TOKEN | docker login ghcr.io -u $USERNAME --password-stdin
           docker push ghcr.io/intertwin-eu/teapot:latest
+
 
   test:
     name: test
