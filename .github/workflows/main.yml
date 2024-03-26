@@ -45,7 +45,9 @@ jobs:
       - name: Building Teapot docker image
         run: |
           cd robot
-          docker build . --tag dvrbanec/teapot:latest
+          docker build . --tag interTwin-eu/teapot:latest
+          echo $TOKEN | docker login ghcr.io -u $USERNAME --password-stdin
+          docker push ghcr.io/interTwin-eu/teapot:latest
 
   test:
     name: test
