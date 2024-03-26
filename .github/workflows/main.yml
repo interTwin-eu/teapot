@@ -52,7 +52,6 @@ jobs:
           echo $TOKEN | docker login ghcr.io -u $USERNAME --password-stdin
           docker push ghcr.io/intertwin-eu/teapot:latest
 
-
   test:
     name: test
     needs: [build, containerization]
@@ -63,7 +62,7 @@ jobs:
       keycloak:
         image: dvrbanec/keycloak-dev:latest
       teapot:
-        image: dvrbanec/teapot:latest
+        image: ghcr.io/intertwin-eu/teapot:latest
     steps:
       - uses: actions/checkout@v4
         with:
