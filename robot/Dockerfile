@@ -1,4 +1,4 @@
-FROM dvrbanec/teapot-requirements
+FROM dvrbanec/teapot-requirements:latest
 
 # installing Teapot
 WORKDIR /tmp
@@ -6,6 +6,10 @@ COPY teapot-v*.noarch.rpm .
 RUN \
     adduser teapot && \
     rpm -i teapot-v*.noarch.rpm --nodeps
+
+WORKDIR /etc/pki/ca-trust/source/anchors
+COPY testing-configurations/Teapot-testing.crt .
+RUN update-ca-trust 
 
 # certificates
 WORKDIR /var/lib/teapot/webdav/
@@ -25,10 +29,6 @@ RUN \
     su -c "mkdir -p /home/test-user1/interTwin_extra" test-user1 && \
     su -c "mkdir -p /home/test-user2/interTwin" test-user2 && \
     su -c "mkdir -p /home/test-user2/interTwin_extra" test-user2
-
-WORKDIR /etc/pki/ca-trust/source/anchors
-COPY testing-configurations/Teapot-testing.crt .
-RUN update-ca-trust 
 
 EXPOSE 8081
 EXPOSE 32400
