@@ -51,7 +51,6 @@ jobs:
           docker build . --tag ghcr.io/intertwin-eu/teapot:latest
           echo $TOKEN | docker login ghcr.io -u $USERNAME --password-stdin
           docker push ghcr.io/intertwin-eu/teapot:latest
-          docker logout ghcr.io
 
   test:
     name: test
@@ -64,6 +63,9 @@ jobs:
         image: dvrbanec/keycloak-dev:latest
       teapot:
         image: ghcr.io/intertwin-eu/teapot:latest
+        credentials: 
+          username:  ${{ secrets.USERNAME }}
+          password: ${{ secrets.TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
