@@ -51,6 +51,7 @@ jobs:
           docker build . --tag ghcr.io/intertwin-eu/teapot:latest
           echo $TOKEN | docker login ghcr.io -u $USERNAME --password-stdin
           docker push ghcr.io/intertwin-eu/teapot:latest
+          docker logout ghcr.io
 
   test:
     name: test
