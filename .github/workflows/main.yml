@@ -48,7 +48,7 @@ jobs:
           USERNAME: ${{ secrets.USERNAME }}
         run: |
           cd robot
-          docker build . --tag intertwin-eu/teapot:latest
+          docker build . --tag ghcr.io/intertwin-eu/teapot:latest
           echo $TOKEN | docker login ghcr.io -u $USERNAME --password-stdin
           docker push ghcr.io/intertwin-eu/teapot:latest
 
