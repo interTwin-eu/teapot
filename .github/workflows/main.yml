@@ -45,6 +45,7 @@ jobs:
       - name: Building Teapot docker image
         env:
           TOKEN: ${{ secrets.TOKEN }}
+          USERNAME: ${{ secrets.USERNAME }}
         run: |
           cd robot
           docker build . --tag intertwin-eu/teapot:latest
