@@ -31,13 +31,8 @@ RUN \
     su -c "mkdir -p /home/test-user2/interTwin_extra" test-user2
 
 EXPOSE 8081
-EXPOSE 32400
-EXPOSE 32401
-EXPOSE 32402
-EXPOSE 32403
-EXPOSE 32404
 
-WORKDIR /usr/share/teapot/
 USER teapot
+WORKDIR /usr/share/teapot/
 
 CMD python3 teapot.py

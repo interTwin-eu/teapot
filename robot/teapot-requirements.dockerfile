@@ -1,4 +1,4 @@
-FROM fedora:41
+FROM fedora:39
 
 USER root
 
@@ -8,10 +8,10 @@ RUN \
     dnf -y group install "Development Tools" && \
     dnf -y install jq unzip && \
     dnf -y install libffi libffi-devel openssl && \
-    dnf -y install python3.12 python3-pip && \
+    dnf -y install python3-pip && \
     pip install --upgrade pip && \
     pip install pydantic httpx logging uvicorn requests flaat==1.1.18 && \
-    pip install fastapi anyio asyncio psutilrobotframework robotframework-requests python-keycloak
+    pip install fastapi anyio asyncio psutil robotframework robotframework-requests python-keycloak
 
 WORKDIR /usr/local/ssl
 RUN ln -s /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem cert.pem
