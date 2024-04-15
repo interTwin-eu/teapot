@@ -8,7 +8,7 @@
       principals:
       - type: jwt-subject
         params:
-          iss: http://keycloak:8080/realms/test-realm
+          iss: http://keycloak:8443/realms/test-realm
           sub: $sub
     - sa: $storage_area
       actions:
