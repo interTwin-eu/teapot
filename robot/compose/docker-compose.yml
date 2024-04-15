@@ -35,7 +35,7 @@ services:
       curl -O https://syncandshare.desy.de/index.php/s/oJMSFWj3jFy9F8a/download/test_file
       curl -O https://syncandshare.desy.de/index.php/s/rWYXp7tdCMbfJA8/download/variables.py
       robot --outputdir tmp/robot/output/ /tmp/teapot-tests.robot
-      echo "Done."
+      echo "Done?"
       while true; do sleep 1; done'
     networks:
       - test
