@@ -32,7 +32,6 @@ RUN \
 
 EXPOSE 8081
 
-USER teapot
 WORKDIR /usr/share/teapot/
 
-CMD python3 teapot.py
+CMD su -c ./run-teapot.sh

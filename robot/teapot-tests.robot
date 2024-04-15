@@ -5,8 +5,6 @@ Variables        /__w/teapot/teapot/robot/variables.py
 
 *** Test Cases ***
 
-Authentification
-    [Tags]         authentication
 GET USER1
     ${RESPONSE}=    GET    ${DEFAULT_AREA}    headers=${HEADER1}    verify=${false}    expected_status=200
 
