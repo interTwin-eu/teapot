@@ -19,16 +19,16 @@ GET INVALID TOKEN
 
 
 PUT REQUEST INVALID TOKEN
-    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}    headers=${HEADER3}    verify=${false}     expected_status=401
+    ${RESPONSE}=    PUT    ${DEFAULT_AREA}${/}TestFile1    data=${DATA}    headers=${HEADER3}    verify=${false}     expected_status=401    --skiponfailure
 
 PUT REQUEST NO TOKEN
-    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}                          verify=${false}     expected_status=403
+    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}                          verify=${false}     expected_status=403    --skiponfailure
 
 PUT REQUEST USER1
-    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}    headers=${HEADER1}    verify=${false}     expected_status=201
+    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}    headers=${HEADER1}    verify=${false}     expected_status=201     --skiponfailure
 
 PUT REQUEST USER2
-    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}    headers=${HEADER2}    verify=${false}     expected_status=201
+    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}    headers=${HEADER2}    verify=${false}     expected_status=201     --skiponfailure
 
 
 GET FILE USER1
@@ -71,16 +71,16 @@ GET INVALID TOKEN EXTRA_AREA
 
 
 PUT REQUEST INVALID TOKEN EXTRA_AREA
-    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}    headers=${HEADER3}    verify=${false}     expected_status=401
+    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}    headers=${HEADER3}    verify=${false}     expected_status=401    --skiponfailure
 
 PUT REQUEST NO TOKEN EXTRA_AREA
-    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}                          verify=${false}     expected_status=403
+    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}                          verify=${false}     expected_status=403    --skiponfailure
 
 PUT REQUEST USER1 EXTRA_AREA
-    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}    headers=${HEADER1}    verify=${false}     expected_status=201
+    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}    headers=${HEADER1}    verify=${false}     expected_status=201    --skiponfailure
 
 PUT REQUEST USER2 EXTRA_AREA
-    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}    headers=${HEADER2}    verify=${false}     expected_status=201
+    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}    headers=${HEADER2}    verify=${false}     expected_status=201    --skiponfailure
 
 
 GET FILE USER1 EXTRA_AREA

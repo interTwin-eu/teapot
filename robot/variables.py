@@ -8,4 +8,4 @@ TOKEN2 = subprocess.check_output("oidc-token test-user2", shell=True)
 HEADER1 = {"Authorization": ("Bearer " + str(TOKEN1, "ascii")).strip("\n")}
 HEADER2 = {"Authorization": ("Bearer " + str(TOKEN2, "ascii")).strip("\n")}
 HEADER3 = {"Authorization": "Bearer NOT_A_TOKEN"}
-DATA = "/__w/teapot/teapot/robot/test_file"
+DATA = "Hello! This is a test. "
