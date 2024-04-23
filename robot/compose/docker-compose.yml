@@ -36,7 +36,7 @@ services:
       curl -O https://syncandshare.desy.de/index.php/s/rWYXp7tdCMbfJA8/download/variables.py
       # curl -v -T /tmp/test_file -H "Authorization: Bearer $(oidc-token test-user1)" "https://teapot:8081/default_area/"
       robot --outputdir robot/output/ /tmp/teapot-tests.robot
-      echo "File transfers testing is tricky. And still now working."
+      echo "Why, oh why? Coffeeeeeeee. "
       while true; do sleep 1; done'
     networks:
       - test

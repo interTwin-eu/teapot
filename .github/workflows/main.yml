@@ -78,6 +78,7 @@ jobs:
           curl -v -H "Authorization: Bearer $(oidc-token test-user1)" https://teapot:8081/default_area 
           robot --outputdir /__w/teapot/teapot/robot/output/ /__w/teapot/teapot/robot/teapot-tests.robot
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: robot-tests
           path: /__w/teapot/teapot/robot/output
