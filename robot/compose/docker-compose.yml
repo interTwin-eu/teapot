@@ -23,7 +23,7 @@ services:
   main:
     image: dvrbanec/main:latest
     command: |
-      /bin/sh -c ' 
+      /bin/sh -c '
       eval "$(oidc-agent)"
       oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
       oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
@@ -46,5 +46,3 @@ services:
 
 networks:
   test:
-
-
