@@ -65,7 +65,7 @@ jobs:
         image: ghcr.io/intertwin-eu/teapot:latest
         credentials: 
           username:  ${{ secrets.USERNAME }}
-          password: ${{ secrets.TOKEN }}
+          password: ${{ secrets.TOKEN1 }}
     steps:
       - uses: actions/checkout@v4
         with:
