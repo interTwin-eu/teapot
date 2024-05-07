@@ -697,13 +697,14 @@ async def root(
     logger.info(f"redirect_url is formed as {redirect_url}.")
 
     async with httpx.AsyncClient(verify=False) as client:
+        timeout = httpx.Timeout(15.0, read_timeout=None)
         forward_req = client.build_request(
             request.method,
             redirect_url,
             headers=request.headers.raw,
             content=request.stream(),
         )
-        forward_resp = await client.send(forward_req, stream=True)
+        forward_resp = await client.send(forward_req, stream=True, timeout=timeout)
         return StreamingResponse(
             forward_resp.aiter_raw(),
             status_code=forward_resp.status_code,
