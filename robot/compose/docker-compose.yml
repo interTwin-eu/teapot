@@ -7,9 +7,6 @@ services:
       - test
   teapot:
     image: ghcr.io/intertwin-eu/teapot:latest
-    secrets:
-      - username
-      - password
     environment:
       - TEAPOT_LOGLEVEL=DEBUG
     networks:
@@ -47,9 +44,3 @@ services:
 
 networks:
   test:
-
-secrets:
-  username:
-    file: ~/.ssh/username
-  password:
-    file: ~/.ssh/github-token

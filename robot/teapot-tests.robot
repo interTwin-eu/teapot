@@ -19,7 +19,7 @@ GET INVALID TOKEN
 
 
 PUT REQUEST INVALID TOKEN
-    ${RESPONSE}=    PUT    ${DEFAULT_AREA}${/}TestFile1    data=${DATA}    headers=${HEADER3}    verify=${false}     expected_status=401    --skiponfailure
+    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}    headers=${HEADER3}    verify=${false}     expected_status=401    --skiponfailure
 
 PUT REQUEST NO TOKEN
     ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}                          verify=${false}     expected_status=403    --skiponfailure
