@@ -7,19 +7,20 @@ services:
       - test
   teapot:
     image: ghcr.io/intertwin-eu/teapot:latest
+    secrets:
+      - username
+      - password
     environment:
       - TEAPOT_LOGLEVEL=DEBUG
     networks:
       - test
     volumes:
       - ./logs:/var/log/teapot'
-
   curl:
     image: curlimages/curl:latest
     command: sh -c "while true; do sleep 1; done"
     networks:
       - test
-
   main:
     image: dvrbanec/main:latest
     command: |
@@ -46,3 +47,9 @@ services:
 
 networks:
   test:
+
+secrets:
+  username:
+    file: ~/.ssh/username
+  password:
+    file: ~/.ssh/github-token
