@@ -702,8 +702,9 @@ async def root(
             redirect_url,
             headers=request.headers.raw,
             content=request.stream(),
+            timeout=15.0
         )
-        forward_resp = await client.send(forward_req, stream=True, timeout=15.0)
+        forward_resp = await client.send(forward_req, stream=True)
         return StreamingResponse(
             forward_resp.aiter_raw(),
             status_code=forward_resp.status_code,
