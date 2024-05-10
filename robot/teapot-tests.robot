@@ -5,17 +5,17 @@ Variables        /__w/teapot/teapot/robot/variables.py
 
 *** Keywords ***
 
-Add Test File USER1     ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile2    data=${DATA}    headers=${HEADER1}    verify=${false}
+Add Test File USER1     PUT    ${DEFAULT_AREA}/TestFile2    data=${DATA}    headers=${HEADER1}    verify=${false}
 
-Add Test File USER2     ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile2    data=${DATA}    headers=${HEADER2}    verify=${false}
+Add Test File USER2     PUT    ${DEFAULT_AREA}/TestFile2    data=${DATA}    headers=${HEADER2}    verify=${false}
 
-Delete Test File1 USER1     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile1    headers=${HEADER1}    verify=${false}
+Delete Test File1 USER1     DELETE    ${DEFAULT_AREA}/TestFile1    headers=${HEADER1}    verify=${false}
 
-Delete Test File1 USER2     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile1    headers=${HEADER1}    verify=${false}
+Delete Test File1 USER2     DELETE    ${DEFAULT_AREA}/TestFile1    headers=${HEADER1}    verify=${false}
 
-Delete Test File2 USER1     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile2    headers=${HEADER1}    verify=${false}
+Delete Test File2 USER1     DELETE    ${DEFAULT_AREA}/TestFile2    headers=${HEADER1}    verify=${false}
 
-Delete Test File2 USER2     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile2    headers=${HEADER1}    verify=${false}
+Delete Test File2 USER2     DELETE    ${DEFAULT_AREA}/TestFile2    headers=${HEADER1}    verify=${false}
 
 *** Test Cases ***
 
