@@ -5,17 +5,17 @@ Variables        /__w/teapot/teapot/robot/variables.py
 
 *** Keywords ***
 
-Add Test File USER1     PUT    ${DEFAULT_AREA}/TestFile2    data=${DATA}    headers=${HEADER1}    verify=${false}
+Add Test File USER1     ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile2    data=${DATA}    headers=${HEADER1}    verify=${false}     expected_status=201
 
-Add Test File USER2     PUT    ${DEFAULT_AREA}/TestFile2    data=${DATA}    headers=${HEADER2}    verify=${false}
+Add Test File USER2     ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile2    data=${DATA}    headers=${HEADER2}    verify=${false}     expected_status=201
 
-Delete Test File1 USER1     DELETE    ${DEFAULT_AREA}/TestFile1    headers=${HEADER1}    verify=${false}
+Delete Test File1 USER1     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile1    headers=${HEADER1}    verify=${false}     expected_status=204
 
-Delete Test File1 USER2     DELETE    ${DEFAULT_AREA}/TestFile1    headers=${HEADER1}    verify=${false}
+Delete Test File1 USER2     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile1    headers=${HEADER1}    verify=${false}     expected_status=204
 
-Delete Test File2 USER1     DELETE    ${DEFAULT_AREA}/TestFile2    headers=${HEADER1}    verify=${false}
+Delete Test File2 USER1     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile2    headers=${HEADER1}    verify=${false}     expected_status=204
 
-Delete Test File2 USER2     DELETE    ${DEFAULT_AREA}/TestFile2    headers=${HEADER1}    verify=${false}
+Delete Test File2 USER2     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile2    headers=${HEADER1}    verify=${false}     expected_status=204
 
 *** Test Cases ***
 
@@ -33,17 +33,17 @@ GET INVALID TOKEN
 
 
 PUT REQUEST INVALID TOKEN
-    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}    headers=${HEADER3}    verify=${false}     expected_status=401    --skiponfailure
+    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}    headers=${HEADER3}    verify=${false}     expected_status=401
 
 PUT REQUEST NO TOKEN
-    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}                          verify=${false}     expected_status=403    --skiponfailure
+    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}                          verify=${false}     expected_status=403
 
 PUT REQUEST USER1
-    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}    headers=${HEADER1}    verify=${false}     expected_status=201     --skiponfailure
+    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}    headers=${HEADER1}    verify=${false}     expected_status=201
     [Teardown]    Delete Test File1 USER1
 
 PUT REQUEST USER2
-    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}    headers=${HEADER2}    verify=${false}     expected_status=201     --skiponfailure
+    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}    headers=${HEADER2}    verify=${false}     expected_status=201
     [Teardown]    Delete Test File1 USER2
 
 
@@ -95,17 +95,17 @@ GET INVALID TOKEN EXTRA_AREA
 
 
 PUT REQUEST INVALID TOKEN EXTRA_AREA
-    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}    headers=${HEADER3}    verify=${false}     expected_status=401    --skiponfailure
+    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}    headers=${HEADER3}    verify=${false}     expected_status=401
 
 PUT REQUEST NO TOKEN EXTRA_AREA
-    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}                          verify=${false}     expected_status=403    --skiponfailure
+    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}                          verify=${false}     expected_status=403
 
 PUT REQUEST USER1 EXTRA_AREA
-    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}    headers=${HEADER1}    verify=${false}     expected_status=201    --skiponfailure
+    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}    headers=${HEADER1}    verify=${false}     expected_status=201
     [Teardown]    Delete Test File1 USER1
 
 PUT REQUEST USER2 EXTRA_AREA
-    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}    headers=${HEADER2}    verify=${false}     expected_status=201    --skiponfailure
+    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}    headers=${HEADER2}    verify=${false}     expected_status=201
     [Teardown]    Delete Test File1 USER2
 
 
