@@ -25,16 +25,13 @@ services:
       eval "$(oidc-agent)"
       oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
       oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
-      # curl -v -H "Authorization: Bearer $(oidc-token test-user1)" "https://teapot:8081/default_area"
-      # echo "Testing file transfers." >> /tmp/test_file
-      # curl -v -T /tmp/test_file -H "Authorization: Bearer $(oidc-token test-user1)" "https://teapot:8081/default_area/"
       cd /tmp
       curl -O https://syncandshare.desy.de/index.php/s/EmKsQpW67LapT3z/download/teapot-tests.robot
       curl -O https://syncandshare.desy.de/index.php/s/oJMSFWj3jFy9F8a/download/test_file
       curl -O https://syncandshare.desy.de/index.php/s/rWYXp7tdCMbfJA8/download/variables.py
-      # curl -v -T /tmp/test_file -H "Authorization: Bearer $(oidc-token test-user1)" "https://teapot:8081/default_area/"
+      curl -v -T /tmp/test_file -H "Authorization: Bearer $(oidc-token test-user1)" "https://teapot:8081/default_area/"
       robot --outputdir robot/output/ /tmp/teapot-tests.robot
-      echo "Why, oh why? Coffeeeeeeee. "
+      echo "Change in tests - again"
       while true; do sleep 1; done'
     networks:
       - test
