@@ -67,12 +67,10 @@ GET FILE INVALID TOKEN
 DELETE REQUEST USER1
     [Setup]     Add Test File USER1
     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile2    headers=${HEADER1}    verify=${false}     expected_status=204
-    [Teardown]    Delete Test File2 USER1
 
 DELETE REQUEST USER2
     [Setup]     Add Test File USER2
     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile2    headers=${HEADER2}    verify=${false}     expected_status=204
-    [Teardown]    Delete Test File2 USER2
 
 DELETE REQUEST INVALID TOKEN
     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile2    headers=${HEADER3}    verify=${false}     expected_status=401
@@ -129,12 +127,10 @@ GET FILE INVALID TOKEN EXTRA_AREA
 DELETE REQUEST USER1 EXTRA_AREA
     [Setup]     Add Test File USER1
     ${RESPONSE}=    DELETE    ${EXTRA_AREA}/TestFile2    headers=${HEADER1}    verify=${false}     expected_status=204
-    [Teardown]    Delete Test File2 USER1
 
 DELETE REQUEST USER2 EXTRA_AREA
     [Setup]     Add Test File USER2
     ${RESPONSE}=    DELETE    ${EXTRA_AREA}/TestFile2    headers=${HEADER2}    verify=${false}     expected_status=204
-    [Teardown]    Delete Test File2 USER2
 
 DELETE REQUEST INVALID TOKEN EXTRA_AREA
     ${RESPONSE}=    DELETE    ${EXTRA_AREA}/TestFile2    headers=${HEADER3}    verify=${false}     expected_status=401
