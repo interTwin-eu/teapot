@@ -29,9 +29,9 @@ services:
       curl -O https://syncandshare.desy.de/index.php/s/EmKsQpW67LapT3z/download/teapot-tests.robot
       curl -O https://syncandshare.desy.de/index.php/s/oJMSFWj3jFy9F8a/download/test_file
       curl -O https://syncandshare.desy.de/index.php/s/rWYXp7tdCMbfJA8/download/variables.py
-      curl -v -T /tmp/test_file -H "Authorization: Bearer $(oidc-token test-user1)" "https://teapot:8081/default_area/"
+      # curl -v -T /tmp/test_file -H "Authorization: Bearer $(oidc-token test-user1)" "https://teapot:8081/default_area/"
       robot --outputdir robot/output/ /tmp/teapot-tests.robot
-      echo "Change in tests "
+      echo "Change in tests - setups test "
       while true; do sleep 1; done'
     networks:
       - test
