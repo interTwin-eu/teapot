@@ -11,11 +11,11 @@ Add Test File USER2     ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile2    data
 
 Delete Test File1 USER1     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile1    headers=${HEADER1}    verify=${false}     expected_status=204
 
-Delete Test File1 USER2     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile1    headers=${HEADER1}    verify=${false}     expected_status=204
+Delete Test File1 USER2     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile1    headers=${HEADER2}    verify=${false}     expected_status=204
 
 Delete Test File2 USER1     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile2    headers=${HEADER1}    verify=${false}     expected_status=204
 
-Delete Test File2 USER2     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile2    headers=${HEADER1}    verify=${false}     expected_status=204
+Delete Test File2 USER2     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile2    headers=${HEADER2}    verify=${false}     expected_status=204
 
 *** Test Cases ***
 
