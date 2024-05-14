@@ -81,7 +81,7 @@ flaat.set_trusted_OP_list(
 # logging is important
 LOGFILE = os.environ.get("TEAPOT_LOGFILE", "/var/log/teapot/teapot.log")
 LOGLEVEL = os.environ.get("TEAPOT_LOGLEVEL", "INFO").upper()
-logging.basicConfig(level=logging.getLevelName(LOGLEVEL))
+logging.basicConfig(filename=LOGFILE, level=logging.getLevelName(LOGLEVEL))
 logger = logging.getLogger(__name__)
 
 # globals
