@@ -62,6 +62,8 @@ async def lifespan(app: FastAPI):
     if exists(SESSION_STORE_PATH):
         pathlib.Path.unlink(SESSION_STORE_PATH)
 
+    await client.aclose()
+
 
 # create fastAPI app and initialize flaat options
 app = FastAPI(lifespan=lifespan)
@@ -118,6 +120,8 @@ app.state.session_state = {}
 # lock for the state. any write operation on the state should only be done
 # in an "async with app.state_lock:" environment.
 app.state.state_lock = anyio.Lock()
+
+client = httpx.AsyncClient(verify=False)
 
 
 async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
@@ -696,21 +700,20 @@ async def root(
     redirect_url = f"https://{redirect_host}:{redirect_port}{request.url.path}"
     logger.info(f"redirect_url is formed as {redirect_url}.")
 
-    async with httpx.AsyncClient(verify=False) as client:
-        forward_req = client.build_request(
-            request.method,
-            redirect_url,
-            headers=request.headers.raw,
-            content=request.stream(),
-            timeout=15.0
-        )
-        forward_resp = await client.send(forward_req, stream=True)
-        return StreamingResponse(
-            forward_resp.aiter_raw(),
-            status_code=forward_resp.status_code,
-            headers=forward_resp.headers,
-            background=BackgroundTask(forward_resp.aclose),
-        )
+    forward_req = client.build_request(
+        request.method,
+        redirect_url,
+        headers=request.headers.raw,
+        content=request.stream(),
+        timeout=15.0
+    )
+    forward_resp = await client.send(forward_req, stream=True)
+    return StreamingResponse(
+        forward_resp.aiter_raw(),
+        status_code=forward_resp.status_code,
+        headers=forward_resp.headers,
+        background=BackgroundTask(forward_resp.aclose),
+    )
 
 
 def main():
