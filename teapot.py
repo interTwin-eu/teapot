@@ -20,7 +20,7 @@ from stat import *
 
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, Request, Response
+from fastapi import Depends, FastAPI, Request, Response, HTTPException
 from fastapi.security import HTTPBearer, HTTPBasicCredentials
 
 from flaat.config import AccessLevel
@@ -671,27 +671,28 @@ async def root(
     # get data from userinfo endpoint
     user_infos = flaat.get_user_infos_from_request(request)
     if not user_infos:
-        return 403
+        raise HTTPException(status_code=403)
 
     logger.info(f"user_info is: {user_infos['sub']}")
     sub = user_infos.get("sub", None)
     if not sub:
         # if there is no sub, user can not be authenticated
-        return 403
+        raise HTTPException(status_code=403)
     # user is valid, so check if a storm instance is running for this sub
     redirect_host, redirect_port, local_user = await _return_or_create_storm_instance(
         sub
     )
 
+    # REVISIT: should these errors be thrown from _return_or_create_storm_instance?
     if not redirect_host and not redirect_port:
         # no mapping between federated and local user identity found
-        return 403
+        raise HTTPException(status_code=403)
     if redirect_port == -1:
         logger.info(f"no instance for user {local_user} created...")
-        return 500
+        raise HTTPException(status_code=500, detail="Problem supporting user.")
     if not redirect_port:
         # no port returned, should not happen
-        return 500
+        raise HTTPException(status_code=500, detail="Failed to establish internal connection.")
     if not redirect_host:
         redirect_host = "localhost"
     logger.info(f"redirect_host: {redirect_host}, redirect_port: {redirect_port}")
