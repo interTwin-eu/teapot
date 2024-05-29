@@ -19,7 +19,7 @@ services:
     networks:
       - test
   main:
-    image: dvrbanec/main:latest
+    image: dvrbanec/main:1
     command: |
       /bin/sh -c '
       eval "$(oidc-agent)"
