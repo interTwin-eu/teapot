@@ -32,12 +32,6 @@ from os.path import exists
 from starlette.responses import StreamingResponse
 from starlette.background import BackgroundTask
 
-github_host = "0.0.0.0"
-# str(
-#     subprocess.check_output("curl ifconfig.me -4", shell=True), encoding="utf-8"
-# )
-
-
 # lifespan function for startup and shutdown functions
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -76,7 +70,6 @@ flaat.set_trusted_OP_list(
     [
         "https://aai-demo.egi.eu/auth/realms/egi",
         "https://keycloak:8443/realms/test-realm",
-        "https://keycloak.ci-cd-prep2.desy.de/realms/Testing",
     ]
 )
 
@@ -256,11 +249,11 @@ async def _create_user_env(username, port):
     os.environ[
         "STORM_WEBDAV_JVM_OPTS"
     ] = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
-    os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = github_host
+    os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = "localhost"
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = f"{port}"
     os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"
-    os.environ["STORM_WEBDAV_CERTIFICATE_PATH"] = f"{storm_dir}/teapot.crt"
-    os.environ["STORM_WEBDAV_PRIVATE_KEY_PATH"] = f"{storm_dir}/teapot.key"
+    os.environ["STORM_WEBDAV_CERTIFICATE_PATH"] = f"{storm_dir}/localhost.crt"
+    os.environ["STORM_WEBDAV_PRIVATE_KEY_PATH"] = f"{storm_dir}/loalhost.key"
     os.environ["STORM_WEBDAV_TRUST_ANCHORS_DIR"] = "/etc/ssl/certs"
     os.environ["STORM_WEBDAV_TRUST_ANCHORS_REFRESH_INTERVAL"] = "86400"
     os.environ["STORM_WEBDAV_MAX_CONNECTIONS"] = "300"
@@ -721,7 +714,7 @@ def main():
     key = "/var/lib/teapot/webdav/teapot.key"
     cert = "/var/lib/teapot/webdav/teapot.crt"
 
-    uvicorn.run(app, host="0.0.0.0", port=8081, ssl_keyfile=key, ssl_certfile=cert)
+    uvicorn.run(app, host="teapot", port=8081, ssl_keyfile=key, ssl_certfile=cert)
 
 
 if __name__ == "__main__":
