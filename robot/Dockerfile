@@ -16,8 +16,8 @@ RUN update-ca-trust
 WORKDIR /var/lib/teapot/webdav/
 ADD --chown=teapot https://syncandshare.desy.de/index.php/s/AT4LMp9qJ3yxs9x/download/teapot.crt .
 ADD --chown=teapot https://syncandshare.desy.de/index.php/s/zY6agLE29TAtkke/download/teapot.key .
-ADD --chmod=744 https://syncandshare.desy.de/index.php/s/TfosBEAmNnMRQtL/download/localhost.crt .
-ADD --chmod=744 https://syncandshare.desy.de/index.php/s/Z4xFNWMCCq4KRFm/download/localhost.key .
+ADD --chown=teapot --chmod=744 https://syncandshare.desy.de/index.php/s/TfosBEAmNnMRQtL/download/localhost.crt .
+ADD --chown=teapot --chmod=744 https://syncandshare.desy.de/index.php/s/Z4xFNWMCCq4KRFm/download/localhost.key .
 
 # configuring teapot for testing
 WORKDIR /etc/teapot
