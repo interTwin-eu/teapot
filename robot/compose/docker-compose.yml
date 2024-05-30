@@ -36,6 +36,15 @@ services:
     volumes:
       - ../../keycloak-setup:/home/teapot/keycloak-setup
       - ./logs:/home/teapot/logs
+  linter:
+    image: ghcr.io/github/super-linter:slim-v4
+    networks:
+      - test
+    environment:
+      - LOG_LEVEL=DEBUG
+      - RUN_LOCAL=true
+    volumes:
+      - ~/git/teapot/:/tmp/lint
 
 networks:
   test:

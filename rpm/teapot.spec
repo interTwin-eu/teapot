@@ -26,7 +26,6 @@ cp %{_builddir}/%name-%version/storm-webdav-server.jar $RPM_BUILD_ROOT/%{_datadi
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/%name/
 cp %{_builddir}/%name-%version/teapot.py $RPM_BUILD_ROOT/%{_datadir}/%name/
 cp %{_builddir}/%name-%version/run-teapot.sh $RPM_BUILD_ROOT/%{_datadir}/%name/
-cp %{_builddir}/%name-%version/self-signed-cert-gen.sh $RPM_BUILD_ROOT/%{_datadir}/%name/
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/%name
 cp %{_builddir}/%name-%version/templates/issuers.yml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
 cp %{_builddir}/%name-%version/templates/logback.xml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
@@ -51,7 +50,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644, root, root) %{_datadir}/java/storm-webdav/storm-webdav-server.jar
 %attr(755, teapot, teapot) %{_datadir}/%name/run-teapot.sh
 %attr(774, teapot, teapot) %{_datadir}/%name/teapot.py
-%attr(744, root, root) %{_datadir}/%name/self-signed-cert-gen.sh
 %attr(644, root, root) %{_sysconfdir}/%name/issuers.yml
 %attr(744, teapot, teapot) %{_sysconfdir}/%name/logback.xml
 %attr(744, teapot, teapot) %{_sysconfdir}/%name/logback-access.xml
