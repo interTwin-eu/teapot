@@ -110,7 +110,7 @@ app.state.session_state = {}
 # in an "async with app.state_lock:" environment.
 app.state.state_lock = anyio.Lock()
 
-client = httpx.AsyncClient(verify="/var/lib/teapot/webdav/teapot.pem")
+client = httpx.AsyncClient(cert="/var/lib/teapot/webdav/teapot.pem")
 
 
 async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
