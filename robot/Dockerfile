@@ -20,7 +20,7 @@ RUN update-ca-trust
 # certificates
 WORKDIR /var/lib/teapot/webdav/
 ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/2X6TbWWFR6Dq59K/download/teapot.pem .
-ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/H9HZZWpbPFFHgx5/download/teapot.key .
+ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/QSDidypFNFyCk96/download/teapot-key.pem .
 
 # configuring teapot for testing
 WORKDIR /etc/teapot
