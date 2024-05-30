@@ -110,7 +110,7 @@ app.state.session_state = {}
 # in an "async with app.state_lock:" environment.
 app.state.state_lock = anyio.Lock()
 
-client = httpx.AsyncClient(verify="/etc/pki/ca-trust/source/anchors/testingCA.pem")
+client = httpx.AsyncClient(verify=False)
 
 
 async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
@@ -248,7 +248,7 @@ async def _create_user_env(username, port):
     os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = "localhost"
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = f"{port}"
     os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"
-    os.environ["STORM_WEBDAV_CERTIFICATE_PATH"] = f"{storm_dir}/teapot.crt"
+    os.environ["STORM_WEBDAV_CERTIFICATE_PATH"] = f"{storm_dir}/teapot.pem"
     os.environ["STORM_WEBDAV_PRIVATE_KEY_PATH"] = f"{storm_dir}/teapot.key"
     os.environ["STORM_WEBDAV_TRUST_ANCHORS_DIR"] = "/etc/ssl/certs"
     os.environ["STORM_WEBDAV_TRUST_ANCHORS_REFRESH_INTERVAL"] = "86400"
@@ -289,7 +289,7 @@ async def _start_webdav_instance(username, port):
     if not res:
         logger.error(f"could not create user dirs for {username}")
         return False
-    logger.debug(f"creating user env...")
+    logger.debug("creating user env...")
     res = await _create_user_env(username, port)
     if not res:
         logger.error(f"could not create user env for {username}")
@@ -376,7 +376,7 @@ async def _stop_webdav_instance(username):
         )
         try:
             session = app.state.session_state.pop(username)
-        except KeyError as e:
+        except KeyError:
             logger.error(
                 f"_stop_webdav_instance: session state for user {username} doesn't exist."
             )
@@ -402,7 +402,7 @@ async def _stop_webdav_instance(username):
 
         exit_code = kill_exit_code
     else:
-        logger.info(f"No PID found.")
+        logger.info("No PID found.")
         exit_code = -1
 
     return exit_code
@@ -527,7 +527,7 @@ async def load_session_state():
             with open(SESSION_STORE_PATH, "r") as f:
                 try:
                     app.state.session_state = json.load(f)
-                except json.decoder.JSONDecodeError as e:
+                except json.decoder.JSONDecodeError:
                     app.state.session_state = {}
 
 
@@ -626,7 +626,7 @@ async def _return_or_create_storm_instance(sub):
                 resp = httpx.get(f"https://localhost:{port}/", verify=False)
                 if resp.status_code >= 200:
                     running = True
-            except httpx.ConnectError as e:
+            except httpx.ConnectError:
                 loops += 1
                 logger.debug(
                     f"_return_or_create: trying to reach instance, try {loops}/{STARTUP_TIMEOUT}..."
@@ -710,7 +710,7 @@ async def root(
 
 def main():
     key = "/var/lib/teapot/webdav/teapot.key"
-    cert = "/var/lib/teapot/webdav/teapot.crt"
+    cert = "/var/lib/teapot/webdav/teapot.pem"
 
     uvicorn.run(app, host="teapot", port=8081, ssl_keyfile=key, ssl_certfile=cert)
 
