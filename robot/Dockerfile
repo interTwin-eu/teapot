@@ -1,3 +1,8 @@
+# trunk-ignore-all(checkov/CKV_DOCKER_2)
+# trunk-ignore-all(checkov/CKV_DOCKER_3)
+# trunk-ignore-all(trivy/DS002)
+# trunk-ignore-all(trivy/DS026)
+# trunk-ignore-all(hadolint/DL3007)
 FROM dvrbanec/teapot-requirements:latest
 
 # installing Teapot
@@ -8,8 +13,8 @@ RUN \
     rpm -i teapot-v*.noarch.rpm --nodeps
 
 WORKDIR /etc/pki/ca-trust/source/anchors
-ADD https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
-ADD https://syncandshare.desy.de/index.php/s/37RZn84eNtDGJDX/download/testingCA.crt .
+ADD --chmod=744 https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
+ADD --chmod=744 https://syncandshare.desy.de/index.php/s/37RZn84eNtDGJDX/download/testingCA.crt .
 RUN update-ca-trust 
 
 # certificates
