@@ -1,36 +1,32 @@
 #!/usr/bin/env python3
 
-import anyio
 import asyncio
 import csv
 import datetime
 import errno
-import httpx
 import json
 import logging
 import os
 import pathlib
-import psutil
 import socket
 import subprocess
-import uvicorn
-
+from contextlib import asynccontextmanager
+from os.path import exists
 from pwd import getpwnam
 from stat import *
 
-from contextlib import asynccontextmanager
-
-from fastapi import Depends, FastAPI, Request, Response, HTTPException
-from fastapi.security import HTTPBearer, HTTPBasicCredentials
-
+import anyio
+import httpx
+import psutil
+import uvicorn
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi.security import HTTPBasicCredentials, HTTPBearer
 from flaat.config import AccessLevel
 from flaat.fastapi import Flaat
 from flaat.requirements import HasSubIss
-
-from os.path import exists
-
-from starlette.responses import StreamingResponse
 from starlette.background import BackgroundTask
+from starlette.responses import StreamingResponse
+
 
 # lifespan function for startup and shutdown functions
 @asynccontextmanager
@@ -45,7 +41,7 @@ async def lifespan(app: FastAPI):
         loop = asyncio.get_event_loop()
     except RuntimeError:
         loop = asyncio.new_event_loop()
-    task = loop.create_task(stop_expired_instances())
+        loop.create_task(stop_expired_instances())
 
     yield
 
@@ -57,6 +53,7 @@ async def lifespan(app: FastAPI):
         pathlib.Path.unlink(SESSION_STORE_PATH)
 
     await client.aclose()
+
 
 # create fastAPI app and initialize flaat options
 app = FastAPI(lifespan=lifespan)
@@ -115,6 +112,7 @@ app.state.state_lock = anyio.Lock()
 
 client = httpx.AsyncClient(verify=False)
 
+
 async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
     if not exists(dir):
         try:
@@ -132,6 +130,7 @@ async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
         #    os.chown(dir, uid, gid)
         # except PermissionError:
         #    logger.error(f"Could not chown directory {dir}, not allowed to change ownership to {uid}, {gid}.")
+
 
 async def _create_user_dirs(username):
     # need to create
@@ -235,6 +234,7 @@ async def _create_user_dirs(username):
                     )
     return True
 
+
 async def _create_user_env(username, port):
     etc_dir = f"/etc/{APP_NAME}"
     user_dir = f"/var/lib/{APP_NAME}/user-{username}"
@@ -242,9 +242,9 @@ async def _create_user_env(username, port):
     # make sure that .storm_profile is imported in the users shell init
     # by e.g. adding ". ~/.storm_profile" to the user's .bash_profile
 
-    os.environ[
-        "STORM_WEBDAV_JVM_OPTS"
-    ] = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
+    os.environ["STORM_WEBDAV_JVM_OPTS"] = (
+        "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
+    )
     os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = "localhost"
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = f"{port}"
     os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"
@@ -256,18 +256,18 @@ async def _create_user_env(username, port):
     os.environ["STORM_WEBDAV_MAX_QUEUE_SIZE"] = "900"
     os.environ["STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME"] = "30000"
     os.environ["STORM_WEBDAV_SA_CONFIG_DIR"] = f"{user_dir}/sa.d"
-    os.environ[
-        "STORM_WEBDAV_JAR"
-    ] = "/usr/share/java/storm-webdav/storm-webdav-server.jar"
+    os.environ["STORM_WEBDAV_JAR"] = (
+        "/usr/share/java/storm-webdav/storm-webdav-server.jar"
+    )
 
     os.environ["STORM_WEBDAV_LOG"] = f"{user_dir}/log/server.log"
     os.environ["STORM_WEBDAV_OUT"] = f"{user_dir}/log/server.out"
     os.environ["STORM_WEBDAV_ERR"] = f"{user_dir}/log/server.err"
 
     os.environ["STORM_WEBDAV_LOG_CONFIGURATION"] = f"{etc_dir}/logback.xml"
-    os.environ[
-        "STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"
-    ] = f"{etc_dir}/logback-access.xml"
+    os.environ["STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"] = (
+        f"{etc_dir}/logback-access.xml"
+    )
     os.environ["STORM_WEBDAV_VO_MAP_FILES_ENABLE"] = "false"
     os.environ["STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL"] = "21600"
     os.environ["STORM_WEBDAV_TPC_MAX_CONNECTIONS"] = "50"
@@ -277,10 +277,12 @@ async def _create_user_env(username, port):
 
     return True
 
+
 async def _remove_user_env():
     for key in os.environ.keys():
         if key.startswith("STORM_WEBDAV_"):
             del os.environ[key]
+
 
 async def _start_webdav_instance(username, port):
     res = await _create_user_dirs(username)
@@ -344,6 +346,7 @@ async def _start_webdav_instance(username, port):
         kill_proc.wait()
         return None
 
+
 async def _get_proc(full_cmd):
     # here we are simply looking through all processes and try to find a match for the full command
     # that was issued to start the instance in question. then return the process handle.
@@ -359,6 +362,7 @@ async def _get_proc(full_cmd):
             logger.info(f"PID found: {pid}")
             return proc
     raise RuntimeError(f"process with for full command {full_cmd} does not exist.")
+
 
 async def _stop_webdav_instance(username):
     logger.info(f"Stopping webdav instance for user {username}.")
@@ -402,6 +406,7 @@ async def _stop_webdav_instance(username):
         exit_code = -1
 
     return exit_code
+
 
 async def stop_expired_instances():
     # checks for expired instances still running
@@ -451,6 +456,7 @@ async def stop_expired_instances():
                     f"_stop_expired_instances: No session object for user {user} in session_state."
                 )
 
+
 async def _find_usable_port_no():
     used_ports = []
     logger.debug(
@@ -485,6 +491,7 @@ async def _find_usable_port_no():
             # should not happen :grimacing:
         return port
 
+
 async def _test_port(port):
     # function to recursively find an open port recursively.
     # TODO: enhance by adding a list of reserved ports that will be skipped
@@ -503,10 +510,12 @@ async def _test_port(port):
         s.close()
     return port
 
+
 async def save_session_state():
     async with app.state.state_lock:
         with open(SESSION_STORE_PATH, "a") as f:
             json.dump(app.state.session_state, f)
+
 
 async def load_session_state():
     async with app.state.state_lock:
@@ -520,6 +529,7 @@ async def load_session_state():
                     app.state.session_state = json.load(f)
                 except json.decoder.JSONDecodeError as e:
                     app.state.session_state = {}
+
 
 async def _map_fed_to_local(sub):
     # this func returns the local username for a federated user or None
@@ -539,6 +549,7 @@ async def _map_fed_to_local(sub):
                 logger.info(f"found local user {row[0]}.")
                 return row[0]
     return None
+
 
 async def _return_or_create_storm_instance(sub):
     # returns redirect_host and redirect port for sub.
@@ -624,6 +635,7 @@ async def _return_or_create_storm_instance(sub):
         logger.info(f"Storm-WebDAV instance for {local_user} started on port {port}.")
     return None, port, local_user
 
+
 @app.api_route(
     "/{filepath:path}",
     methods=[
@@ -669,7 +681,9 @@ async def root(
         raise HTTPException(status_code=500, detail="Problem supporting user.")
     if not redirect_port:
         # no port returned, should not happen
-        raise HTTPException(status_code=500, detail="Failed to establish internal connection.")
+        raise HTTPException(
+            status_code=500, detail="Failed to establish internal connection."
+        )
     if not redirect_host:
         redirect_host = "localhost"
     logger.info(f"redirect_host: {redirect_host}, redirect_port: {redirect_port}")
@@ -683,7 +697,7 @@ async def root(
         redirect_url,
         headers=request.headers.raw,
         content=request.stream(),
-        timeout=15.0
+        timeout=15.0,
     )
     forward_resp = await client.send(forward_req, stream=True)
     return StreamingResponse(
@@ -692,6 +706,7 @@ async def root(
         headers=forward_resp.headers,
         background=BackgroundTask(forward_resp.aclose),
     )
+
 
 def main():
     key = "/var/lib/teapot/webdav/teapot.key"

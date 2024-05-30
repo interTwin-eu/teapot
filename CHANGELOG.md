@@ -1,20 +1,26 @@
-# Change Log
-All notable changes to this project will be documented in this file.
+# Changelog
 
+All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - 2023-11.27
 
-Teapot is now able to spawn StoRM-WebDAV instances by itself and route requests to the corresponding instances based on AuthN/Z via Openid-connect tokens.
-It is, however, not able to terminate instances after the set timeout because the PIDs of the processes are not the ones of the originally spawned ones due to spawning them for each user makes several forks necessary which changes the PID. 
+Teapot is now able to spawn StoRM-WebDAV instances by itself and route requests
+to the corresponding instances based on AuthN/Z via Openid-connect tokens. It
+is, however, not able to terminate instances after the set timeout because the
+PIDs of the processes are not the ones of the originally spawned ones due to
+spawning them for each user makes several forks necessary which changes the PID.
 TODO: Fix terminating instances.
- 
-The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/) and this
+project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - 2024-01-12
 
-Teapot is now able to spawn StoRM-WebDAV instances by itself and route requests to the corresponding instances based on AuthN/Z via Openid-connect tokens. It is also able to terminate instances after the set timeout.
+Teapot is now able to spawn StoRM-WebDAV instances by itself and route requests
+to the corresponding instances based on AuthN/Z via Openid-connect tokens. It is
+also able to terminate instances after the set timeout.
 
 ## [Unreleased] - yyyy-mm-dd
- 
-Here we write upgrading notes for brands. It's a team effort to make them as straightforward as possible.
- 
+
+Here we write upgrading notes for brands. It's a team effort to make them as
+straightforward as possible.

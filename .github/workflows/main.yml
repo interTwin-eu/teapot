@@ -49,7 +49,7 @@ jobs:
         run: |
           cd robot
           docker build . --tag ghcr.io/intertwin-eu/teapot:latest
-          echo $TOKEN | docker login ghcr.io -u $USERNAME --password-stdin
+          echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
           docker push ghcr.io/intertwin-eu/teapot:latest
 
   test:
@@ -64,7 +64,7 @@ jobs:
       teapot:
         image: ghcr.io/intertwin-eu/teapot:latest
         credentials:
-          username:  ${{ secrets.USERNAME }}
+          username: ${{ secrets.USERNAME }}
           password: ${{ secrets.TOKEN }}
     steps:
       - uses: actions/checkout@v4
@@ -75,7 +75,6 @@ jobs:
           eval "$(oidc-agent)"
           oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
           oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
-          # curl -v -H "Authorization: Bearer $(oidc-token test-user1)" https://teapot:8081/default_area
           robot --outputdir /__w/teapot/teapot/robot/output/ /__w/teapot/teapot/robot/teapot-tests.robot
       - uses: actions/upload-artifact@v4
         if: always()
@@ -99,4 +98,3 @@ jobs:
         uses: joonvena/robotframework-reporter-action@v2.4
         with:
           gh_access_token: ${{ secrets.TOKEN }}
-
