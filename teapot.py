@@ -612,7 +612,7 @@ async def _return_or_create_storm_instance(sub):
                 logger.debug(
                     f"checking if instance for user {local_user} is listening on port {port}."
                 )
-                resp = httpx.get(f"https://localhost:{port}/")
+                resp = httpx.get(f"https://localhost:{port}/", verify=False)
                 if resp.status_code >= 200:
                     running = True
             except httpx.ConnectError as e:
