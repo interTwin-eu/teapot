@@ -13,13 +13,13 @@ RUN \
     rpm -i teapot-v*.noarch.rpm --nodeps
 
 WORKDIR /etc/pki/ca-trust/source/anchors
-ADD --chmod=744 https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
-ADD --chmod=744 https://syncandshare.desy.de/index.php/s/37RZn84eNtDGJDX/download/testingCA.crt .
+ADD --chmod=744 https://syncandshare.desy.de/index.php/s/2X6TbWWFR6Dq59K/download/teapot.pem .
+ADD --chmod=744 https://syncandshare.desy.de/index.php/s/Xb8djtiyXPrGboG/download/testingCA.pem .
 RUN update-ca-trust 
 
 # certificates
 WORKDIR /var/lib/teapot/webdav/
-ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/GoCe4PWFJ5s95tP/download/teapot.crt .
+ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/2X6TbWWFR6Dq59K/download/teapot.pem .
 ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/H9HZZWpbPFFHgx5/download/teapot.key .
 
 # configuring teapot for testing
