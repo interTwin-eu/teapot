@@ -27,13 +27,13 @@ mkdir -p $RPM_BUILD_ROOT/%{_datadir}/%name/
 cp %{_builddir}/%name-%version/teapot.py $RPM_BUILD_ROOT/%{_datadir}/%name/
 cp %{_builddir}/%name-%version/run-teapot.sh $RPM_BUILD_ROOT/%{_datadir}/%name/
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/%name
-cp %{_builddir}/%name-%version/templates/issuers.yml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
+cp %{_builddir}/%name-%version/templates/issuers $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
 cp %{_builddir}/%name-%version/templates/logback.xml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
 cp %{_builddir}/%name-%version/templates/logback-access.xml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/sudoers.d/
 cp %{_builddir}/%name-%version/templates/teapot $RPM_BUILD_ROOT/%{_sysconfdir}/sudoers.d/
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/%name
-cp %{_builddir}/%name-%version/templates/storage_authorizations.yml $RPM_BUILD_ROOT/%{_datadir}/%name
+cp %{_builddir}/%name-%version/templates/storage_authorizations $RPM_BUILD_ROOT/%{_datadir}/%name
 cp %{_builddir}/%name-%version/templates/storage_element.properties $RPM_BUILD_ROOT/%{_datadir}/%name
 mkdir -p $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav
 cp %{_builddir}/%name-%version/templates/teapot_sessions.json $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav/teapot_sessions.json
@@ -50,10 +50,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644, root, root) %{_datadir}/java/storm-webdav/storm-webdav-server.jar
 %attr(755, teapot, teapot) %{_datadir}/%name/run-teapot.sh
 %attr(774, teapot, teapot) %{_datadir}/%name/teapot.py
-%attr(644, root, root) %{_sysconfdir}/%name/issuers.yml
+%attr(644, root, root) %{_sysconfdir}/%name/issuers
 %attr(744, teapot, teapot) %{_sysconfdir}/%name/logback.xml
 %attr(744, teapot, teapot) %{_sysconfdir}/%name/logback-access.xml
-%attr(644, root, root) %{_datadir}/%name/storage_authorizations.yml
+%attr(644, root, root) %{_datadir}/%name/storage_authorizations
 %attr(644, root, root) %{_datadir}/%name/storage_element.properties
 %attr(755, teapot, teapot) %{_localstatedir}/log/%name/
 %attr(644, teapot, teapot) %{_localstatedir}/log/%name/teapot.log
