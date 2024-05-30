@@ -216,9 +216,9 @@ async def _create_user_dirs(username):
                 if line.startswith(username):
                     sub = line.split(" ")[1]
                     break
-        with open(f"{config_dir}/issuers.yml", "r") as issuers:
+        with open(f"{config_dir}/issuers", "r") as issuers:
             issuers_part = issuers.readlines()
-        with open(f"/usr/share/teapot/storage_authorizations.yml", "r") as auths:
+        with open(f"/usr/share/teapot/storage_authorizations", "r") as auths:
             authorization_part = "".join(auths.readlines())
         with open(f"{user_config_dir}/application.yml", "a") as application_yml:
             for line in issuers_part:
