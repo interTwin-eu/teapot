@@ -20,5 +20,3 @@ ADD --chown=1000:0 https://syncandshare.desy.de/index.php/s/WXK5Qwrw882bytg/down
 ADD --chown=1000:0 https://syncandshare.desy.de/index.php/s/ZxjmXAeH76q9jtQ/download/keycloak-key.pem /etc/pki/tls/certs/
 
 CMD [" start-dev --import-realm --https-certificate-file=/etc/pki/tls/certs/keycloak.pem --https-certificate-key-file=/etc/pki/tls/certs/keycloak-key.pem "]
-
-

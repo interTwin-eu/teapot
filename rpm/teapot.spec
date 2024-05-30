@@ -65,7 +65,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 %attr(775, root, root) %{_sysconfdir}/grid-security/vomsdir/
 
-
 %changelog
-* Mon Dec 04 2023 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Thu May 30 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}
