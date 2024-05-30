@@ -57,7 +57,7 @@ jobs:
     needs: [build, containerization]
     runs-on: ubuntu-latest
     container:
-      image: dvrbanec/main:latest
+      image: dvrbanec/main:1
     services:
       keycloak:
         image: dvrbanec/keycloak-dev:latest

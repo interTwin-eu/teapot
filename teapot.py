@@ -32,12 +32,6 @@ from os.path import exists
 from starlette.responses import StreamingResponse
 from starlette.background import BackgroundTask
 
-github_host = "0.0.0.0"
-# str(
-#     subprocess.check_output("curl ifconfig.me -4", shell=True), encoding="utf-8"
-# )
-
-
 # lifespan function for startup and shutdown functions
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -64,7 +58,6 @@ async def lifespan(app: FastAPI):
 
     await client.aclose()
 
-
 # create fastAPI app and initialize flaat options
 app = FastAPI(lifespan=lifespan)
 flaat = Flaat()
@@ -76,7 +69,6 @@ flaat.set_trusted_OP_list(
     [
         "https://aai-demo.egi.eu/auth/realms/egi",
         "https://keycloak:8443/realms/test-realm",
-        "https://keycloak.ci-cd-prep2.desy.de/realms/Testing",
     ]
 )
 
@@ -123,7 +115,6 @@ app.state.state_lock = anyio.Lock()
 
 client = httpx.AsyncClient(verify=False)
 
-
 async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
     if not exists(dir):
         try:
@@ -141,7 +132,6 @@ async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
         #    os.chown(dir, uid, gid)
         # except PermissionError:
         #    logger.error(f"Could not chown directory {dir}, not allowed to change ownership to {uid}, {gid}.")
-
 
 async def _create_user_dirs(username):
     # need to create
@@ -245,7 +235,6 @@ async def _create_user_dirs(username):
                     )
     return True
 
-
 async def _create_user_env(username, port):
     etc_dir = f"/etc/{APP_NAME}"
     user_dir = f"/var/lib/{APP_NAME}/user-{username}"
@@ -256,7 +245,7 @@ async def _create_user_env(username, port):
     os.environ[
         "STORM_WEBDAV_JVM_OPTS"
     ] = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
-    os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = github_host
+    os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = "localhost"
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = f"{port}"
     os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"
     os.environ["STORM_WEBDAV_CERTIFICATE_PATH"] = f"{storm_dir}/teapot.crt"
@@ -288,12 +277,10 @@ async def _create_user_env(username, port):
 
     return True
 
-
 async def _remove_user_env():
     for key in os.environ.keys():
         if key.startswith("STORM_WEBDAV_"):
             del os.environ[key]
-
 
 async def _start_webdav_instance(username, port):
     res = await _create_user_dirs(username)
@@ -351,12 +338,11 @@ async def _start_webdav_instance(username, port):
         return kill_proc.pid
     else:
         logger.error(
-            f"_start_webdav_instance: instance for user {username} could not be started. pid was {kill_proc.pid}, returncode of instance was {ret}"
+            f"_start_webdav_instance: instance for user {username} could not be started. pid was {kill_proc.pid}."
         )
         # if there was a returncode, we wait for the process and terminate it.
         kill_proc.wait()
         return None
-
 
 async def _get_proc(full_cmd):
     # here we are simply looking through all processes and try to find a match for the full command
@@ -373,7 +359,6 @@ async def _get_proc(full_cmd):
             logger.info(f"PID found: {pid}")
             return proc
     raise RuntimeError(f"process with for full command {full_cmd} does not exist.")
-
 
 async def _stop_webdav_instance(username):
     logger.info(f"Stopping webdav instance for user {username}.")
@@ -417,7 +402,6 @@ async def _stop_webdav_instance(username):
         exit_code = -1
 
     return exit_code
-
 
 async def stop_expired_instances():
     # checks for expired instances still running
@@ -467,7 +451,6 @@ async def stop_expired_instances():
                     f"_stop_expired_instances: No session object for user {user} in session_state."
                 )
 
-
 async def _find_usable_port_no():
     used_ports = []
     logger.debug(
@@ -502,7 +485,6 @@ async def _find_usable_port_no():
             # should not happen :grimacing:
         return port
 
-
 async def _test_port(port):
     # function to recursively find an open port recursively.
     # TODO: enhance by adding a list of reserved ports that will be skipped
@@ -521,12 +503,10 @@ async def _test_port(port):
         s.close()
     return port
 
-
 async def save_session_state():
     async with app.state.state_lock:
         with open(SESSION_STORE_PATH, "a") as f:
             json.dump(app.state.session_state, f)
-
 
 async def load_session_state():
     async with app.state.state_lock:
@@ -540,7 +520,6 @@ async def load_session_state():
                     app.state.session_state = json.load(f)
                 except json.decoder.JSONDecodeError as e:
                     app.state.session_state = {}
-
 
 async def _map_fed_to_local(sub):
     # this func returns the local username for a federated user or None
@@ -560,7 +539,6 @@ async def _map_fed_to_local(sub):
                 logger.info(f"found local user {row[0]}.")
                 return row[0]
     return None
-
 
 async def _return_or_create_storm_instance(sub):
     # returns redirect_host and redirect port for sub.
@@ -646,7 +624,6 @@ async def _return_or_create_storm_instance(sub):
         logger.info(f"Storm-WebDAV instance for {local_user} started on port {port}.")
     return None, port, local_user
 
-
 @app.api_route(
     "/{filepath:path}",
     methods=[
@@ -716,12 +693,11 @@ async def root(
         background=BackgroundTask(forward_resp.aclose),
     )
 
-
 def main():
     key = "/var/lib/teapot/webdav/teapot.key"
     cert = "/var/lib/teapot/webdav/teapot.crt"
 
-    uvicorn.run(app, host="0.0.0.0", port=8081, ssl_keyfile=key, ssl_certfile=cert)
+    uvicorn.run(app, host="teapot", port=8081, ssl_keyfile=key, ssl_certfile=cert)
 
 
 if __name__ == "__main__":

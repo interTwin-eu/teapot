@@ -19,7 +19,7 @@ services:
     networks:
       - test
   main:
-    image: dvrbanec/main:latest
+    image: dvrbanec/main:1
     command: |
       /bin/sh -c '
       eval "$(oidc-agent)"
@@ -27,9 +27,7 @@ services:
       oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
       cd /tmp
       curl -O https://syncandshare.desy.de/index.php/s/EmKsQpW67LapT3z/download/teapot-tests.robot
-      curl -O https://syncandshare.desy.de/index.php/s/oJMSFWj3jFy9F8a/download/test_file
       curl -O https://syncandshare.desy.de/index.php/s/rWYXp7tdCMbfJA8/download/variables.py
-      # curl -v -T /tmp/test_file -H "Authorization: Bearer $(oidc-token test-user1)" "https://teapot:8081/default_area/"
       robot --outputdir robot/output/ /tmp/teapot-tests.robot
       echo "Debugging 2"
       while true; do sleep 1; done'

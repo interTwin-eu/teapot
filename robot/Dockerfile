@@ -8,21 +8,20 @@ RUN \
     rpm -i teapot-v*.noarch.rpm --nodeps
 
 WORKDIR /etc/pki/ca-trust/source/anchors
-COPY testing-configurations/Teapot-testing.crt .
+ADD https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
+ADD https://syncandshare.desy.de/index.php/s/37RZn84eNtDGJDX/download/testingCA.crt .
 RUN update-ca-trust 
 
 # certificates
 WORKDIR /var/lib/teapot/webdav/
-COPY --chown=teapot testing-configurations/teapot.crt .
-COPY --chown=teapot testing-configurations/teapot.key .
+ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/GoCe4PWFJ5s95tP/download/teapot.crt .
+ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/H9HZZWpbPFFHgx5/download/teapot.key .
 
 # configuring teapot for testing
 WORKDIR /etc/teapot
-ADD testing-configurations/storage-areas .
-ADD testing-configurations/user-mapping.csv .
+COPY --chmod=744 testing-configurations/storage-areas .
+COPY --chmod=744 testing-configurations/user-mapping.csv .
 RUN \
-    chmod +r storage-areas && \
-    chmod +r user-mapping.csv && \
     adduser test-user1 && \
     adduser test-user2  && \
     su -c "mkdir -p /home/test-user1/interTwin" test-user1 && \
