@@ -5,7 +5,6 @@
 # trunk-ignore-all(hadolint/DL3007)
 FROM dvrbanec/teapot-requirements:latest
 
-RUN pip install ssl
 # installing Teapot
 WORKDIR /tmp
 COPY teapot-v*.noarch.rpm .
