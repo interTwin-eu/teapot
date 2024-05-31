@@ -15,12 +15,15 @@ RUN \
 WORKDIR /etc/pki/ca-trust/source/anchors
 ADD --chmod=744 https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
 ADD --chmod=744 https://syncandshare.desy.de/index.php/s/Xb8djtiyXPrGboG/download/testingCA.pem .
+ADD --chmod=744 https://syncandshare.desy.de/index.php/s/TfosBEAmNnMRQtL/download/localhost.crt .
 RUN update-ca-trust 
 
 # certificates
 WORKDIR /var/lib/teapot/webdav/
-ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/2X6TbWWFR6Dq59K/download/teapot.pem .
-ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/QSDidypFNFyCk96/download/teapot-key.pem .
+ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/GoCe4PWFJ5s95tP/download/teapot.crt .
+ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/H9HZZWpbPFFHgx5/download/teapot.key .
+ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/TfosBEAmNnMRQtL/download/localhost.crt .
+ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/Z4xFNWMCCq4KRFm/download/localhost.key .
 
 # configuring teapot for testing
 WORKDIR /etc/teapot
