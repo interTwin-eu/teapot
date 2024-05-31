@@ -15,6 +15,7 @@ from os.path import exists
 from pwd import getpwnam
 from stat import *
 
+import ssl
 import anyio
 import httpx
 import psutil
@@ -110,7 +111,9 @@ app.state.session_state = {}
 # in an "async with app.state_lock:" environment.
 app.state.state_lock = anyio.Lock()
 
-client = httpx.AsyncClient(verify=False)
+context = ssl.create_default_context()
+context.load_verify_locations(cafile="/etc/pki/ca-trust/source/anchors/testingCA.pem ")
+client = httpx.AsyncClient(verify=context)
 
 
 async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
