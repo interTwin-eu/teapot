@@ -111,9 +111,9 @@ app.state.session_state = {}
 # in an "async with app.state_lock:" environment.
 app.state.state_lock = anyio.Lock()
 
-#context = ssl.create_default_context()
-#context.load_verify_locations(cafile="/etc/pki/ca-trust/source/anchors/testingCA.pem")
-client = httpx.AsyncClient(verify="/etc/pki/ca-trust/source/anchors/testingCA.pem")
+context = ssl.create_default_context()
+context.load_verify_locations(cafile="/etc/pki/ca-trust/source/anchors/testingCA.pem")
+client = httpx.AsyncClient(verify=context)
 
 
 async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
