@@ -626,7 +626,9 @@ async def _return_or_create_storm_instance(sub):
                 logger.debug(
                     f"checking if instance for user {local_user} is listening on port {port}."
                 )
-                resp = httpx.get(f"https://localhost:{port}/")
+                context1 = ssl.create_default_context()
+                context1.load_verify_locations(cafile="/etc/pki/ca-trust/source/anchors/localhost.crt")
+                resp = httpx.get(f"https://localhost:{port}/", verify=context1)
                 if resp.status_code >= 200:
                     running = True
             except httpx.ConnectError:
