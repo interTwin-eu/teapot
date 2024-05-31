@@ -110,7 +110,8 @@ app.state.session_state = {}
 # in an "async with app.state_lock:" environment.
 app.state.state_lock = anyio.Lock()
 
-client = httpx.AsyncClient(cert="/var/lib/teapot/webdav/teapot.pem")
+cert = ("/var/lib/teapot/webdav/teapot.pem", "/var/lib/teapot/webdav/teapot-key.pem")
+client = httpx.AsyncClient(cert=cert)
 
 
 async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
@@ -218,7 +219,7 @@ async def _create_user_dirs(username):
                     break
         with open(f"{config_dir}/issuers", "r") as issuers:
             issuers_part = issuers.readlines()
-        with open(f"/usr/share/teapot/storage_authorizations", "r") as auths:
+        with open("/usr/share/teapot/storage_authorizations", "r") as auths:
             authorization_part = "".join(auths.readlines())
         with open(f"{user_config_dir}/application.yml", "a") as application_yml:
             for line in issuers_part:
