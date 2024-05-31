@@ -29,7 +29,7 @@ services:
       curl -O https://syncandshare.desy.de/index.php/s/EmKsQpW67LapT3z/download/teapot-tests.robot
       curl -O https://syncandshare.desy.de/index.php/s/rWYXp7tdCMbfJA8/download/variables.py
       robot --outputdir robot/output/ /tmp/teapot-tests.robot
-      echo "Debugging 2"
+      echo "Debugging 3"
       while true; do sleep 1; done'
     networks:
       - test
