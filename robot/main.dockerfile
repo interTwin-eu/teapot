@@ -7,7 +7,7 @@ RUN apt update && \
 
 WORKDIR /usr/local/share/ca-certificates
 ADD https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
-ADD https://syncandshare.desy.de/index.php/s/37RZn84eNtDGJDX/download/testingCA.crt .
+# ADD https://syncandshare.desy.de/index.php/s/37RZn84eNtDGJDX/download/testingCA.crt .
 RUN update-ca-certificates
 
 RUN echo "deb [signed-by=/etc/apt/trusted.gpg.d/kitrepo-archive.gpg] https://repo.data.kit.edu//ubuntu/22.04 ./" >> /etc/apt/sources.list && \
