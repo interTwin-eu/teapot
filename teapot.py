@@ -112,7 +112,7 @@ app.state.session_state = {}
 app.state.state_lock = anyio.Lock()
 
 context = ssl.create_default_context()
-context.load_verify_locations(cafile="/etc/pki/ca-trust/source/anchors/testingCA.pem")
+context.load_verify_locations(cafile="/etc/pki/ca-trust/source/anchors/Teapot-testing.crt")
 client = httpx.AsyncClient(verify=context)
 
 
