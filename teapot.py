@@ -223,9 +223,7 @@ async def _create_user_dirs(username):
             if not exists(sa_properties_path):
                 with open(sa_properties_path, "w") as storage_area_properties:
                     first_part = (
-                        f"name={storage_area}\nrootPath={path}"
-                        + f"\naccessPoints=/{storage_area}_area\n\n"
-                    )
+                        f"name={storage_area}\nrootPath={path}\naccessPoints=/{storage_area}_area\n\n")
                     storage_area_properties.write(first_part)
                     for line in second_part:
                         storage_area_properties.write(line)
@@ -266,9 +264,7 @@ async def _create_user_env(username, port):
     # make sure that .storm_profile is imported in the users shell init
     # by e.g. adding ". ~/.storm_profile" to the user's .bash_profile
 
-    os.environ["STORM_WEBDAV_JVM_OPTS"] = (
-        "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
-    )
+    os.environ["STORM_WEBDAV_JVM_OPTS"] = ("-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom")
     os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = "localhost"
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = f"{port}"
     os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"
@@ -280,18 +276,14 @@ async def _create_user_env(username, port):
     os.environ["STORM_WEBDAV_MAX_QUEUE_SIZE"] = "900"
     os.environ["STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME"] = "30000"
     os.environ["STORM_WEBDAV_SA_CONFIG_DIR"] = f"{user_dir}/sa.d"
-    os.environ["STORM_WEBDAV_JAR"] = (
-        "/usr/share/java/storm-webdav/storm-webdav-server.jar"
-    )
+    os.environ["STORM_WEBDAV_JAR"] = ("/usr/share/java/storm-webdav/storm-webdav-server.jar")
 
     os.environ["STORM_WEBDAV_LOG"] = f"{user_dir}/log/server.log"
     os.environ["STORM_WEBDAV_OUT"] = f"{user_dir}/log/server.out"
     os.environ["STORM_WEBDAV_ERR"] = f"{user_dir}/log/server.err"
 
     os.environ["STORM_WEBDAV_LOG_CONFIGURATION"] = f"{etc_dir}/logback.xml"
-    os.environ["STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"] = (
-        f"{etc_dir}/logback-access.xml"
-    )
+    os.environ["STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"] = (f"{etc_dir}/logback-access.xml")
     os.environ["STORM_WEBDAV_VO_MAP_FILES_ENABLE"] = "false"
     os.environ["STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL"] = "21600"
     os.environ["STORM_WEBDAV_TPC_MAX_CONNECTIONS"] = "50"
@@ -325,20 +317,17 @@ async def _start_webdav_instance(username, port):
 
     # add STORM_WEBDAV_* env vars to a list that can be passed to the sudo
     # command and be preserved for the forked process
-    env_pass = [key for key in os.environ.keys()
-                if key.startswith("STORM_WEBDAV_")]
+    env_pass = [key for key in os.environ.keys() if key.startswith("STORM_WEBDAV_")]
 
     # starting subprocess with all necessary options now.
     # using os.setsid() as a function handle before execution should execute
     # the process in it's own process group
     # such that it can be managed on its own.
     logger.info(f"trying to start process for user {username}.")
-    full_cmd = f"sudo --preserve-env={','.join(env_pass)} -u {username} \
-    /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
+    full_cmd = f"sudo --preserve-env={','.join(env_pass)} -u {username} /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS 
     -Djava.io.tmpdir=/var/lib/user-{username}/tmp \
     -Dlogging.config=$STORM_WEBDAV_LOG_CONFIGURATION \
-    --spring.config.additional-location= \
-    optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml \
+    --spring.config.additional-location= optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml \
      1>$STORM_WEBDAV_OUT 2>$STORM_WEBDAV_ERR &"
 
     logger.info(f"full_cmd={full_cmd}")
@@ -753,8 +742,7 @@ async def root(
         # if there is no sub, user can not be authenticated
         raise HTTPException(status_code=403)
     # user is valid, so check if a storm instance is running for this sub
-    redirect_host, redirect_port, local_user = \
-        await _return_or_create_storm_instance(sub)
+    redirect_host, redirect_port, local_user = await _return_or_create_storm_instance(sub)
 
     # REVISIT: should these errors be thrown from
     # _return_or_create_storm_instance?
@@ -798,8 +786,7 @@ def main():
     key = "/var/lib/teapot/webdav/teapot.key"
     cert = "/var/lib/teapot/webdav/teapot.crt"
 
-    uvicorn.run(app, host="teapot", port=8081, ssl_keyfile=key,
-                ssl_certfile=cert)
+    uvicorn.run(app, host="teapot", port=8081, ssl_keyfile=key, ssl_certfile=cert)
 
 
 if __name__ == "__main__":
