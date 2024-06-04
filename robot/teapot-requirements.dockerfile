@@ -17,13 +17,15 @@ WORKDIR /usr/local/ssl
 RUN ln -s /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem cert.pem
 
 WORKDIR /etc/pki/ca-trust/source/anchors
-ADD https://letsencrypt.org/certs/isrgrootx1.pem .
-ADD https://letsencrypt.org/certs/lets-encrypt-r3.pem .
-ADD http://crl.usertrust.com/USERTrustRSACertificationAuthority.crl .
-ADD http://crt.usertrust.com/USERTrustRSAAddTrustCA.crt .
+ADD  --chmod=744 https://letsencrypt.org/certs/isrgrootx1.pem .
+ADD  --chmod=744 https://letsencrypt.org/certs/lets-encrypt-r3.pem .
+ADD  --chmod=744 http://crl.usertrust.com/USERTrustRSACertificationAuthority.crl .
+ADD  --chmod=744 http://crt.usertrust.com/USERTrustRSAAddTrustCA.crt .
 RUN update-ca-trust 
 
 WORKDIR /usr/local/lib/python3.12/site-packages/certifi/
 RUN \
     rm -f cacert.pem && \
     ln -s /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem cacert.pem
+
+USER nobody
