@@ -13,7 +13,7 @@ import subprocess
 from contextlib import asynccontextmanager
 from os.path import exists
 from pwd import getpwnam
-from stat import *
+from stat import S_IRWXU, S_IRGRP, S_IXGRP, S_IRWXO
 
 import ssl
 import anyio
