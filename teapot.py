@@ -9,13 +9,13 @@ import logging
 import os
 import pathlib
 import socket
-import ssl
 import subprocess
 from contextlib import asynccontextmanager
 from os.path import exists
 from pwd import getpwnam
-from stat import S_IRGRP, S_IRWXO, S_IRWXU, S_IXGRP
+from stat import *
 
+import ssl
 import anyio
 import httpx
 import psutil
@@ -77,38 +77,30 @@ logging.basicConfig(filename=LOGFILE, level=logging.getLevelName(LOGLEVEL))
 logger = logging.getLogger(__name__)
 
 # globals
-# TODO: load globals via config file on startup and reload on every
-# run of stop_expired_instances,
+# TODO: load globals via config file on startup and reload on every run of stop_expired_instances,
 # maybe rename function to "housekeeping" or the like.
 
 SESSION_STORE_PATH = os.environ.get(
     "TEAPOT_SESSIONS", "/var/lib/teapot/webdav/teapot_sessions.json"
 )
 APP_NAME = "teapot"
-# one less than the first port that is going to be used by any
-# storm webdav instance, should be above 1024
-# as all ports below this are privileged and normal users will
-# not be able to use them to run services.
+# one less than the first port that is going to be used by any storm webdav instance, should be above 1024
+# as all ports below this are privileged and normal users will not be able to use them to run services.
 STARTING_PORT = 32399
-# toggle restarting teapot without deleting saved state and without
-# terminating running webdav instances.
+# toggle restarting teapot without deleting saved state and without terminating running webdav instances.
 # N.B. will only consider the value set at startup of this app.
 RESTART = os.environ.get("TEAPOT_RESTART", "False") == "True"
-# instance timeout, instances are deleted after this time without
-# being accessed.
+# instance timeout, instances are deleted after this time without being accessed.
 # default: 10 minutes
 INSTANCE_TIMEOUT_SEC = 600
 # interval between instance timeout checks in stop_expired_instances
 # default: 3 minutes
 CHECK_INTERVAL_SEC = 180
-# number of times that teapot will try to connect to a recently
-# started instance
+# number of times that teapot will try to connect to a recently started instance
 STARTUP_TIMEOUT = int(os.environ.get("TEAPOT_STARTUP_TIMEOUT", 30))
 # standard mode for file creation, currently rwxr-x---
-# directories and files are created with the corresponding
-# os.mkdir, os.chmod, os.chown commands.
-# those are using the bit patterns provided with the 'stat'
-# module as below, combining them happens via bitwise OR
+# directories and files are created with the corresponding os.mkdir, os.chmod, os.chown commands.
+# those are using the bit patterns provided with the 'stat' module as below, combining them happens via bitwise OR
 # TODO: find a way to not have to use rwx for others!
 STANDARD_MODE = S_IRWXU | S_IRGRP | S_IXGRP | S_IRWXO
 # session state is kept in this global dict for each username as primary key
@@ -120,9 +112,7 @@ app.state.session_state = {}
 app.state.state_lock = anyio.Lock()
 
 context = ssl.create_default_context()
-context.load_verify_locations(
-    cafile="/etc/pki/ca-trust/source/anchors/Teapot-testing.crt"
-)
+context.load_verify_locations(cafile="/etc/pki/ca-trust/source/anchors/Teapot-testing.crt")
 client = httpx.AsyncClient(verify=context)
 
 
@@ -133,18 +123,16 @@ async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
         except FileExistsError:
             # this info msg should never be triggered, right?
             logger.error(
-                f"Directory {dir} already exists, therefore this message"
-                + " should not exist. Something is wrong..."
+                f"Directory {dir} already exists, therefore this message should not exist. Something is wrong..."
             )
         try:
             os.chmod(dir, mode)
-        except OSError:
+        except:
             logger.error(f"Could not chmod directory {dir} to {mode}.")
         # try:
         #    os.chown(dir, uid, gid)
         # except PermissionError:
-        #    logger.error(f"Could not chown directory {dir}, not allowed to
-        # change ownership to {uid}, {gid}.")
+        #    logger.error(f"Could not chown directory {dir}, not allowed to change ownership to {uid}, {gid}.")
 
 
 async def _create_user_dirs(username):
@@ -162,19 +150,14 @@ async def _create_user_dirs(username):
     config_dir = f"/etc/{APP_NAME}"
     if not exists(f"{config_dir}/storage-areas"):
         logger.error(
-            f"{config_dir}/storage-areas is missing. It should consist of two "
-            + "variables per storage area: name of the storage area and root "
-            + "path to the storage area's directory separated by a single "
-            + "space."
+            f"{config_dir}/storage-areas is missing. It should consist of two variables per storage area: name of the storage area and root path to the storage area's directory separated by a single space."
         )
         return False
 
     mapping_file = f"{config_dir}/user-mapping.csv"
     if not exists(mapping_file):
         logger.error(
-            f"{mapping_file} does not exist. It should consist of two "
-            + "variables per user: username and subject claim separated "
-            + "by a single space."
+            f"{mapping_file} does not exist. It should consist of two variables per user: username and subject claim separated by a single space."
         )
         return False
 
@@ -209,21 +192,20 @@ async def _create_user_dirs(username):
     for dir in dirs_to_create:
         await makedir_chown_chmod(dir, uid, gid)
 
-    with open(f"/usr/share/{APP_NAME}/storage_element.properties",
-              "r") as prop:
+    with open(f"/usr/share/{APP_NAME}/storage_element.properties", "r") as prop:
         second_part = prop.readlines()
     with open(f"{config_dir}/storage-areas", "r") as storage_areas:
         for line in storage_areas:
             storage_area, path = line.split(" ")
             path_components = path.split("/")
+            # check for different paths in storage-areas that need to be corrected.
             if path_components[0] == "$HOME":
                 path_components[0] = f"/home/{username}"
             path = os.path.join(*path_components)
             sa_properties_path = f"{user_sa_d_dir}/{storage_area}.properties"
             if not exists(sa_properties_path):
                 with open(sa_properties_path, "w") as storage_area_properties:
-                    first_part = (
-                        f"name={storage_area}\nrootPath={path}\naccessPoints=/{storage_area}_area\n\n")
+                    first_part = f"name={storage_area}\nrootPath={path}\naccessPoints=/{storage_area}_area\n\n"
                     storage_area_properties.write(first_part)
                     for line in second_part:
                         storage_area_properties.write(line)
@@ -241,8 +223,7 @@ async def _create_user_dirs(username):
             issuers_part = issuers.readlines()
         with open("/usr/share/teapot/storage_authorizations", "r") as auths:
             authorization_part = "".join(auths.readlines())
-        with open(f"{user_config_dir}/application.yml",
-                  "a") as application_yml:
+        with open(f"{user_config_dir}/application.yml", "a") as application_yml:
             for line in issuers_part:
                 application_yml.write(line)
             application_yml.write("storm:\n  authz:\n    policies:\n")
@@ -264,7 +245,9 @@ async def _create_user_env(username, port):
     # make sure that .storm_profile is imported in the users shell init
     # by e.g. adding ". ~/.storm_profile" to the user's .bash_profile
 
-    os.environ["STORM_WEBDAV_JVM_OPTS"] = ("-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom")
+    os.environ["STORM_WEBDAV_JVM_OPTS"] = (
+        "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
+    )
     os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = "localhost"
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = f"{port}"
     os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"
@@ -276,14 +259,18 @@ async def _create_user_env(username, port):
     os.environ["STORM_WEBDAV_MAX_QUEUE_SIZE"] = "900"
     os.environ["STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME"] = "30000"
     os.environ["STORM_WEBDAV_SA_CONFIG_DIR"] = f"{user_dir}/sa.d"
-    os.environ["STORM_WEBDAV_JAR"] = ("/usr/share/java/storm-webdav/storm-webdav-server.jar")
+    os.environ["STORM_WEBDAV_JAR"] = (
+        "/usr/share/java/storm-webdav/storm-webdav-server.jar"
+    )
 
     os.environ["STORM_WEBDAV_LOG"] = f"{user_dir}/log/server.log"
     os.environ["STORM_WEBDAV_OUT"] = f"{user_dir}/log/server.out"
     os.environ["STORM_WEBDAV_ERR"] = f"{user_dir}/log/server.err"
 
     os.environ["STORM_WEBDAV_LOG_CONFIGURATION"] = f"{etc_dir}/logback.xml"
-    os.environ["STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"] = (f"{etc_dir}/logback-access.xml")
+    os.environ["STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"] = (
+        f"{etc_dir}/logback-access.xml"
+    )
     os.environ["STORM_WEBDAV_VO_MAP_FILES_ENABLE"] = "false"
     os.environ["STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL"] = "21600"
     os.environ["STORM_WEBDAV_TPC_MAX_CONNECTIONS"] = "50"
@@ -312,22 +299,19 @@ async def _start_webdav_instance(username, port):
         return False
 
     # as a dict for subprocess.Popen
-    # env_pass = {key: value for key,value in os.environ.items() if
-    # key.startswith("STORM_WEBDAV_")}
+    # env_pass = {key: value for key,value in os.environ.items() if key.startswith("STORM_WEBDAV_")}
 
-    # add STORM_WEBDAV_* env vars to a list that can be passed to the sudo
-    # command and be preserved for the forked process
+    # add STORM_WEBDAV_* env vars to a list that can be passed to the sudo command and be preserved for the forked process
     env_pass = [key for key in os.environ.keys() if key.startswith("STORM_WEBDAV_")]
 
     # starting subprocess with all necessary options now.
-    # using os.setsid() as a function handle before execution should execute
-    # the process in it's own process group
+    # using os.setsid() as a function handle before execution should execute the process in it's own process group
     # such that it can be managed on its own.
     logger.info(f"trying to start process for user {username}.")
-    full_cmd = f"sudo --preserve-env={','.join(env_pass)} -u {username} /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS 
+    full_cmd = f"sudo --preserve-env={','.join(env_pass)} -u {username} /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
     -Djava.io.tmpdir=/var/lib/user-{username}/tmp \
     -Dlogging.config=$STORM_WEBDAV_LOG_CONFIGURATION \
-    --spring.config.additional-location= optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml \
+    --spring.config.additional-location=optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml \
      1>$STORM_WEBDAV_OUT 2>$STORM_WEBDAV_ERR &"
 
     logger.info(f"full_cmd={full_cmd}")
@@ -336,19 +320,16 @@ async def _start_webdav_instance(username, port):
 
     # wait for it...
     await anyio.sleep(1)
-    # poll the process to get rid of the zombiefied subprocess attached
-    # to teapot
+    # poll the process to get rid of the zombiefied subprocess attached to teapot
     p.poll()
 
-    # get rid of additional whitespace, trailing "&" and output redirects from
-    # cmdline, expand env vars
+    # get rid of additional whitespace, trailing "&" and output redirects from cmdline, expand env vars
     full_cmd = " ".join(full_cmd.split())[:-1]
     full_cmd = " ".join(full_cmd.split(","))
     full_cmd = os.path.expandvars(full_cmd)
     full_cmd = full_cmd.split("1>")[0].rstrip()
 
-    # we can remove all env vars for the user process from teapot now as they
-    # were given to the forked process as a copy
+    # we can remove all env vars for the user process from teapot now as they were given to the forked process as a copy
     await _remove_user_env()
 
     # get the process pid for terminating it later.
@@ -357,14 +338,12 @@ async def _start_webdav_instance(username, port):
     # check process status and store the handle.
     if kill_proc.status() in [psutil.STATUS_RUNNING, psutil.STATUS_SLEEPING]:
         logger.debug(
-            f"start_webdav_instance: instance for user {username}"
-            + f" is running under PID {kill_proc.pid}."
+            f"start_webdav_instance: instance for user {username} is running under PID {kill_proc.pid}."
         )
         return kill_proc.pid
     else:
         logger.error(
-            f"_start_webdav_instance: instance for user {username}"
-            + f" could not be started. pid was {kill_proc.pid}."
+            f"_start_webdav_instance: instance for user {username} could not be started. pid was {kill_proc.pid}."
         )
         # if there was a returncode, we wait for the process and terminate it.
         kill_proc.wait()
@@ -372,14 +351,12 @@ async def _start_webdav_instance(username, port):
 
 
 async def _get_proc(full_cmd):
-    # here we are simply looking through all processes and try to find a
-    # match for the full command that was issued to start the instance in
-    # question. then return the process handle.
-    # it should contain the process that is running as root and forked
-    # the storm instance for the user themselves.
-    # looking through all processes seems a bit overkill but at the moment
-    # this is the only halfway surefire method I could find to accomplish
-    # this task.
+    # here we are simply looking through all processes and try to find a match for the full command
+    # that was issued to start the instance in question. then return the process handle.
+    # it should contain the process that is running as root and forked the storm instance for
+    # the user themselves.
+    # looking through all processes seems a bit overkill but at the moment this is the only
+    # halfway surefire method I could find to accomplish this task.
     # shamelessly stolen from
     # https://codereview.stackexchange.com/questions/183091/start-a-sub-process-with-sudo-as-head-of-new-process-group-kill-it-after-time
     for pid in psutil.pids():
@@ -387,41 +364,33 @@ async def _get_proc(full_cmd):
         if full_cmd == " ".join(proc.cmdline()):
             logger.info(f"PID found: {pid}")
             return proc
-    raise RuntimeError(f"process with for full command {full_cmd} "
-                       + "does not exist.")
+    raise RuntimeError(f"process with for full command {full_cmd} does not exist.")
 
 
 async def _stop_webdav_instance(username):
     logger.info(f"Stopping webdav instance for user {username}.")
 
     logger.debug(
-        "_stop_webdav_instance: trying to acquire lock at "
-        + f"{datetime.datetime.now().isoformat()}"
+        f"_stop_webdav_instance: trying to acquire lock at {datetime.datetime.now().isoformat()}"
     )
     async with app.state.state_lock:
         logger.debug(
-            "_stop_webdav_instance: acquired lock at "
-            + f"{datetime.datetime.now().isoformat()}"
+            f"_stop_webdav_instance: acquired lock at {datetime.datetime.now().isoformat()}"
         )
         try:
             session = app.state.session_state.pop(username)
         except KeyError:
             logger.error(
-                f"_stop_webdav_instance: session state for user {username}"
-                + "doesn't exist."
+                f"_stop_webdav_instance: session state for user {username} doesn't exist."
             )
             return -1
 
-    # first naive workaround will be to just give sudo rights to teapot for
-    # /usr/bin/kill
+    # first naive workaround will be to just give sudo rights to teapot for /usr/bin/kill
     # TODO: find a safer way to accomplish this!
-    # originally wanted to kill the process via os.killpg but the storm
-    # process is running under the user's uid, so that is not possible
+    # originally wanted to kill the process via os.killpg but the storm process is running under the user's uid, so that is not possible
     # os.killpg(os.getpgid(p.pid), signal.SIGTERM)
-    # now we run subprocess.Popen in the user context to let it terminate
-    # the process in that user's context.
-    # but as we don't want to let teapot be able to just kill any process
-    # (by sudoers mechanism), we need to find a way around this,
+    # now we run subprocess.Popen in the user context to let it terminate the process in that user's context.
+    # but as we don't want to let teapot be able to just kill any process (by sudoers mechanism), we need to find a way around this,
     # maybe with a dedicated script that can only kill certain processes?
 
     pid = session.get("pid", "None")
@@ -449,25 +418,21 @@ async def stop_expired_instances():
         await asyncio.sleep(CHECK_INTERVAL_SEC)
         logger.info("checking for expired instances")
         logger.debug(
-            "stop_expired_instances: trying to acquire 'users' lock at "
-            + f"{datetime.datetime.now().isoformat()}"
+            f"stop_expired_instances: trying to acquire 'users' lock at {datetime.datetime.now().isoformat()}"
         )
         async with app.state.state_lock:
             logger.debug(
-                "stop_expired_instances: acquired 'users' lock at "
-                + f"{datetime.datetime.now().isoformat()}"
+                f"stop_expired_instances: acquired 'users' lock at {datetime.datetime.now().isoformat()}"
             )
             users = list(app.state.session_state.keys())
         now = datetime.datetime.now()
         for user in users:
             logger.debug(
-                "stop_expired_instances: trying to acquire 'user_dict' "
-                + f"lock at {datetime.datetime.now().isoformat()}"
+                f"stop_expired_instances: trying to acquire 'user_dict' lock at {datetime.datetime.now().isoformat()}"
             )
             async with app.state.state_lock:
                 logger.debug(
-                    "stop_expired_instances: acquired 'user_dict' lock at "
-                    + f"{datetime.datetime.now().isoformat()}"
+                    f"stop_expired_instances: acquired 'user_dict' lock at {datetime.datetime.now().isoformat()}"
                 )
                 user_dict = app.state.session_state.get(user, None)
             if user_dict is not None:
@@ -479,49 +444,41 @@ async def stop_expired_instances():
                         # TODO: remove instance from session_state
                         if res != 0:
                             logger.error(
-                                f"Instance for user {user} exited with code "
-                                + f"{res}."
+                                f"Instance for user {user} exited with code {res}."
                             )
                         else:
                             logger.info(
-                                f"Instance for user {user} has been terminated"
-                                + " after timeout."
+                                f"Instance for user {user} has been terminated after timeout."
                             )
                 else:
                     logger.error(
-                        f"_stop_expired_instances: Session for user {user} "
-                        + "does not have the property 'last_accessed'."
+                        f"_stop_expired_instances: Session for user {user} does not have the property 'last_accessed'."
                     )
             else:
                 logger.error(
-                    "_stop_expired_instances: No session object for user "
-                    + f"{user} in session_state."
+                    f"_stop_expired_instances: No session object for user {user} in session_state."
                 )
 
 
 async def _find_usable_port_no():
     used_ports = []
     logger.debug(
-        "_find_usable_port_no: trying to acquire lock at "
-        + f"{datetime.datetime.now().isoformat()}"
+        f"_find_usable_port_no: trying to acquire lock at {datetime.datetime.now().isoformat()}"
     )
     async with app.state.state_lock:
         logger.debug(
-            "_find_usable_port_no: acquired lock at "
-            + f"{datetime.datetime.now().isoformat()}"
+            f"_find_usable_port_no: acquired lock at {datetime.datetime.now().isoformat()}"
         )
         users = app.state.session_state.keys()
         if users:
             for user in users:
                 tmp_port = app.state.session_state[user].get("port", None)
                 logger.debug(
-                    f"find_usable_port_no: use {user} has an instance running "
-                    f" on port {tmp_port}."
+                    f"find_usable_port_no: use {user} has an instance running on port {tmp_port}."
                 )
                 used_ports.append(tmp_port)
         else:
-            # if there are no instances running yet, we want the ports to
-            # start from 32400
+            # if there are no instances running yet, we want the ports to start from 32400
             logger.debug(f"no port in use by teapot, using {STARTING_PORT}")
             used_ports = [STARTING_PORT]
 
@@ -531,8 +488,7 @@ async def _find_usable_port_no():
             port = await _test_port(max_used)
         else:
             logger.error(
-                "Missing port number for running instances, can not determine "
-                + "fitting port number."
+                "Missing port number for running instances, can not determine fitting port number."
             )
             port = None
             # should not happen :grimacing:
@@ -580,17 +536,13 @@ async def load_session_state():
 
 async def _map_fed_to_local(sub):
     # this func returns the local username for a federated user or None
-    # for this prototype it could just be read from a mapping file on the
-    # local file system.
-    # in this naive implementation, it is expected that the mapping file has
-    # the format
+    # for this prototype it could just be read from a mapping file on the local file system.  # noqa: E501
+    # in this naive implementation, it is expected that the mapping file has the format
     #
     #   federated-sub-claim,local-username
     #
-    # without headers and only the first hit for a federated sub claim is
-    # returned.
-    # like this, it is possible to match different subs to a local username but
-    # not the other way around.
+    # without headers and only the first hit for a federated sub claim is returned.
+    # like this, it is possible to match different subs to a local username but not the other way around.  # noqa: E501
 
     with open("/etc/teapot/user-mapping.csv", "r") as mapping_file:
         mappingreader = csv.reader(mapping_file, delimiter=" ")
@@ -614,49 +566,38 @@ async def _return_or_create_storm_instance(sub):
     # now check if an instance is running by checking the global state
     if local_user in app.state.session_state.keys():
         logger.debug(
-            "_return_or_create_storm_instance: trying to acquire 'get' lock "
-            + f"at {datetime.datetime.now().isoformat()}"
+            f"_return_or_create_storm_instance: trying to acquire 'get' lock at {datetime.datetime.now().isoformat()}"
         )
         async with app.state.state_lock:
             logger.debug(
-                "_return_or_create_storm_instance: acquired 'get' lock "
-                + f"at {datetime.datetime.now().isoformat()}"
+                f"_return_or_create_storm_instance: acquired 'get' lock at {datetime.datetime.now().isoformat()}"
             )
             port = app.state.session_state[local_user].get("port", None)
             app.state.session_state[local_user]["last_accessed"] = str(
                 datetime.datetime.now()
             )
-        logger.info(f"StoRM-WebDAV instance for {local_user} is running on "
-                    + f"port {port}")
+        logger.info(
+            f"StoRM-WebDAV instance for {local_user} is running on port {port}."
+        )  # noqa: E501
     else:
-        # if no instance is running, start it. but first, it has to be checked
-        # if the directories exist, if not, they need to be created.
-        # also, we need to write the env vars into a .bash_profile for the
-        # user, so they are there when the webdav-instance is started.
-        # the port, pid, storage_area and directory will be managed within an
-        # sqlite database here in teapot.
-        # no external scripts anymore to keep the state and its management in
-        # one place.
-        logger.debug(
-            f"no instance running for user {local_user} yet, "
-            + "starting now."
-        )
+        # if no instance is running, start it. but first, it has to be checked if the directories exist, if not, they need to be created.
+        # also, we need to write the env vars into a .bash_profile for the user, so they are there when the webdav-instance is started.
+        # the port, pid, storage_area and directory will be managed within an sqlite database here in teapot.
+        # no external scripts anymore to keep the state and its management in one place.
+        logger.debug(f"no instance running for user {local_user} yet, starting now.")
         port = await _find_usable_port_no()
         pid = await _start_webdav_instance(local_user, port)
         if not pid:
             logger.error(
-                "something went wrong while starting instance for user "
-                + f"{local_user}."
+                f"something went wrong while starting instance for user {local_user}."
             )
             return None, -1, local_user
         logger.debug(
-            "_return_or_create_storm_instance: trying to acquire 'set' lock "
-            + f"at {datetime.datetime.now().isoformat()}"
+            f"_return_or_create_storm_instance: trying to acquire 'set' lock at {datetime.datetime.now().isoformat()}"
         )
         async with app.state.state_lock:
             logger.debug(
-                "_return_or_create_storm_instance: acquired 'set' lock "
-                + f"at {datetime.datetime.now().isoformat()}"
+                f"_return_or_create_storm_instance: acquired 'set' lock at {datetime.datetime.now().isoformat()}"
             )
             app.state.session_state[local_user] = {
                 "pid": pid,
@@ -670,43 +611,33 @@ async def _return_or_create_storm_instance(sub):
             await anyio.sleep(1)
             if loops >= STARTUP_TIMEOUT:
                 logger.info(
-                    f"instance for user {local_user} not reachable after "
-                    + f"{STARTUP_TIMEOUT} tries... stop trying."
+                    f"instance for user {local_user} not reachable after {STARTUP_TIMEOUT} tries... stop trying."
                 )
                 logger.debug(
-                    "_return_or_create_storm_instance: trying to acquire "
-                    + f"'pop' lock at {datetime.datetime.now().isoformat()}"
+                    f"_return_or_create_storm_instance: trying to acquire 'pop' lock at {datetime.datetime.now().isoformat()}"
                 )
                 async with app.state.state_lock:
                     logger.debug(
-                        "_return_or_create_storm_instance: acquired 'pop' "
-                        + f"lock at {datetime.datetime.now().isoformat()}"
+                        f"_return_or_create_storm_instance: acquired 'pop' lock at {datetime.datetime.now().isoformat()}"
                     )
                     app.state.session_state.pop(local_user)
                 return None, -1, local_user
             try:
                 logger.debug(
-                    f"checking if instance for user {local_user} is listening "
-                    + f"on port {port}."
+                    f"checking if instance for user {local_user} is listening on port {port}."
                 )
                 context1 = ssl.create_default_context()
-                context1.load_verify_locations(
-                    cafile="/etc/pki/ca-trust/source/anchors/localhost.crt"
-                )
+                context1.load_verify_locations(cafile="/etc/pki/ca-trust/source/anchors/localhost.crt")
                 resp = httpx.get(f"https://localhost:{port}/", verify=context1)
                 if resp.status_code >= 200:
                     running = True
             except httpx.ConnectError:
                 loops += 1
                 logger.debug(
-                    "_return_or_create: trying to reach instance, try "
-                    + f"{loops}/{STARTUP_TIMEOUT}..."
+                    f"_return_or_create: trying to reach instance, try {loops}/{STARTUP_TIMEOUT}..."
                 )
 
-        logger.info(
-            f"Storm-WebDAV instance for {local_user} started on port "
-            + f"{port}."
-        )
+        logger.info(f"Storm-WebDAV instance for {local_user} started on port {port}.")
     return None, port, local_user
 
 
@@ -742,10 +673,11 @@ async def root(
         # if there is no sub, user can not be authenticated
         raise HTTPException(status_code=403)
     # user is valid, so check if a storm instance is running for this sub
-    redirect_host, redirect_port, local_user = await _return_or_create_storm_instance(sub)
+    redirect_host, redirect_port, local_user = await _return_or_create_storm_instance(
+        sub
+    )
 
-    # REVISIT: should these errors be thrown from
-    # _return_or_create_storm_instance?
+    # REVISIT: should these errors be thrown from _return_or_create_storm_instance?
     if not redirect_host and not redirect_port:
         # no mapping between federated and local user identity found
         raise HTTPException(status_code=403)
@@ -759,8 +691,7 @@ async def root(
         )
     if not redirect_host:
         redirect_host = "localhost"
-    logger.info(f"redirect_host: {redirect_host}, redirect_port: "
-                + f"{redirect_port}")
+    logger.info(f"redirect_host: {redirect_host}, redirect_port: {redirect_port}")
     logger.info(f"request path: {request.url.path}")
 
     redirect_url = f"https://{redirect_host}:{redirect_port}{request.url.path}"
