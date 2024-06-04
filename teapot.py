@@ -77,30 +77,36 @@ logging.basicConfig(filename=LOGFILE, level=logging.getLevelName(LOGLEVEL))
 logger = logging.getLogger(__name__)
 
 # globals
-# TODO: load globals via config file on startup and reload on every run of stop_expired_instances,
-# maybe rename function to "housekeeping" or the like.
+# TODO: load globals via config file on startup and reload on every run of
+# stop_expired_instances, maybe rename function to "housekeeping" or the like.
 
 SESSION_STORE_PATH = os.environ.get(
     "TEAPOT_SESSIONS", "/var/lib/teapot/webdav/teapot_sessions.json"
 )
 APP_NAME = "teapot"
-# one less than the first port that is going to be used by any storm webdav instance, should be above 1024
-# as all ports below this are privileged and normal users will not be able to use them to run services.
+# one less than the first port that is going to be used by any storm webdav
+# instance, should be above 1024, as all ports below this are privileged and
+# normal users will not be able to use them to run services.
 STARTING_PORT = 32399
-# toggle restarting teapot without deleting saved state and without terminating running webdav instances.
+# toggle restarting teapot without deleting saved state and without
+# terminating running webdav instances.
 # N.B. will only consider the value set at startup of this app.
 RESTART = os.environ.get("TEAPOT_RESTART", "False") == "True"
-# instance timeout, instances are deleted after this time without being accessed.
+# instance timeout, instances are deleted after this time without being
+# accessed.
 # default: 10 minutes
 INSTANCE_TIMEOUT_SEC = 600
 # interval between instance timeout checks in stop_expired_instances
 # default: 3 minutes
 CHECK_INTERVAL_SEC = 180
-# number of times that teapot will try to connect to a recently started instance
+# number of times that teapot will try to connect to a recently started
+# instance
 STARTUP_TIMEOUT = int(os.environ.get("TEAPOT_STARTUP_TIMEOUT", 30))
 # standard mode for file creation, currently rwxr-x---
-# directories and files are created with the corresponding os.mkdir, os.chmod, os.chown commands.
-# those are using the bit patterns provided with the 'stat' module as below, combining them happens via bitwise OR
+# directories and files are created with the corresponding os.mkdir, os.chmod,
+# os.chown commands.
+# those are using the bit patterns provided with the 'stat' module as below,
+# combining them happens via bitwise OR
 # TODO: find a way to not have to use rwx for others!
 STANDARD_MODE = S_IRWXU | S_IRGRP | S_IXGRP | S_IRWXO
 # session state is kept in this global dict for each username as primary key
@@ -127,12 +133,13 @@ async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
             )
         try:
             os.chmod(dir, mode)
-        except:
+        except OSError:
             logger.error(f"Could not chmod directory {dir} to {mode}.")
         # try:
         #    os.chown(dir, uid, gid)
         # except PermissionError:
-        #    logger.error(f"Could not chown directory {dir}, not allowed to change ownership to {uid}, {gid}.")
+        #    logger.error(f"Could not chown directory {dir}, not allowed to
+        #    change ownership to {uid}, {gid}.")
 
 
 async def _create_user_dirs(username):
@@ -198,7 +205,8 @@ async def _create_user_dirs(username):
         for line in storage_areas:
             storage_area, path = line.split(" ")
             path_components = path.split("/")
-            # check for different paths in storage-areas that need to be corrected.
+            # check for different paths in storage-areas that need to be
+            # corrected.
             if path_components[0] == "$HOME":
                 path_components[0] = f"/home/{username}"
             path = os.path.join(*path_components)
@@ -299,13 +307,16 @@ async def _start_webdav_instance(username, port):
         return False
 
     # as a dict for subprocess.Popen
-    # env_pass = {key: value for key,value in os.environ.items() if key.startswith("STORM_WEBDAV_")}
+    # env_pass = {key: value for key,value in os.environ.items() if
+    # key.startswith("STORM_WEBDAV_")}
 
-    # add STORM_WEBDAV_* env vars to a list that can be passed to the sudo command and be preserved for the forked process
+    # add STORM_WEBDAV_* env vars to a list that can be passed to the sudo
+    # command and be preserved for the forked process
     env_pass = [key for key in os.environ.keys() if key.startswith("STORM_WEBDAV_")]
 
     # starting subprocess with all necessary options now.
-    # using os.setsid() as a function handle before execution should execute the process in it's own process group
+    # using os.setsid() as a function handle before execution should execute
+    # the process in it's own process group
     # such that it can be managed on its own.
     logger.info(f"trying to start process for user {username}.")
     full_cmd = f"sudo --preserve-env={','.join(env_pass)} -u {username} /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
@@ -320,16 +331,19 @@ async def _start_webdav_instance(username, port):
 
     # wait for it...
     await anyio.sleep(1)
-    # poll the process to get rid of the zombiefied subprocess attached to teapot
+    # poll the process to get rid of the zombiefied subprocess attached to
+    # teapot
     p.poll()
 
-    # get rid of additional whitespace, trailing "&" and output redirects from cmdline, expand env vars
+    # get rid of additional whitespace, trailing "&" and output redirects from
+    # cmdline, expand env vars
     full_cmd = " ".join(full_cmd.split())[:-1]
     full_cmd = " ".join(full_cmd.split(","))
     full_cmd = os.path.expandvars(full_cmd)
     full_cmd = full_cmd.split("1>")[0].rstrip()
 
-    # we can remove all env vars for the user process from teapot now as they were given to the forked process as a copy
+    # we can remove all env vars for the user process from teapot now as they
+    # were given to the forked process as a copy
     await _remove_user_env()
 
     # get the process pid for terminating it later.
@@ -351,13 +365,13 @@ async def _start_webdav_instance(username, port):
 
 
 async def _get_proc(full_cmd):
-    # here we are simply looking through all processes and try to find a match for the full command
-    # that was issued to start the instance in question. then return the process handle.
-    # it should contain the process that is running as root and forked the storm instance for
-    # the user themselves.
-    # looking through all processes seems a bit overkill but at the moment this is the only
-    # halfway surefire method I could find to accomplish this task.
-    # shamelessly stolen from
+    # here we are simply looking through all processes and try to find a
+    # match for the full command that was issued to start the instance in
+    # question. then return the process handle. it should contain the process
+    # that is running as root and forked the storm instance for the user
+    # themselves. looking through all processes seems a bit overkill but at
+    # the moment this is the only halfway surefire method I could find to
+    # accomplish this task. shamelessly stolen from
     # https://codereview.stackexchange.com/questions/183091/start-a-sub-process-with-sudo-as-head-of-new-process-group-kill-it-after-time
     for pid in psutil.pids():
         proc = psutil.Process(pid)
@@ -385,12 +399,16 @@ async def _stop_webdav_instance(username):
             )
             return -1
 
-    # first naive workaround will be to just give sudo rights to teapot for /usr/bin/kill
+    # first naive workaround will be to just give sudo rights to teapot for
+    # /usr/bin/kill
     # TODO: find a safer way to accomplish this!
-    # originally wanted to kill the process via os.killpg but the storm process is running under the user's uid, so that is not possible
+    # originally wanted to kill the process via os.killpg but the storm
+    # process is running under the user's uid, so that is not possible
     # os.killpg(os.getpgid(p.pid), signal.SIGTERM)
-    # now we run subprocess.Popen in the user context to let it terminate the process in that user's context.
-    # but as we don't want to let teapot be able to just kill any process (by sudoers mechanism), we need to find a way around this,
+    # now we run subprocess.Popen in the user context to let it terminate
+    # the process in that user's context.
+    # but as we don't want to let teapot be able to just kill any process
+    # (by sudoers mechanism), we need to find a way around this,
     # maybe with a dedicated script that can only kill certain processes?
 
     pid = session.get("pid", "None")
@@ -536,13 +554,15 @@ async def load_session_state():
 
 async def _map_fed_to_local(sub):
     # this func returns the local username for a federated user or None
-    # for this prototype it could just be read from a mapping file on the local file system.  # noqa: E501
-    # in this naive implementation, it is expected that the mapping file has the format
+    # for this prototype it could just be read from a mapping file on the
+    # local file system. in this naive implementation, it is expected that
+    # the mapping file has the format
     #
     #   federated-sub-claim,local-username
     #
-    # without headers and only the first hit for a federated sub claim is returned.
-    # like this, it is possible to match different subs to a local username but not the other way around.  # noqa: E501
+    # without headers and only the first hit for a federated sub claim is
+    # returned. like this, it is possible to match different subs to a
+    # local username but not the other way around.
 
     with open("/etc/teapot/user-mapping.csv", "r") as mapping_file:
         mappingreader = csv.reader(mapping_file, delimiter=" ")
@@ -580,10 +600,13 @@ async def _return_or_create_storm_instance(sub):
             f"StoRM-WebDAV instance for {local_user} is running on port {port}."
         )  # noqa: E501
     else:
-        # if no instance is running, start it. but first, it has to be checked if the directories exist, if not, they need to be created.
-        # also, we need to write the env vars into a .bash_profile for the user, so they are there when the webdav-instance is started.
-        # the port, pid, storage_area and directory will be managed within an sqlite database here in teapot.
-        # no external scripts anymore to keep the state and its management in one place.
+        # if no instance is running, start it. but first, it has to be checked
+        # if the directories exist, if not, they need to be created.
+        # also, we need to write the env vars into a .bash_profile for the
+        # user, so they are there when the webdav-instance is started.
+        # the port, pid, storage_area and directory will be managed within
+        # an sqlite database here in teapot. no external scripts anymore
+        # to keep the state and its management in one place.
         logger.debug(f"no instance running for user {local_user} yet, starting now.")
         port = await _find_usable_port_no()
         pid = await _start_webdav_instance(local_user, port)
@@ -677,7 +700,8 @@ async def root(
         sub
     )
 
-    # REVISIT: should these errors be thrown from _return_or_create_storm_instance?
+    # REVISIT: should these errors be thrown from
+    # _return_or_create_storm_instance?
     if not redirect_host and not redirect_port:
         # no mapping between federated and local user identity found
         raise HTTPException(status_code=403)
