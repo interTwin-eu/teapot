@@ -129,7 +129,8 @@ async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
         except FileExistsError:
             # this info msg should never be triggered, right?
             logger.error(
-                f"Directory {dir} already exists, therefore this message should not exist. Something is wrong..."
+                f"Directory {dir} already exists, therefore this message"
+                + "should not exist. Something is wrong..."
             )
         try:
             os.chmod(dir, mode)
@@ -157,14 +158,19 @@ async def _create_user_dirs(username):
     config_dir = f"/etc/{APP_NAME}"
     if not exists(f"{config_dir}/storage-areas"):
         logger.error(
-            f"{config_dir}/storage-areas is missing. It should consist of two variables per storage area: name of the storage area and root path to the storage area's directory separated by a single space."
+            f"{config_dir}/storage-areas is missing. It should consist of two "
+            + "variables per storage area: name of the storage area and root "
+            + "path to the storage area's directory separated by a single "
+            + "space."
         )
         return False
 
     mapping_file = f"{config_dir}/user-mapping.csv"
     if not exists(mapping_file):
         logger.error(
-            f"{mapping_file} does not exist. It should consist of two variables per user: username and subject claim separated by a single space."
+            f"{mapping_file} does not exist. It should consist of two "
+            + "variables per user: username and subject claim separated "
+            + "by a single space."
         )
         return False
 
@@ -352,12 +358,14 @@ async def _start_webdav_instance(username, port):
     # check process status and store the handle.
     if kill_proc.status() in [psutil.STATUS_RUNNING, psutil.STATUS_SLEEPING]:
         logger.debug(
-            f"start_webdav_instance: instance for user {username} is running under PID {kill_proc.pid}."
+            f"start_webdav_instance: instance for user {username} is running "
+            + f"under PID {kill_proc.pid}."
         )
         return kill_proc.pid
     else:
         logger.error(
-            f"_start_webdav_instance: instance for user {username} could not be started. pid was {kill_proc.pid}."
+            f"_start_webdav_instance: instance for user {username} could not "
+            + f"be started. pid was {kill_proc.pid}."
         )
         # if there was a returncode, we wait for the process and terminate it.
         kill_proc.wait()
@@ -378,24 +386,28 @@ async def _get_proc(full_cmd):
         if full_cmd == " ".join(proc.cmdline()):
             logger.info(f"PID found: {pid}")
             return proc
-    raise RuntimeError(f"process with for full command {full_cmd} does not exist.")
+    raise RuntimeError(f"process with for full command {full_cmd} does not"
+                       + " exist.")
 
 
 async def _stop_webdav_instance(username):
     logger.info(f"Stopping webdav instance for user {username}.")
 
     logger.debug(
-        f"_stop_webdav_instance: trying to acquire lock at {datetime.datetime.now().isoformat()}"
+        "_stop_webdav_instance: trying to acquire lock at "
+        + f"{datetime.datetime.now().isoformat()}"
     )
     async with app.state.state_lock:
         logger.debug(
-            f"_stop_webdav_instance: acquired lock at {datetime.datetime.now().isoformat()}"
+            "_stop_webdav_instance: acquired lock at "
+            + f"{datetime.datetime.now().isoformat()}"
         )
         try:
             session = app.state.session_state.pop(username)
         except KeyError:
             logger.error(
-                f"_stop_webdav_instance: session state for user {username} doesn't exist."
+                "_stop_webdav_instance: session state for user "
+                + f"{username} doesn't exist."
             )
             return -1
 
@@ -436,21 +448,25 @@ async def stop_expired_instances():
         await asyncio.sleep(CHECK_INTERVAL_SEC)
         logger.info("checking for expired instances")
         logger.debug(
-            f"stop_expired_instances: trying to acquire 'users' lock at {datetime.datetime.now().isoformat()}"
+            "stop_expired_instances: trying to acquire 'users' lock at "
+            + f"{datetime.datetime.now().isoformat()}"
         )
         async with app.state.state_lock:
             logger.debug(
-                f"stop_expired_instances: acquired 'users' lock at {datetime.datetime.now().isoformat()}"
+                "stop_expired_instances: acquired 'users' lock at "
+                + f"{datetime.datetime.now().isoformat()}"
             )
             users = list(app.state.session_state.keys())
         now = datetime.datetime.now()
         for user in users:
             logger.debug(
-                f"stop_expired_instances: trying to acquire 'user_dict' lock at {datetime.datetime.now().isoformat()}"
+                "stop_expired_instances: trying to acquire 'user_dict' "
+                + f"lock at {datetime.datetime.now().isoformat()}"
             )
             async with app.state.state_lock:
                 logger.debug(
-                    f"stop_expired_instances: acquired 'user_dict' lock at {datetime.datetime.now().isoformat()}"
+                    "stop_expired_instances: acquired 'user_dict' lock at "
+                    + f"{datetime.datetime.now().isoformat()}"
                 )
                 user_dict = app.state.session_state.get(user, None)
             if user_dict is not None:
@@ -462,41 +478,49 @@ async def stop_expired_instances():
                         # TODO: remove instance from session_state
                         if res != 0:
                             logger.error(
-                                f"Instance for user {user} exited with code {res}."
+                                f"Instance for user {user} exited with code "
+                                + f"{res}."
                             )
                         else:
                             logger.info(
-                                f"Instance for user {user} has been terminated after timeout."
+                                f"Instance for user {user} has been terminated"
+                                + " after timeout."
                             )
                 else:
                     logger.error(
-                        f"_stop_expired_instances: Session for user {user} does not have the property 'last_accessed'."
+                        f"_stop_expired_instances: Session for user {user} "
+                        + "does not have the property 'last_accessed'."
                     )
             else:
                 logger.error(
-                    f"_stop_expired_instances: No session object for user {user} in session_state."
+                    "_stop_expired_instances: No session object for user "
+                    + f"{user} in session_state."
                 )
 
 
 async def _find_usable_port_no():
     used_ports = []
     logger.debug(
-        f"_find_usable_port_no: trying to acquire lock at {datetime.datetime.now().isoformat()}"
+        "_find_usable_port_no: trying to acquire lock at "
+        + f"{datetime.datetime.now().isoformat()}"
     )
     async with app.state.state_lock:
         logger.debug(
-            f"_find_usable_port_no: acquired lock at {datetime.datetime.now().isoformat()}"
+            "_find_usable_port_no: acquired lock at "
+            + f"{datetime.datetime.now().isoformat()}"
         )
         users = app.state.session_state.keys()
         if users:
             for user in users:
                 tmp_port = app.state.session_state[user].get("port", None)
                 logger.debug(
-                    f"find_usable_port_no: use {user} has an instance running on port {tmp_port}."
+                    f"find_usable_port_no: use {user} has an instance running "
+                    + f"on port {tmp_port}."
                 )
                 used_ports.append(tmp_port)
         else:
-            # if there are no instances running yet, we want the ports to start from 32400
+            # if there are no instances running yet, we want the ports to
+            # start from 32400
             logger.debug(f"no port in use by teapot, using {STARTING_PORT}")
             used_ports = [STARTING_PORT]
 
@@ -506,7 +530,8 @@ async def _find_usable_port_no():
             port = await _test_port(max_used)
         else:
             logger.error(
-                "Missing port number for running instances, can not determine fitting port number."
+                "Missing port number for running instances, can not determine "
+                "fitting port number."
             )
             port = None
             # should not happen :grimacing:
@@ -586,19 +611,21 @@ async def _return_or_create_storm_instance(sub):
     # now check if an instance is running by checking the global state
     if local_user in app.state.session_state.keys():
         logger.debug(
-            f"_return_or_create_storm_instance: trying to acquire 'get' lock at {datetime.datetime.now().isoformat()}"
+            "_return_or_create_storm_instance: trying to acquire 'get' lock "
+            + f"at {datetime.datetime.now().isoformat()}"
         )
         async with app.state.state_lock:
             logger.debug(
-                f"_return_or_create_storm_instance: acquired 'get' lock at {datetime.datetime.now().isoformat()}"
+                "_return_or_create_storm_instance: acquired 'get' lock at "
+                + f"{datetime.datetime.now().isoformat()}"
             )
             port = app.state.session_state[local_user].get("port", None)
             app.state.session_state[local_user]["last_accessed"] = str(
                 datetime.datetime.now()
             )
         logger.info(
-            f"StoRM-WebDAV instance for {local_user} is running on port {port}."
-        )  # noqa: E501
+            f"StoRM-WebDAV instance for {local_user} is running on port {port}"
+        )
     else:
         # if no instance is running, start it. but first, it has to be checked
         # if the directories exist, if not, they need to be created.
@@ -607,20 +634,24 @@ async def _return_or_create_storm_instance(sub):
         # the port, pid, storage_area and directory will be managed within
         # an sqlite database here in teapot. no external scripts anymore
         # to keep the state and its management in one place.
-        logger.debug(f"no instance running for user {local_user} yet, starting now.")
+        logger.debug(f"no instance running for user {local_user} yet, starting"
+                     + " now.")
         port = await _find_usable_port_no()
         pid = await _start_webdav_instance(local_user, port)
         if not pid:
             logger.error(
-                f"something went wrong while starting instance for user {local_user}."
+                "something went wrong while starting instance for user "
+                + f"{local_user}."
             )
             return None, -1, local_user
         logger.debug(
-            f"_return_or_create_storm_instance: trying to acquire 'set' lock at {datetime.datetime.now().isoformat()}"
+            "_return_or_create_storm_instance: trying to acquire 'set' lock "
+            + f"at {datetime.datetime.now().isoformat()}"
         )
         async with app.state.state_lock:
             logger.debug(
-                f"_return_or_create_storm_instance: acquired 'set' lock at {datetime.datetime.now().isoformat()}"
+                "_return_or_create_storm_instance: acquired 'set' lock at "
+                + f"{datetime.datetime.now().isoformat()}"
             )
             app.state.session_state[local_user] = {
                 "pid": pid,
@@ -634,20 +665,24 @@ async def _return_or_create_storm_instance(sub):
             await anyio.sleep(1)
             if loops >= STARTUP_TIMEOUT:
                 logger.info(
-                    f"instance for user {local_user} not reachable after {STARTUP_TIMEOUT} tries... stop trying."
+                    f"instance for user {local_user} not reachable after "
+                    + f"{STARTUP_TIMEOUT} tries... stop trying."
                 )
                 logger.debug(
-                    f"_return_or_create_storm_instance: trying to acquire 'pop' lock at {datetime.datetime.now().isoformat()}"
+                    "_return_or_create_storm_instance: trying to acquire "
+                    + f"'pop' lock at {datetime.datetime.now().isoformat()}"
                 )
                 async with app.state.state_lock:
                     logger.debug(
-                        f"_return_or_create_storm_instance: acquired 'pop' lock at {datetime.datetime.now().isoformat()}"
+                        "_return_or_create_storm_instance: acquired 'pop'"
+                        + f" lock at {datetime.datetime.now().isoformat()}"
                     )
                     app.state.session_state.pop(local_user)
                 return None, -1, local_user
             try:
                 logger.debug(
-                    f"checking if instance for user {local_user} is listening on port {port}."
+                    f"checking if instance for user {local_user} is listening "
+                    + f"on port {port}."
                 )
                 context1 = ssl.create_default_context()
                 context1.load_verify_locations(cafile="/etc/pki/ca-trust/source/anchors/localhost.crt")
@@ -657,10 +692,12 @@ async def _return_or_create_storm_instance(sub):
             except httpx.ConnectError:
                 loops += 1
                 logger.debug(
-                    f"_return_or_create: trying to reach instance, try {loops}/{STARTUP_TIMEOUT}..."
+                    "_return_or_create: trying to reach instance, try "
+                    + f"{loops}/{STARTUP_TIMEOUT}..."
                 )
 
-        logger.info(f"Storm-WebDAV instance for {local_user} started on port {port}.")
+        logger.info(f"Storm-WebDAV instance for {local_user} started on port"
+                    + f" {port}.")
     return None, port, local_user
 
 
@@ -715,7 +752,8 @@ async def root(
         )
     if not redirect_host:
         redirect_host = "localhost"
-    logger.info(f"redirect_host: {redirect_host}, redirect_port: {redirect_port}")
+    logger.info(f"redirect_host: {redirect_host}, redirect_port: "
+                + f"{redirect_port}")
     logger.info(f"request path: {request.url.path}")
 
     redirect_url = f"https://{redirect_host}:{redirect_port}{request.url.path}"
