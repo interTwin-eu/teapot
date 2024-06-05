@@ -383,21 +383,34 @@ async def _start_webdav_instance(username, port):
 
 
 async def _get_proc(full_cmd):
-    # here we are simply looking through all processes and try to find a
-    # match for the full command that was issued to start the instance in
-    # question. then return the process handle. it should contain the process
-    # that is running as root and forked the storm instance for the user
-    # themselves. looking through all processes seems a bit overkill but at
-    # the moment this is the only halfway surefire method I could find to
-    # accomplish this task. shamelessly stolen from
-    # https://codereview.stackexchange.com/questions/183091/start-a-sub-process-with-sudo-as-head-of-new-process-group-kill-it-after-time
+    # Retry finding the process a few times with a small delay
+    retries = 5
+    delay = 1  # seconds
+
+    for attempt in range(retries):
+        for pid in psutil.pids():
+            try:
+                proc = psutil.Process(pid)
+                cmdline = proc.cmdline()
+                if all(arg in cmdline for arg in full_cmd):
+                    logger.info(f"PID found: {pid}")
+                    return proc
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+
+        # If not found, wait a bit and retry
+        logger.debug(f"Process not found, retrying... ({attempt + 1}/{retries})")
+        await anyio.sleep(delay)
+
+    # If still not found, log the command lines of all processes for debugging
     for pid in psutil.pids():
-        proc = psutil.Process(pid)
-        if full_cmd == " ".join(proc.cmdline()):
-            logger.info(f"PID found: {pid}")
-            return proc
-    raise RuntimeError(f"process with for full command {full_cmd} does not \
-                        exist.")
+        try:
+            proc = psutil.Process(pid)
+            logger.debug(f"Process {pid} command line: {' '.join(proc.cmdline())}")
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+
+    raise RuntimeError(f"process with full command {full_cmd} does not exist.")
 
 
 async def _stop_webdav_instance(username):
