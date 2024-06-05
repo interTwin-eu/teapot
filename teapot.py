@@ -20,8 +20,8 @@ import anyio
 import httpx
 import psutil
 import uvicorn
-from fastapi import Depends, FastAPI, HTTPException, Request, Response
-from fastapi.security import HTTPBasicCredentials, HTTPBearer
+from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.security import HTTPBearer
 from flaat.config import AccessLevel
 from flaat.fastapi import Flaat
 from flaat.requirements import HasSubIss
@@ -320,26 +320,37 @@ async def _start_webdav_instance(username, port):
     # using os.setsid() as a function handle before execution should execute
     # the process in it's own process group
     # such that it can be managed on its own.
+
     logger.info(f"trying to start process for user {username}.")
-    sudo_options = f"--preserve-env={','.join(env_pass)} -u {username}"
-    java = "/usr/bin/java"
-    jvm_opts = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
-    storm_webdav_jar = ("/usr/share/java/storm-webdav/storm-webdav-server.jar")
-    storm_webdav_log_configuration = f"/etc/{APP_NAME}/logback.xml"
-    spring_loc = f"/var/lib/{APP_NAME}/user-{username}/config/application.yml"
-    storm_webdav_out = f"/var/lib/{APP_NAME}/user-{username}/log/server.out"
-    storm_webdav_err = f"/var/lib/{APP_NAME}/user-{username}/log/server.err"
-    user_t_path = f"/var/lib/user-{username}/t"+"mp"
+    # sudo_options = f"--preserve-env={','.join(env_pass)} -u {username}"
+    # java = "/usr/bin/java"
+    # jvm_opts = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
+    # storm_webdav_jar = ("/usr/share/java/storm-webdav/storm-webdav-server.jar")
+    # storm_webdav_log_configuration = f"/etc/{APP_NAME}/logback.xml"
+    # spring_loc = f"/var/lib/{APP_NAME}/user-{username}/config/application.yml"
+    # storm_webdav_out = f"/var/lib/{APP_NAME}/user-{username}/log/server.out"
+    # storm_webdav_err = f"/var/lib/{APP_NAME}/user-{username}/log/server.err"
+    # user_t_path = f"/var/lib/user-{username}/t"+"mp"
 
-    full_cmd = f"sudo {sudo_options} \
-        {java} -jar {storm_webdav_jar} {jvm_opts} \
-        -Djava.io.tmpdir={user_t_path} \
-        -Dlogging.config={storm_webdav_log_configuration} \
-        --spring.config.additional-location=optional:file:{spring_loc} \
-        1>{storm_webdav_out} 2>{storm_webdav_err} &"
-    logger.info(f"full_cmd={full_cmd}")
+    # full_cmd = f"sudo {sudo_options} \
+    #     {java} -jar {storm_webdav_jar} {jvm_opts} \
+    #     -Djava.io.tmpdir={user_t_path} \
+    #     -Dlogging.config={storm_webdav_log_configuration} \
+    #     --spring.config.additional-location=optional:file:{spring_loc} \
+    #     1>{storm_webdav_out} 2>{storm_webdav_err} &"
+    # logger.info(f"full_cmd={full_cmd}")
 
-    p = subprocess.Popen(full_cmd, shell=True, preexec_fn=os.setsid)
+    full_cmd = ["sudo", f"--preserve-env={','.join(env_pass)}", "-u",
+           f"{username}", "/usr/bin/java", "-jar",
+           "/usr/share/java/storm-webdav/storm-webdav-server.jar",
+           "-Xms2048m", "-Xmx2048m",
+           "-Djava.security.egd=file:/dev/./urandom",
+           f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
+           f"-Dlogging.config=/etc/{APP_NAME}/logback.xml",
+           f"--spring.config.additional-location=optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml",
+           "&"
+           ]
+    p = subprocess.Popen(cmd, stdout=f"/var/lib/{APP_NAME}/user-{username}/log/server.out", stderr=f"/var/lib/{APP_NAME}/user-{username}/log/server.err", preexec_fn=os.setsid)
 
     # wait for it...
     await anyio.sleep(1)
@@ -727,7 +738,6 @@ async def root(
     filepath: str,
     request: Request,
     response: Response,
-    credentials: HTTPBasicCredentials = Depends(security),
 ):
     # get data from userinfo endpoint
     user_infos = flaat.get_user_infos_from_request(request)
