@@ -331,12 +331,11 @@ async def _start_webdav_instance(username, port):
     # such that it can be managed on its own.
     logger.info(f"trying to start process for user {username}.")
     full_cmd = f"sudo --preserve-env={','.join(env_pass)} -u {username} \
-    /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
-    -Djava.io.tmpdir=/var/lib/user-{username}/tmp \
-    -Dlogging.config=$STORM_WEBDAV_LOG_CONFIGURATION \
-    --spring.config.additional-location= \
-    optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml \
-    1>$STORM_WEBDAV_OUT 2>$STORM_WEBDAV_ERR &"
+        /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
+        -Djava.io.tmpdir=/var/lib/user-{username}/tmp \
+        -Dlogging.config=$STORM_WEBDAV_LOG_CONFIGURATION \
+        --spring.config.additional-location=optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml \
+        1>$STORM_WEBDAV_OUT 2>$STORM_WEBDAV_ERR &"
 
     logger.info(f"full_cmd={full_cmd}")
 
@@ -741,9 +740,8 @@ async def root(
         # if there is no sub, user can not be authenticated
         raise HTTPException(status_code=403)
     # user is valid, so check if a storm instance is running for this sub
-    redirect_host, redirect_port, local_user = await _return_or_create_storm_instance(
-        sub
-    )
+    redirect_host, redirect_port, local_user = \
+        await _return_or_create_storm_instance(sub)
 
     # REVISIT: should these errors be thrown from
     # _return_or_create_storm_instance?
