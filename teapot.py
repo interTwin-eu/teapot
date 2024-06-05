@@ -341,15 +341,15 @@ async def _start_webdav_instance(username, port):
     # logger.info(f"full_cmd={full_cmd}")
 
     full_cmd = ["sudo", f"--preserve-env={','.join(env_pass)}", "-u",
-           f"{username}", "/usr/bin/java", "-jar",
-           "/usr/share/java/storm-webdav/storm-webdav-server.jar",
-           "-Xms2048m", "-Xmx2048m",
-           "-Djava.security.egd=file:/dev/./urandom",
-           f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
-           f"-Dlogging.config=/etc/{APP_NAME}/logback.xml",
-           f"--spring.config.additional-location=optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml",
-           "&"
-           ]
+                f"{username}", "/usr/bin/java", "-jar",
+                "/usr/share/java/storm-webdav/storm-webdav-server.jar",
+                "-Xms2048m", "-Xmx2048m",
+                "-Djava.security.egd=file:/dev/./urandom",
+                f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
+                f"-Dlogging.config=/etc/{APP_NAME}/logback.xml",
+                f"--spring.config.additional-location=optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml",
+                "&"
+                ]
     p = subprocess.Popen(cmd, stdout=f"/var/lib/{APP_NAME}/user-{username}/log/server.out", stderr=f"/var/lib/{APP_NAME}/user-{username}/log/server.err", preexec_fn=os.setsid)
 
     # wait for it...
