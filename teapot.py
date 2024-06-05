@@ -15,7 +15,7 @@ from contextlib import asynccontextmanager
 from os.path import exists
 from pathlib import Path
 from pwd import getpwnam
-from stat import S_IRWXU, S_IRGRP, S_IXGRP, S_IRWXO
+from stat import S_IRGRP, S_IRWXO, S_IRWXU,  S_IXGRP
 
 import anyio
 import httpx
@@ -121,7 +121,8 @@ app.state.state_lock = anyio.Lock()
 
 context = ssl.create_default_context()
 context.load_verify_locations(
-    cafile="/etc/pki/ca-trust/source/anchors/Teapot-testing.crt")
+    cafile="/etc/pki/ca-trust/source/anchors/Teapot-testing.crt"
+)
 client = httpx.AsyncClient(verify=context)
 
 
@@ -321,28 +322,26 @@ async def _start_webdav_instance(username, port):
     logger.info(f"trying to start process for user {username}.")
 
     full_cmd = ["sudo", f"--preserve-env={env_pass_quoted}", "-u",
-                f"{username}", "/usr/bin/java", "-jar",
+                username, "/usr/bin/java", "-jar",
                 "/usr/share/java/storm-webdav/storm-webdav-server.jar",
                 "-Xms2048m", "-Xmx2048m",
                 "-Djava.security.egd=file:/dev/./urandom",
                 f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
                 "-Dlogging.config=/etc/teapot/logback.xml",
-                f"--spring.config.additional-location=optional:file:\
-                    /var/lib/teapot/user-{username}/config/application.yml"
+                f"--spring.config.additional-location=optional:file:/var/lib/teapot/user-{username}/config/application.yml"
                 ]
 
-    stdout_file = open(f"/var/lib/teapot/user-{username}/log/server.out", "w",
-                       encoding="utf-8")
-    stderr_file = open(f"/var/lib/teapot/user-{username}/log/server.err", "w",
-                       encoding="utf-8")
+    stdout_path = f"/var/lib/teapot/user-{username}/log/server.out"
+    stderr_path = f"/var/lib/teapot/user-{username}/log/server.err"
 
-    logger.info(f"full_cmd={full_cmd}")
-
-    p = subprocess.Popen(full_cmd, preexec_fn=os.setsid, stdout=stdout_file,
-                         stderr=stderr_file)
-
-    stdout_file.close()
-    stderr_file.close()
+    try:
+        with open(stdout_path, "w", encoding="utf-8") as stdout_file, \
+             open(stderr_path, "w", encoding="utf-8") as stderr_file:
+            logger.info(f"full_cmd={full_cmd}")
+            p = subprocess.Popen(full_cmd, preexec_fn=os.setsid, stdout=stdout_file, stderr=stderr_file)
+    except Exception as e:
+        logger.error(f"Failed to start subprocess for user {username}: {e}")
+        return False
 
     # wait for it...
     await anyio.sleep(1)
