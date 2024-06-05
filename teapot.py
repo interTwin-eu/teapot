@@ -322,37 +322,38 @@ async def _start_webdav_instance(username, port):
     # such that it can be managed on its own.
 
     logger.info(f"trying to start process for user {username}.")
-    sudo_options = f"--preserve-env={','.join(env_pass)} -u {username}"
-    java = "/usr/bin/java"
-    jvm_opts = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
-    storm_webdav_jar = ("/usr/share/java/storm-webdav/storm-webdav-server.jar")
-    storm_webdav_log_configuration = f"/etc/{APP_NAME}/logback.xml"
-    spring_loc = f"/var/lib/{APP_NAME}/user-{username}/config/application.yml"
-    storm_webdav_out = f"/var/lib/{APP_NAME}/user-{username}/log/server.out"
-    storm_webdav_err = f"/var/lib/{APP_NAME}/user-{username}/log/server.err"
-    user_t_path = f"/var/lib/user-{username}/t"+"mp"
+    # sudo_options = f"--preserve-env={','.join(env_pass)} -u {username}"
+    # java = "/usr/bin/java"
+    # jvm_opts = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
+    # storm_webdav_jar = ("/usr/share/java/storm-webdav/storm-webdav-server.jar")
+    # storm_webdav_log_configuration = f"/etc/{APP_NAME}/logback.xml"
+    # spring_loc = f"/var/lib/{APP_NAME}/user-{username}/config/application.yml"
+    # storm_webdav_out = f"/var/lib/{APP_NAME}/user-{username}/log/server.out"
+    # storm_webdav_err = f"/var/lib/{APP_NAME}/user-{username}/log/server.err"
+    # user_t_path = f"/var/lib/user-{username}/t"+"mp"
 
-    full_cmd = f"sudo {sudo_options} \
-        {java} -jar {storm_webdav_jar} {jvm_opts} \
-        -Djava.io.tmpdir={user_t_path} \
-        -Dlogging.config={storm_webdav_log_configuration} \
-        --spring.config.additional-location=optional:file:{spring_loc} \
-        1>{storm_webdav_out} 2>{storm_webdav_err} &"
+    # full_cmd = f"sudo {sudo_options} \
+    #     {java} -jar {storm_webdav_jar} {jvm_opts} \
+    #     -Djava.io.tmpdir={user_t_path} \
+    #     -Dlogging.config={storm_webdav_log_configuration} \
+    #     --spring.config.additional-location=optional:file:{spring_loc} \
+    #     1>{storm_webdav_out} 2>{storm_webdav_err} &"
+
+    full_cmd = ["sudo", f"--preserve-env={','.join(env_pass)}", "-u",
+                f"{username}", "/usr/bin/java", "-jar",
+                "/usr/share/java/storm-webdav/storm-webdav-server.jar",
+                "-Xms2048m", "-Xmx2048m",
+                "-Djava.security.egd=file:/dev/./urandom",
+                f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
+                "-Dlogging.config=/etc/teapot/logback.xml",
+                f"--spring.config.additional-location=optional:file:/var/lib/teapot/user-{username}/config/application.yml",
+                f"1>f/var/lib/teapot/user-{username}/log/server.out",
+                f"2>/var/lib/teapot/user-{username}/log/server.err",
+                "&"
+                ]
+
     logger.info(f"full_cmd={full_cmd}")
-
-    # full_cmd = ["sudo", f"--preserve-env={','.join(env_pass)}", "-u",
-    #             f"{username}", "/usr/bin/java", "-jar",
-    #             "/usr/share/java/storm-webdav/storm-webdav-server.jar",
-    #             "-Xms2048m", "-Xmx2048m",
-    #             "-Djava.security.egd=file:/dev/./urandom",
-    #             f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
-    #             f"-Dlogging.config=/etc/{APP_NAME}/logback.xml",
-    #             f"--spring.config.additional-location=optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml",
-    #             f"1>f/var/lib/{APP_NAME}/user-{username}/log/server.out",
-    #             f"2>/var/lib/{APP_NAME}/user-{username}/log/server.err",
-    #             "&"
-    #             ]
-    p = subprocess.Popen(full_cmd, shell=True, preexec_fn=os.setsid)
+    p = subprocess.Popen(full_cmd, preexec_fn=os.setsid)
 
     # wait for it...
     await anyio.sleep(1)
