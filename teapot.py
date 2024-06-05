@@ -27,6 +27,7 @@ from flaat.fastapi import Flaat
 from flaat.requirements import HasSubIss
 from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
+import shlex
 
 
 # lifespan function for startup and shutdown functions
@@ -313,8 +314,8 @@ async def _start_webdav_instance(username, port):
 
     # add STORM_WEBDAV_* env vars to a list that can be passed to the sudo
     # command and be preserved for the forked process
-    env_pass = [key for key in os.environ.keys()
-                if key.startswith("STORM_WEBDAV_")]
+    env_pass = [key for key in os.environ if key.startswith("STORM_WEBDAV_")]
+    env_pass_quoted = ",".join(shlex.quote(key) for key in env_pass)
 
     # starting subprocess with all necessary options now.
     # using os.setsid() as a function handle before execution should execute
@@ -339,14 +340,15 @@ async def _start_webdav_instance(username, port):
     #     --spring.config.additional-location=optional:file:{spring_loc} \
     #     1>{storm_webdav_out} 2>{storm_webdav_err} &"
 
-    full_cmd = ["sudo", f"--preserve-env={','.join(env_pass)}", "-u",
+    full_cmd = ["sudo", f"--preserve-env={env_pass_quoted}", "-u",
                 f"{username}", "/usr/bin/java", "-jar",
                 "/usr/share/java/storm-webdav/storm-webdav-server.jar",
                 "-Xms2048m", "-Xmx2048m",
                 "-Djava.security.egd=file:/dev/./urandom",
                 f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
                 "-Dlogging.config=/etc/teapot/logback.xml",
-                f"--spring.config.additional-location=optional:file:/var/lib/teapot/user-{username}/config/application.yml",
+                f"--spring.config.additional-location=optional:file:\
+                    /var/lib/teapot/user-{username}/config/application.yml",
                 f"1>f/var/lib/teapot/user-{username}/log/server.out",
                 f"2>/var/lib/teapot/user-{username}/log/server.err",
                 "&"
