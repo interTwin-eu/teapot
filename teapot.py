@@ -221,7 +221,8 @@ async def _create_user_dirs(username):
             sa_properties_path = f"{user_sa_d_dir}/{storage_area}.properties"
             if not exists(sa_properties_path):
                 with open(sa_properties_path, "w") as storage_area_properties:
-                    first_part = f"name={storage_area}\nrootPath={path}\naccessPoints=/{storage_area}_area\n\n"
+                    first_part = f"name={storage_area}\nrootPath={path}" \
+                        f"accessPoints=/{storage_area}_area\n\n"
                     storage_area_properties.write(first_part)
                     for line in second_part:
                         storage_area_properties.write(line)
