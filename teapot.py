@@ -348,9 +348,11 @@ async def _start_webdav_instance(username, port):
                 f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
                 f"-Dlogging.config=/etc/{APP_NAME}/logback.xml",
                 f"--spring.config.additional-location=optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml",
+                f"1>f/var/lib/{APP_NAME}/user-{username}/log/server.out",
+                f"2>/var/lib/{APP_NAME}/user-{username}/log/server.err",
                 "&"
                 ]
-    p = subprocess.Popen(full_cmd, stdout=f"/var/lib/{APP_NAME}/user-{username}/log/server.out", stderr=f"/var/lib/{APP_NAME}/user-{username}/log/server.err", preexec_fn=os.setsid)
+    p = subprocess.Popen(full_cmd, preexec_fn=os.setsid)
 
     # wait for it...
     await anyio.sleep(1)
