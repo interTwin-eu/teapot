@@ -39,7 +39,7 @@ GET USER2
     ${RESPONSE}=    GET    ${DEFAULT_AREA}    headers=${HEADER2}     expected_status=200
 
 GET NO TOKEN
-    ${RESPONSE}=    GET    ${DEFAULT_AREA}                           expected_status=403 
+    ${RESPONSE}=    GET    ${DEFAULT_AREA}                           expected_status=401
 
 GET INVALID TOKEN
     ${RESPONSE}=    GET    ${DEFAULT_AREA}    headers=${HEADER3}     expected_status=401
@@ -49,7 +49,7 @@ PUT REQUEST INVALID TOKEN
     ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}    headers=${HEADER3}      expected_status=401
 
 PUT REQUEST NO TOKEN
-    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}                            expected_status=403
+    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}                            expected_status=401
 
 PUT REQUEST USER1
     ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}    headers=${HEADER1}      expected_status=201
@@ -71,7 +71,7 @@ GET FILE USER2
     [Teardown]    Delete Test File2 USER2
 
 GET FILE NO TOKEN
-    ${RESPONSE}=    GET    ${DEFAULT_AREA}/TestFile2                           expected_status=403
+    ${RESPONSE}=    GET    ${DEFAULT_AREA}/TestFile2                           expected_status=401
 
 GET FILE INVALID TOKEN
     ${RESPONSE}=    GET    ${DEFAULT_AREA}/TestFile2    headers=${HEADER3}     expected_status=401
@@ -89,7 +89,7 @@ DELETE REQUEST INVALID TOKEN
     ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile2    headers=${HEADER3}      expected_status=401
 
 DELETE REQUEST NO TOKEN
-    ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile2                            expected_status=403
+    ${RESPONSE}=    DELETE    ${DEFAULT_AREA}/TestFile2                            expected_status=401
 
 
 GET USER1 EXTRA_AREA
@@ -99,7 +99,7 @@ GET USER2 EXTRA_AREA
     ${RESPONSE}=    GET    ${EXTRA_AREA}    headers=${HEADER2}     expected_status=200
 
 GET NO TOKEN EXTRA_AREA
-    ${RESPONSE}=    GET    ${EXTRA_AREA}                           expected_status=403 
+    ${RESPONSE}=    GET    ${EXTRA_AREA}                           expected_status=401
 
 GET INVALID TOKEN EXTRA_AREA
     ${RESPONSE}=    GET    ${EXTRA_AREA}    headers=${HEADER3}     expected_status=401
@@ -109,7 +109,7 @@ PUT REQUEST INVALID TOKEN EXTRA_AREA
     ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}    headers=${HEADER3}      expected_status=401
 
 PUT REQUEST NO TOKEN EXTRA_AREA
-    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}                            expected_status=403
+    ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}                            expected_status=401
 
 PUT REQUEST USER1 EXTRA_AREA
     ${RESPONSE}=    PUT    ${EXTRA_AREA}/TestFile1    data=${DATA}    headers=${HEADER1}      expected_status=201
@@ -131,7 +131,7 @@ GET FILE USER2 EXTRA_AREA
     [Teardown]    Delete Test File2 USER2 EXTRA AREA
 
 GET FILE NO TOKEN EXTRA_AREA
-    ${RESPONSE}=    GET    ${EXTRA_AREA}/TestFile2                           expected_status=403 
+    ${RESPONSE}=    GET    ${EXTRA_AREA}/TestFile2                           expected_status=401
 
 GET FILE INVALID TOKEN EXTRA_AREA
     ${RESPONSE}=    GET    ${EXTRA_AREA}/TestFile2    headers=${HEADER3}     expected_status=401
@@ -149,4 +149,4 @@ DELETE REQUEST INVALID TOKEN EXTRA_AREA
     ${RESPONSE}=    DELETE    ${EXTRA_AREA}/TestFile2    headers=${HEADER3}      expected_status=401
 
 DELETE REQUEST NO TOKEN EXTRA_AREA
-    ${RESPONSE}=    DELETE    ${EXTRA_AREA}/TestFile2                            expected_status=403
+    ${RESPONSE}=    DELETE    ${EXTRA_AREA}/TestFile2                            expected_status=401
