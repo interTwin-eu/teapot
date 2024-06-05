@@ -350,7 +350,7 @@ async def _start_webdav_instance(username, port):
                 f"--spring.config.additional-location=optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml",
                 "&"
                 ]
-    p = subprocess.Popen(cmd, stdout=f"/var/lib/{APP_NAME}/user-{username}/log/server.out", stderr=f"/var/lib/{APP_NAME}/user-{username}/log/server.err", preexec_fn=os.setsid)
+    p = subprocess.Popen(full_cmd, stdout=f"/var/lib/{APP_NAME}/user-{username}/log/server.out", stderr=f"/var/lib/{APP_NAME}/user-{username}/log/server.err", preexec_fn=os.setsid)
 
     # wait for it...
     await anyio.sleep(1)
