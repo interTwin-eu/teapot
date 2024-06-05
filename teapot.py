@@ -339,8 +339,8 @@ async def _start_webdav_instance(username, port):
         1>{storm_webdav_out} 2>{storm_webdav_err} &"
     logger.info(f"full_cmd={full_cmd}")
 
-    p = subprocess.Popen(full_cmd, preexec_fn=os.setsid)
-    # removed shell=True
+    p = subprocess.Popen(full_cmd, shell=True, preexec_fn=os.setsid)
+
     # wait for it...
     await anyio.sleep(1)
     # poll the process to get rid of the zombiefied subprocess attached to
@@ -433,7 +433,7 @@ async def _stop_webdav_instance(username):
 
     if pid:
         logger.info(f"Stopping webdav instance with PID {pid}.")
-        kill_proc = subprocess.Popen(f"sudo -u {username} kill {pid}", shell=True)
+        kill_proc = subprocess.Popen(f"sudo -u {username} kill {pid}")
         kill_exit_code = kill_proc.wait()
         if kill_exit_code != 0:
             # what now?
