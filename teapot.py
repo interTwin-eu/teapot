@@ -333,16 +333,16 @@ async def _start_webdav_instance(username, port):
     jvm_opts = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
     storm_webdav_jar = ("/usr/share/java/storm-webdav/storm-webdav-server.jar")
     storm_webdav_log_configuration = f"/etc/{APP_NAME}/logback.xml"
-    spring_alt_location = f"optional:file:\
-        /var/lib/{APP_NAME}/user-{username}/config/application.yml"
+    spring_loc = f"/var/lib/{APP_NAME}/user-{username}/config/application.yml"
     storm_webdav_out = f"/var/lib/{APP_NAME}/user-{username}/log/server.out"
     storm_webdav_err = f"/var/lib/{APP_NAME}/user-{username}/log/server.err"
     user_t_path = f"/var/lib/user-{username}/t"+"mp"
+
     full_cmd = f"sudo {sudo_options} \
         {java} -jar {storm_webdav_jar} {jvm_opts} \
         -Djava.io.tmpdir={user_t_path} \
         -Dlogging.config={storm_webdav_log_configuration} \
-        --spring.config.additional-location={spring_alt_location} \
+        --spring.config.additional-location=optional:file:{spring_loc} \
         1>{storm_webdav_out} 2>{storm_webdav_err} &"
     logger.info(f"full_cmd={full_cmd}")
 
