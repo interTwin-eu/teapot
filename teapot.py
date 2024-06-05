@@ -7,15 +7,16 @@ import errno
 import json
 import logging
 import os
-from pathlib import Path
+import shlex
 import socket
+import ssl
 import subprocess
 from contextlib import asynccontextmanager
 from os.path import exists
+from pathlib import Path
 from pwd import getpwnam
 from stat import S_IRWXU, S_IRGRP, S_IXGRP, S_IRWXO
 
-import ssl
 import anyio
 import httpx
 import psutil
@@ -27,7 +28,6 @@ from flaat.fastapi import Flaat
 from flaat.requirements import HasSubIss
 from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
-import shlex
 
 
 # lifespan function for startup and shutdown functions
@@ -308,10 +308,6 @@ async def _start_webdav_instance(username, port):
         logger.error(f"could not create user env for {username}")
         return False
 
-    # as a dict for subprocess.Popen
-    # env_pass = {key: value for key,value in os.environ.items() if
-    # key.startswith("STORM_WEBDAV_")}
-
     # add STORM_WEBDAV_* env vars to a list that can be passed to the sudo
     # command and be preserved for the forked process
     env_pass = [key for key in os.environ if key.startswith("STORM_WEBDAV_")]
@@ -354,8 +350,7 @@ async def _start_webdav_instance(username, port):
 
     # get rid of additional whitespace, trailing "&" and output redirects from
     # cmdline, expand env vars
-    full_cmd = " ".join(full_cmd.split())[:-1]
-    full_cmd = " ".join(full_cmd.split(","))
+
     full_cmd = os.path.expandvars(full_cmd)
     full_cmd = full_cmd.split("1>")[0].rstrip()
 
