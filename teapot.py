@@ -321,13 +321,6 @@ async def _start_webdav_instance(username, port):
     # the process in it's own process group
     # such that it can be managed on its own.
     logger.info(f"trying to start process for user {username}.")
-    # full_cmd = f"sudo --preserve-env={','.join(env_pass)} -u {username} \
-    #     /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
-    #     -Djava.io.tmpdir=/var/lib/user-{username}/tmp \
-    #     -Dlogging.config=$STORM_WEBDAV_LOG_CONFIGURATION \
-    #     --spring.config.additional-location=optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml \
-    #     1>$STORM_WEBDAV_OUT 2>$STORM_WEBDAV_ERR &"
-
     sudo_options = f"--preserve-env={','.join(env_pass)} -u {username}"
     java = "/usr/bin/java"
     jvm_opts = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
@@ -346,8 +339,8 @@ async def _start_webdav_instance(username, port):
         1>{storm_webdav_out} 2>{storm_webdav_err} &"
     logger.info(f"full_cmd={full_cmd}")
 
-    p = subprocess.Popen(full_cmd, shell=True, preexec_fn=os.setsid)
-
+    p = subprocess.Popen(full_cmd, preexec_fn=os.setsid)
+    # removed shell=True
     # wait for it...
     await anyio.sleep(1)
     # poll the process to get rid of the zombiefied subprocess attached to
