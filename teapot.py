@@ -263,10 +263,6 @@ async def _create_user_env(username, port):
     storm_dir = f"/var/lib/{APP_NAME}/webdav"
     # make sure that .storm_profile is imported in the users shell init
     # by e.g. adding ". ~/.storm_profile" to the user's .bash_profile
-
-    os.environ["STORM_WEBDAV_JVM_OPTS"] = (
-        "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
-    )
     os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = "localhost"
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = f"{port}"
     os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"
@@ -278,15 +274,9 @@ async def _create_user_env(username, port):
     os.environ["STORM_WEBDAV_MAX_QUEUE_SIZE"] = "900"
     os.environ["STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME"] = "30000"
     os.environ["STORM_WEBDAV_SA_CONFIG_DIR"] = f"{user_dir}/sa.d"
-    os.environ["STORM_WEBDAV_JAR"] = (
-        "/usr/share/java/storm-webdav/storm-webdav-server.jar"
-    )
 
     os.environ["STORM_WEBDAV_LOG"] = f"{user_dir}/log/server.log"
-    os.environ["STORM_WEBDAV_OUT"] = f"{user_dir}/log/server.out"
-    os.environ["STORM_WEBDAV_ERR"] = f"{user_dir}/log/server.err"
 
-    os.environ["STORM_WEBDAV_LOG_CONFIGURATION"] = f"{etc_dir}/logback.xml"
     os.environ["STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"] = (
         f"{etc_dir}/logback-access.xml"
     )
@@ -331,13 +321,29 @@ async def _start_webdav_instance(username, port):
     # the process in it's own process group
     # such that it can be managed on its own.
     logger.info(f"trying to start process for user {username}.")
-    full_cmd = f"sudo --preserve-env={','.join(env_pass)} -u {username} \
-        /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
-        -Djava.io.tmpdir=/var/lib/user-{username}/tmp \
-        -Dlogging.config=$STORM_WEBDAV_LOG_CONFIGURATION \
-        --spring.config.additional-location=optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml \
-        1>$STORM_WEBDAV_OUT 2>$STORM_WEBDAV_ERR &"
+    # full_cmd = f"sudo --preserve-env={','.join(env_pass)} -u {username} \
+    #     /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
+    #     -Djava.io.tmpdir=/var/lib/user-{username}/tmp \
+    #     -Dlogging.config=$STORM_WEBDAV_LOG_CONFIGURATION \
+    #     --spring.config.additional-location=optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml \
+    #     1>$STORM_WEBDAV_OUT 2>$STORM_WEBDAV_ERR &"
 
+    sudo_options = f"--preserve-env={','.join(env_pass)} -u {username}"
+    java = "/usr/bin/java"
+    jvm_opts = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
+    storm_webdav_jar = ("/usr/share/java/storm-webdav/storm-webdav-server.jar")
+    storm_webdav_log_configuration = f"/etc/{APP_NAME}/logback.xml"
+    spring_alt_location = f"optional:file:\
+        /var/lib/{APP_NAME}/user-{username}/config/application.yml"
+    storm_webdav_out = f"/var/lib/{APP_NAME}/user-{username}/log/server.out"
+    storm_webdav_err = f"/var/lib/{APP_NAME}/user-{username}/log/server.err"
+    user_t_path = f"/var/lib/user-{username}/t"+"mp"
+    full_cmd = f"sudo {sudo_options} \
+        {java} -jar {storm_webdav_jar} {jvm_opts} \
+        -Djava.io.tmpdir={user_t_path} \
+        -Dlogging.config={storm_webdav_log_configuration} \
+        --spring.config.additional-location={spring_alt_location} \
+        1>{storm_webdav_out} 2>{storm_webdav_err} &"
     logger.info(f"full_cmd={full_cmd}")
 
     p = subprocess.Popen(full_cmd, shell=True, preexec_fn=os.setsid)
