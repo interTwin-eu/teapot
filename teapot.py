@@ -118,7 +118,8 @@ app.state.session_state = {}
 app.state.state_lock = anyio.Lock()
 
 context = ssl.create_default_context()
-context.load_verify_locations(cafile="/etc/pki/ca-trust/source/anchors/Teapot-testing.crt")
+context.load_verify_locations(
+    cafile="/etc/pki/ca-trust/source/anchors/Teapot-testing.crt")
 client = httpx.AsyncClient(verify=context)
 
 
@@ -205,7 +206,8 @@ async def _create_user_dirs(username):
     for dir in dirs_to_create:
         await makedir_chown_chmod(dir, uid, gid)
 
-    with open(f"/usr/share/{APP_NAME}/storage_element.properties", "r") as prop:
+    with open(f"/usr/share/{APP_NAME}/storage_element.properties",
+              "r") as prop:
         second_part = prop.readlines()
     with open(f"{config_dir}/storage-areas", "r") as storage_areas:
         for line in storage_areas:
@@ -237,7 +239,8 @@ async def _create_user_dirs(username):
             issuers_part = issuers.readlines()
         with open("/usr/share/teapot/storage_authorizations", "r") as auths:
             authorization_part = "".join(auths.readlines())
-        with open(f"{user_config_dir}/application.yml", "a") as application_yml:
+        with open(f"{user_config_dir}/application.yml",
+                  "a") as application_yml:
             for line in issuers_part:
                 application_yml.write(line)
             application_yml.write("storm:\n  authz:\n    policies:\n")
@@ -318,7 +321,8 @@ async def _start_webdav_instance(username, port):
 
     # add STORM_WEBDAV_* env vars to a list that can be passed to the sudo
     # command and be preserved for the forked process
-    env_pass = [key for key in os.environ.keys() if key.startswith("STORM_WEBDAV_")]
+    env_pass = [key for key in os.environ.keys()
+                if key.startswith("STORM_WEBDAV_")]
 
     # starting subprocess with all necessary options now.
     # using os.setsid() as a function handle before execution should execute
@@ -685,7 +689,8 @@ async def _return_or_create_storm_instance(sub):
                     + f"on port {port}."
                 )
                 context1 = ssl.create_default_context()
-                context1.load_verify_locations(cafile="/etc/pki/ca-trust/source/anchors/localhost.crt")
+                context1.load_verify_locations(
+                    cafile="/etc/pki/ca-trust/source/anchors/localhost.crt")
                 resp = httpx.get(f"https://localhost:{port}/", verify=context1)
                 if resp.status_code >= 200:
                     running = True
@@ -779,7 +784,8 @@ def main():
     key = "/var/lib/teapot/webdav/teapot.key"
     cert = "/var/lib/teapot/webdav/teapot.crt"
 
-    uvicorn.run(app, host="teapot", port=8081, ssl_keyfile=key, ssl_certfile=cert)
+    uvicorn.run(app, host="teapot", port=8081, ssl_keyfile=key,
+                ssl_certfile=cert)
 
 
 if __name__ == "__main__":
