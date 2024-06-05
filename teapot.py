@@ -292,7 +292,7 @@ async def _create_user_env(username, port):
 
 
 async def _remove_user_env():
-    for key in os.environ.keys():
+    for key in os.environ:
         if key.startswith("STORM_WEBDAV_"):
             del os.environ[key]
 
@@ -331,8 +331,10 @@ async def _start_webdav_instance(username, port):
                     /var/lib/teapot/user-{username}/config/application.yml"
                 ]
 
-    stdout_file = open(f"/var/lib/teapot/user-{username}/log/server.out", "w")
-    stderr_file = open(f"/var/lib/teapot/user-{username}/log/server.err", "w")
+    stdout_file = open(f"/var/lib/teapot/user-{username}/log/server.out", "w",
+                       encoding="utf-8")
+    stderr_file = open(f"/var/lib/teapot/user-{username}/log/server.err", "w",
+                       encoding="utf-8")
 
     logger.info(f"full_cmd={full_cmd}")
 
@@ -347,12 +349,6 @@ async def _start_webdav_instance(username, port):
     # poll the process to get rid of the zombiefied subprocess attached to
     # teapot
     p.poll()
-
-    # get rid of additional whitespace, trailing "&" and output redirects from
-    # cmdline, expand env vars
-
-    full_cmd = os.path.expandvars(full_cmd)
-    full_cmd = full_cmd.split("1>")[0].rstrip()
 
     # we can remove all env vars for the user process from teapot now as they
     # were given to the forked process as a copy
