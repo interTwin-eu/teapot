@@ -7,7 +7,7 @@ import errno
 import json
 import logging
 import os
-import pathlib
+from pathlib import Path
 import socket
 import subprocess
 from contextlib import asynccontextmanager
@@ -50,8 +50,9 @@ async def lifespan(app: FastAPI):
     handles = app.state.session_state.keys()
     for k in list(handles):
         await _stop_webdav_instance(k)
-    if exists(SESSION_STORE_PATH):
-        pathlib.Path.unlink(SESSION_STORE_PATH)
+    session_store_path = Path(SESSION_STORE_PATH)
+    if session_store_path.exists():
+        session_store_path.unlink()
 
     await client.aclose()
 
@@ -530,7 +531,7 @@ async def _find_usable_port_no():
             logger.debug(f"no port in use by teapot, using {STARTING_PORT}")
             used_ports = [STARTING_PORT]
 
-        if not None in used_ports:
+        if None not in used_ports:
             max_used = max(used_ports) + 1
             logger.debug(f"testing port {max_used}")
             port = await _test_port(max_used)
@@ -728,7 +729,7 @@ async def root(
     request: Request,
     response: Response,
     credentials: HTTPBasicCredentials = Depends(security),
-):  # noqa: E501
+):
     # get data from userinfo endpoint
     user_infos = flaat.get_user_infos_from_request(request)
     if not user_infos:
