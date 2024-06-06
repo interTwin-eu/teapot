@@ -312,6 +312,7 @@ async def _start_webdav_instance(username, port):
     if not res:
         logger.error(f"could not create user dirs for {username}")
         return False
+
     logger.debug("creating user env...")
     res = await _create_user_env(username, port)
     if not res:
@@ -330,15 +331,16 @@ async def _start_webdav_instance(username, port):
 
     logger.info(f"trying to start process for user {username}.")
 
-    full_cmd = ["sudo", f"--preserve-env={env_pass_quoted}", "-u",
-                username, "/usr/bin/java", "-jar",
-                "/usr/share/java/storm-webdav/storm-webdav-server.jar",
-                "-Xms2048m", "-Xmx2048m",
-                "-Djava.security.egd=file:/dev/./urandom",
-                f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
-                "-Dlogging.config=/etc/teapot/logback.xml",
-                f"--spring.config.additional-location=optional:file:/var/lib/teapot/user-{username}/config/application.yml"
-                ]
+    cmd = ["sudo", f"--preserve-env={env_pass_quoted}", "-u",
+           username, "/usr/bin/java", "-jar",
+           "/usr/share/java/storm-webdav/storm-webdav-server.jar",
+           "-Xms2048m", "-Xmx2048m",
+           "-Djava.security.egd=file:/dev/./urandom",
+           f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
+           "-Dlogging.config=/etc/teapot/logback.xml",
+           "--spring.config.additional-location=",
+           f"optional:file:/var/lib/teapot/user-{username}/config/application.yml"
+           ]
 
     stdout_path = f"/var/lib/teapot/user-{username}/log/server.out"
     stderr_path = f"/var/lib/teapot/user-{username}/log/server.err"
@@ -346,8 +348,8 @@ async def _start_webdav_instance(username, port):
     try:
         with open(stdout_path, "w", encoding="utf-8") as stdout_file, \
              open(stderr_path, "w", encoding="utf-8") as stderr_file:
-            logger.info(f"full_cmd={full_cmd}")
-            p = subprocess.Popen(full_cmd, preexec_fn=os.setsid, stdout=stdout_file, stderr=stderr_file)
+            logger.info(f"cmd={cmd}")
+            p = subprocess.Popen(cmd, preexec_fn=os.setsid, stdout=stdout_file, stderr=stderr_file)
     except Exception as e:
         logger.error(f"Failed to start subprocess for user {username}: {e}")
         return False
@@ -363,7 +365,7 @@ async def _start_webdav_instance(username, port):
     await _remove_user_env()
 
     # get the process pid for terminating it later.
-    kill_proc = await _get_proc(full_cmd)
+    kill_proc = await _get_proc(cmd)
 
     # check process status and store the handle.
     if kill_proc.status() in [psutil.STATUS_RUNNING, psutil.STATUS_SLEEPING]:
@@ -382,7 +384,7 @@ async def _start_webdav_instance(username, port):
         return None
 
 
-async def _get_proc(full_cmd):
+async def _get_proc(cmd):
     # Retry finding the process a few times with a small delay
     retries = 5
     delay = 1  # seconds
@@ -392,7 +394,7 @@ async def _get_proc(full_cmd):
             try:
                 proc = psutil.Process(pid)
                 cmdline = proc.cmdline()
-                if all(arg in cmdline for arg in full_cmd):
+                if all(arg in cmdline for arg in cmd):
                     logger.info(f"PID found: {pid}")
                     return proc
             except (psutil.NoSuchProcess, psutil.AccessDenied):
@@ -410,7 +412,7 @@ async def _get_proc(full_cmd):
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
 
-    raise RuntimeError(f"process with full command {full_cmd} does not exist.")
+    raise RuntimeError(f"process with full command {cmd} does not exist.")
 
 
 async def _stop_webdav_instance(username):
