@@ -265,9 +265,6 @@ async def _create_user_env(username, port):
     storm_dir = f"/var/lib/{APP_NAME}/webdav"
     # make sure that .storm_profile is imported in the users shell init
     # by e.g. adding ". ~/.storm_profile" to the user's .bash_profile
-    os.environ["STORM_WEBDAV_JVM_OPTS"] = (
-        "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
-    )
     os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = "localhost"
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = f"{port}"
     os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"
@@ -279,15 +276,7 @@ async def _create_user_env(username, port):
     os.environ["STORM_WEBDAV_MAX_QUEUE_SIZE"] = "900"
     os.environ["STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME"] = "30000"
     os.environ["STORM_WEBDAV_SA_CONFIG_DIR"] = f"{user_dir}/sa.d"
-    os.environ["STORM_WEBDAV_JAR"] = (
-        "/usr/share/java/storm-webdav/storm-webdav-server.jar"
-    )
-
     os.environ["STORM_WEBDAV_LOG"] = f"{user_dir}/log/server.log"
-    os.environ["STORM_WEBDAV_OUT"] = f"{user_dir}/log/server.out"
-    os.environ["STORM_WEBDAV_ERR"] = f"{user_dir}/log/server.err"
-
-    os.environ["STORM_WEBDAV_LOG_CONFIGURATION"] = f"{etc_dir}/logback.xml"
     os.environ["STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"] = (
         f"{etc_dir}/logback-access.xml"
     )
@@ -302,44 +291,42 @@ async def _create_user_env(username, port):
 
 
 async def _remove_user_env():
-    for key in os.environ:
-        if key.startswith("STORM_WEBDAV_"):
-            del os.environ[key]
+    keys_to_remove = [key for key in os.environ.keys() if key.startswith("STORM_WEBDAV_")]
+    for key in keys_to_remove:
+        del os.environ[key]
 
 
 async def _start_webdav_instance(username, port):
     res = await _create_user_dirs(username)
     if not res:
-        logger.error(f"could not create user dirs for {username}")
+        logger.error("could not create user dirs for %s", username)
         return False
 
     logger.debug("creating user env...")
     res = await _create_user_env(username, port)
     if not res:
-        logger.error(f"could not create user env for {username}")
+        logger.error("could not create user env for %s", username)
         return False
 
-    # add STORM_WEBDAV_* env vars to a list that can be passed to the sudo
-    # command and be preserved for the forked process
-    env_pass = [key for key in os.environ if key.startswith("STORM_WEBDAV_")]
-    env_pass_quoted = ",".join(shlex.quote(key) for key in env_pass)
+    env_pass = {key: value for key, value in os.environ.items()
+                if key.startswith("STORM_WEBDAV_")}
+
 
     # starting subprocess with all necessary options now.
     # using os.setsid() as a function handle before execution should execute
     # the process in it's own process group
     # such that it can be managed on its own.
 
-    logger.info(f"trying to start process for user {username}.")
+    logger.info("trying to start process for user %s", username)
 
-    cmd = ["sudo", f"--preserve-env={env_pass_quoted}", "-u",
+    cmd = ["sudo", "--preserve-env=" + ",".join(env_pass.keys()), "-u",
            username, "/usr/bin/java", "-jar",
            "/usr/share/java/storm-webdav/storm-webdav-server.jar",
            "-Xms2048m", "-Xmx2048m",
            "-Djava.security.egd=file:/dev/./urandom",
            f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
            "-Dlogging.config=/etc/teapot/logback.xml",
-           "--spring.config.additional-location=",
-           f"optional:file:/var/lib/teapot/user-{username}/config/application.yml"
+           f"--spring.config.additional-location=optional:file:/var/lib/teapot/user-{username}/config/application.yml"
            ]
 
     stdout_path = f"/var/lib/teapot/user-{username}/log/server.out"
@@ -348,10 +335,12 @@ async def _start_webdav_instance(username, port):
     try:
         with open(stdout_path, "w", encoding="utf-8") as stdout_file, \
              open(stderr_path, "w", encoding="utf-8") as stderr_file:
-            logger.info(f"cmd={cmd}")
-            p = subprocess.Popen(cmd, preexec_fn=os.setsid, stdout=stdout_file, stderr=stderr_file)
+            logger.info("cmd=%s", cmd)
+            p = subprocess.Popen(cmd, preexec_fn=os.setsid, stdout=stdout_file,
+                                 stderr=stderr_file, env=env_pass)
     except Exception as e:
-        logger.error(f"Failed to start subprocess for user {username}: {e}")
+        logger.error("Failed to start subprocess for user %s: %s", username,
+                     str(e))
         return False
 
     # wait for it...
@@ -370,15 +359,13 @@ async def _start_webdav_instance(username, port):
     # check process status and store the handle.
     if kill_proc.status() in [psutil.STATUS_RUNNING, psutil.STATUS_SLEEPING]:
         logger.debug(
-            f"start_webdav_instance: instance for user {username} is running "
-            + f"under PID {kill_proc.pid}."
-        )
+            "start_webdav_instance: instance for user %s is running \
+            under PID %d", username, kill_proc.pid)
         return kill_proc.pid
     else:
         logger.error(
-            f"_start_webdav_instance: instance for user {username} could not "
-            + f"be started. pid was {kill_proc.pid}."
-        )
+            "_start_webdav_instance: instance for user %s could not \
+            be started. pid was %d.", username, kill_proc.pid)
         # if there was a returncode, we wait for the process and terminate it.
         kill_proc.wait()
         return None
@@ -395,7 +382,7 @@ async def _get_proc(cmd):
                 proc = psutil.Process(pid)
                 cmdline = proc.cmdline()
                 if all(arg in cmdline for arg in cmd):
-                    logger.info(f"PID found: {pid}")
+                    logger.info("PID found: %d", pid)
                     return proc
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
