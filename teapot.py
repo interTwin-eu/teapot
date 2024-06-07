@@ -325,8 +325,7 @@ async def _start_webdav_instance(username, port):
            "-Djava.security.egd=file:/dev/./urandom",
            f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
            "-Dlogging.config=/etc/teapot/logback.xml",
-           f"--spring.config.additional-location=optional:file:/var/lib/teapot\
-            /user-{username}/config/application.yml"
+           f"--spring.config.additional-location=optional:file:/var/lib/teapot/user-{username}/config/application.yml"
            ]
 
     stdout_path = f"/var/lib/teapot/user-{username}/log/server.out"
