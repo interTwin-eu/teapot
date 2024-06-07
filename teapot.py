@@ -436,17 +436,24 @@ async def _stop_webdav_instance(username):
     # (by sudoers mechanism), we need to find a way around this,
     # maybe with a dedicated script that can only kill certain processes?
 
-    pid = session.get("pid", "None")
+    pid = session.get("pid")
 
     if pid:
         logger.info(f"Stopping webdav instance with PID {pid}.")
-        kill_proc = subprocess.Popen(f"sudo -u {username} kill {pid}")
-        kill_exit_code = kill_proc.wait()
-        if kill_exit_code != 0:
-            # what now?
-            logger.info(f"could not kill process with PID {pid}.")
-
-        exit_code = kill_exit_code
+        try:
+            kill_proc = subprocess.Popen(
+                ["sudo", "-u", username, "kill", str(pid)])
+            kill_exit_code = kill_proc.wait()
+            if kill_exit_code != 0:
+                logger.info(f"could not kill process with PID {pid}.")
+                exit_code = kill_exit_code
+            else:
+                logger.info(f"Successfully killed process with PID {pid}.")
+                exit_code = 0
+        except Exception as e:
+            logger.error(f"Exception occurred while trying to kill process \
+                          with PID {pid}: {e}")
+            exit_code = -1
     else:
         logger.info("No PID found.")
         exit_code = -1
