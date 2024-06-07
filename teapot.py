@@ -383,7 +383,7 @@ async def _get_proc(cmd):
             try:
                 proc = psutil.Process(pid)
                 cmdline = " ".join(proc.cmdline())
-                if target_cmd in proc_cmdline and all(arg in proc_cmdline for arg in target_args):
+                if target_cmd in cmdline and all(arg in cmdline for arg in target_args):
                     logger.info("PID found: %d", pid)
                     return proc
             except (psutil.NoSuchProcess, psutil.AccessDenied):
