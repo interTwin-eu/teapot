@@ -7,7 +7,6 @@ import errno
 import json
 import logging
 import os
-import shlex
 import socket
 import ssl
 import subprocess
@@ -291,7 +290,8 @@ async def _create_user_env(username, port):
 
 
 async def _remove_user_env():
-    keys_to_remove = [key for key in os.environ.keys() if key.startswith("STORM_WEBDAV_")]
+    keys_to_remove = [key for key in os.environ.keys()
+                      if key.startswith("STORM_WEBDAV_")]
     for key in keys_to_remove:
         del os.environ[key]
 
@@ -311,7 +311,6 @@ async def _start_webdav_instance(username, port):
     env_pass = {key: value for key, value in os.environ.items()
                 if key.startswith("STORM_WEBDAV_")}
 
-
     # starting subprocess with all necessary options now.
     # using os.setsid() as a function handle before execution should execute
     # the process in it's own process group
@@ -326,7 +325,8 @@ async def _start_webdav_instance(username, port):
            "-Djava.security.egd=file:/dev/./urandom",
            f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
            "-Dlogging.config=/etc/teapot/logback.xml",
-           f"--spring.config.additional-location=optional:file:/var/lib/teapot/user-{username}/config/application.yml"
+           f"--spring.config.additional-location=optional:file:/var/lib/teapot\
+            /user-{username}/config/application.yml"
            ]
 
     stdout_path = f"/var/lib/teapot/user-{username}/log/server.out"
@@ -367,7 +367,8 @@ async def _start_webdav_instance(username, port):
             "_start_webdav_instance: instance for user %s could not \
             be started. pid was %d.", username, kill_proc.pid)
         # if there was a returncode, we wait for the process and terminate it.
-        kill_proc.wait()
+        if kill_proc:
+            kill_proc.wait()
         return None
 
 
@@ -381,7 +382,7 @@ async def _get_proc(cmd):
             try:
                 proc = psutil.Process(pid)
                 cmdline = proc.cmdline()
-                if all(arg in cmdline for arg in cmd):
+                if len(cmdline) >= len(cmd) and cmdline[:len(cmd)] == cmd:
                     logger.info("PID found: %d", pid)
                     return proc
             except (psutil.NoSuchProcess, psutil.AccessDenied):
