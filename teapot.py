@@ -318,6 +318,8 @@ async def _start_webdav_instance(username, port):
 
     logger.info("trying to start process for user %s", username)
 
+    op_loc = f"/var/lib/teapot/user-{username}/config/application.yml"
+
     cmd = ["sudo", "--preserve-env=" + ",".join(env_pass.keys()), "-u",
            username, "/usr/bin/java", "-jar",
            "/usr/share/java/storm-webdav/storm-webdav-server.jar",
@@ -325,7 +327,7 @@ async def _start_webdav_instance(username, port):
            "-Djava.security.egd=file:/dev/./urandom",
            f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
            "-Dlogging.config=/etc/teapot/logback.xml",
-           f"--spring.config.additional-location=optional:file:/var/lib/teapot/user-{username}/config/application.yml"
+           f"--spring.config.additional-location=optional:file:{op_loc}"
            ]
 
     stdout_path = f"/var/lib/teapot/user-{username}/log/server.out"
@@ -366,8 +368,7 @@ async def _start_webdav_instance(username, port):
             "_start_webdav_instance: instance for user %s could not \
             be started. pid was %d.", username, kill_proc.pid)
         # if there was a returncode, we wait for the process and terminate it.
-        if kill_proc:
-            kill_proc.wait()
+        kill_proc.wait()
         return None
 
 
@@ -376,12 +377,15 @@ async def _get_proc(cmd):
     retries = 5
     delay = 1  # seconds
 
+    target_cmd = " ".join(cmd[:cmd.index("--spring.config.additional-location")])
+    target_args = cmd[cmd.index("--spring.config.additional-location"):]
+
     for attempt in range(retries):
         for pid in psutil.pids():
             try:
                 proc = psutil.Process(pid)
-                cmdline = proc.cmdline()
-                if len(cmdline) >= len(cmd) and cmdline[:len(cmd)] == cmd:
+                cmdline = " ".join(proc.cmdline())
+                if target_cmd in proc_cmdline and all(arg in proc_cmdline for arg in target_args):
                     logger.info("PID found: %d", pid)
                     return proc
             except (psutil.NoSuchProcess, psutil.AccessDenied):
