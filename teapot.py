@@ -318,8 +318,6 @@ async def _start_webdav_instance(username, port):
 
     logger.info("trying to start process for user %s", username)
 
-    op_loc = f"/var/lib/teapot/user-{username}/config/application.yml"
-
     cmd = ["sudo", "--preserve-env=" + ",".join(env_pass.keys()), "-u",
            username, "/usr/bin/java", "-jar",
            "/usr/share/java/storm-webdav/storm-webdav-server.jar",
@@ -327,7 +325,7 @@ async def _start_webdav_instance(username, port):
            "-Djava.security.egd=file:/dev/./urandom",
            f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
            "-Dlogging.config=/etc/teapot/logback.xml",
-           f"--spring.config.additional-location=optional:file:{op_loc}"
+           f"--spring.config.additional-location=optional:file:/var/lib/teapot/user-{username}/config/application.yml"
            ]
 
     stdout_path = f"/var/lib/teapot/user-{username}/log/server.out"
