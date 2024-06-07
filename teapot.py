@@ -375,6 +375,10 @@ async def _get_proc(cmd):
     retries = 5
     delay = 1  # seconds
 
+    if "--spring.config.additional-location" not in cmd:
+        raise RuntimeError(f"--spring.config.additional-location not found in \
+                            cmd: {cmd}")
+
     target_cmd = " ".join(cmd[:cmd.index("--spring.config.additional-location")])
     target_args = cmd[cmd.index("--spring.config.additional-location"):]
 
