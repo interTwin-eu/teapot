@@ -125,7 +125,7 @@ context.load_verify_locations(
 client = httpx.AsyncClient(verify=context)
 
 
-async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
+async def makedir_chown_chmod(dir, mode=STANDARD_MODE):
     if not exists(dir):
         try:
             os.mkdir(dir)
@@ -139,11 +139,6 @@ async def makedir_chown_chmod(dir, uid, gid, mode=STANDARD_MODE):
             os.chmod(dir, mode)
         except OSError:
             logger.error(f"Could not chmod directory {dir} to {mode}.")
-        # try:
-        #    os.chown(dir, uid, gid)
-        # except PermissionError:
-        #    logger.error(f"Could not chown directory {dir}, not allowed to
-        #    change ownership to {uid}, {gid}.")
 
 
 async def _create_user_dirs(username):
@@ -206,7 +201,7 @@ async def _create_user_dirs(username):
         user_config_dir,
     ]
     for dir in dirs_to_create:
-        await makedir_chown_chmod(dir, uid, gid)
+        await makedir_chown_chmod(dir)
 
     with open(f"/usr/share/{APP_NAME}/storage_element.properties",
               "r") as prop:
@@ -229,8 +224,6 @@ async def _create_user_dirs(username):
                     for line in second_part:
                         storage_area_properties.write(line)
                 os.chmod(sa_properties_path, STANDARD_MODE)
-                # os.makedirs(path)
-                # os.chmod(path, STANDARD_MODE)
 
     if not exists(f"{user_config_dir}/application.yml"):
         with open(f"{config_dir}/user-mapping.csv") as mapping:
@@ -375,18 +368,12 @@ async def _get_proc(cmd):
     retries = 5
     delay = 1  # seconds
 
-    if "--spring.config.additional-location" not in " ".join(cmd):
-        raise RuntimeError(f"--spring.config.additional-location not found in cmd: {cmd}")
-
-    target_cmd = " ".join(cmd[:cmd.index("--spring.config.additional-location")])
-    target_args = cmd[cmd.index("--spring.config.additional-location"):]
-
     for attempt in range(retries):
         for pid in psutil.pids():
             try:
                 proc = psutil.Process(pid)
-                cmdline = " ".join(proc.cmdline())
-                if target_cmd in cmdline and all(arg in cmdline for arg in target_args):
+                cmdline = proc.cmdline()
+                if all(arg in cmdline for arg in cmd):
                     logger.info("PID found: %d", pid)
                     return proc
             except (psutil.NoSuchProcess, psutil.AccessDenied):
