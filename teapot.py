@@ -32,11 +32,30 @@ from starlette.responses import StreamingResponse
 # lifespan function for startup and shutdown functions
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # everything before the "yield" should be executed at startup.
-    # check if json file for storing sessions exists, otherwise create it.
-    await load_session_state()
+    """
+    This function is designed to manage the lifespan of a FastAPI application
+    instance. It performs certain actions during startup and shutdown of the
+    application.
 
-    # set up task loop for stopping expired instances.
+    Parameters:
+    - `app` (FastAPI): The FastAPI application instance.
+
+    Actions during startup:
+    - Checks if the JSON file for storing sessions exists, and creates it if it
+      doesn't.
+    - Sets up a task loop for stopping expired instances.
+
+    Actions during shutdown:
+    - Stops all active webdav instances associated with session handles.
+    - Deletes the session store file if it exists.
+    - Closes the HTTP client.
+
+    Note: This function is typically used as a lifespan event handler for the
+    FastAPI application.
+    """
+
+    # everything before the "yield" should be executed at startup.
+    await load_session_state()
     # function runs an async while True loop and checks for expired instances.
     try:
         loop = asyncio.get_event_loop()
@@ -78,7 +97,7 @@ logging.basicConfig(filename=LOGFILE, level=logging.getLevelName(LOGLEVEL))
 logger = logging.getLogger(__name__)
 
 # globals
-# TODO: load globals via config file on startup and reload on every run of
+# TO DO: load globals via config file on startup and reload on every run of
 # stop_expired_instances, maybe rename function to "housekeeping" or the like.
 
 SESSION_STORE_PATH = os.environ.get(
@@ -108,7 +127,7 @@ STARTUP_TIMEOUT = int(os.environ.get("TEAPOT_STARTUP_TIMEOUT", 30))
 # os.chown commands.
 # those are using the bit patterns provided with the 'stat' module as below,
 # combining them happens via bitwise OR
-# TODO: find a way to not have to use rwx for others!
+# TO DO: find a way to not have to use rwx for others!
 STANDARD_MODE = S_IRWXU | S_IRGRP | S_IXGRP | S_IRWXO
 # session state is kept in this global dict for each username as primary key
 # data stored within each subdict is
@@ -126,6 +145,27 @@ client = httpx.AsyncClient(verify=context)
 
 
 async def makedir_chown_chmod(dir, mode=STANDARD_MODE):
+    """
+    This function creates a directory if it does not exist and sets its
+    permissions using `os.mkdir` and `os.chmod` functions respectively.
+
+    Parameters:
+    - `dir` (str): The directory path to be created.
+    - `mode` (int, optional): The permissions mode to be set for the
+       directory. Defaults to `STANDARD_MODE`.
+
+    Actions:
+    - Checks if the directory exists, and if not, creates it.
+    - Sets the permissions of the directory to the specified mode.
+    - Logs an error message if the directory creation or permissions setting
+     fails.
+
+    Returns:
+    - None
+
+    Note: It's assumed that the `STANDARD_MODE` constant is defined elsewhere
+    in the code.
+    """
     if not exists(dir):
         try:
             os.mkdir(dir)
@@ -285,7 +325,7 @@ async def _create_user_env(username, port):
 
 
 async def _remove_user_env():
-    keys_to_remove = [key for key in os.environ.keys()
+    keys_to_remove = [key for key in os.environ()
                       if key.startswith("STORM_WEBDAV_")]
     for key in keys_to_remove:
         del os.environ[key]
@@ -463,8 +503,20 @@ async def _stop_webdav_instance(username):
 
 
 async def stop_expired_instances():
-    # checks for expired instances still running
-    # TO DO: incorporate config reload once implemented.
+    """
+    Checks for expired instances still running.
+
+    TO DO: Incorporate config reload once implemented.
+
+    While running, this function continuously checks for expired instances
+    every `CHECK_INTERVAL_SEC` seconds. It acquires the lock for both
+    'users' and 'user_dict' to ensure thread safety when accessing the
+    session state. For each user, it calculates the time difference between
+    the current time and the last accessed time. If this difference exceeds
+    the `INSTANCE_TIMEOUT_SEC`, it stops the corresponding WebDAV instance.
+    It logs relevant information such as lock acquisition, instance
+    termination, and errors encountered during the process.
+    """
     while True:
         await asyncio.sleep(CHECK_INTERVAL_SEC)
         logger.info("checking for expired instances")
@@ -568,12 +620,43 @@ async def _test_port(port):
 
 
 async def save_session_state():
+    """
+    Saves the current session state to a JSON file.
+
+    Acquires the application's state lock to ensure thread safety during the
+    file write operation. It opens the session store file located at
+    `SESSION_STORE_PATH` in append mode and writes the current session state
+    as a JSON object. The encoding used for writing is UTF-8.
+
+    Note:
+    Ensure that the application's state lock is acquired before calling this
+    function to prevent concurrent writes to the session store.
+    """
     async with app.state.state_lock:
         with open(SESSION_STORE_PATH, "a", encoding="utf-8") as f:
             json.dump(app.state.session_state, f)
 
 
 async def load_session_state():
+    """
+    Loads the session state from a JSON file into the application's state.
+
+    Acquires the application's state lock to ensure thread safety during file
+    read operations. Checks if the session store file specified by
+    `SESSION_STORE_PATH` exists. If the file exists, it attempts to read the
+    JSON data from the file and assign it to `app.state.session_state`. If the
+    file does not exist or encounters a decoding error, it initializes
+    `app.state.session_state` as an empty dictionary.
+
+    Note:
+    Ensure that the application's state lock is acquired before calling this
+    function to prevent concurrent reads from the session store.
+
+    Raises:
+        Any error raised by `open()` when attempting to open the file for
+        reading, or when `json.load()` encounters an error while deserializing
+        the JSON data from the session store.
+    """
     async with app.state.state_lock:
         if not exists(SESSION_STORE_PATH):
             app.state.session_state = {}
