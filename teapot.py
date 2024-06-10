@@ -132,13 +132,12 @@ async def makedir_chown_chmod(dir, mode=STANDARD_MODE):
         except FileExistsError:
             # this info msg should never be triggered, right?
             logger.error(
-                f"Directory {dir} already exists, therefore this message"
-                + "should not exist. Something is wrong..."
-            )
+                "Directory %s already exists, therefore this message \
+                should not exist. Something is wrong...", dir)
         try:
             os.chmod(dir, mode)
         except OSError:
-            logger.error(f"Could not chmod directory {dir} to {mode}.")
+            logger.error("Could not chmod directory %s to %s.", dir, mode)
 
 
 async def _create_user_dirs(username):
@@ -156,25 +155,23 @@ async def _create_user_dirs(username):
     config_dir = f"/etc/{APP_NAME}"
     if not exists(f"{config_dir}/storage-areas"):
         logger.error(
-            f"{config_dir}/storage-areas is missing. It should consist of two "
-            + "variables per storage area: name of the storage area and root "
-            + "path to the storage area's directory separated by a single "
-            + "space."
-        )
+            "%s/storage-areas is missing. It should consist of two \
+            variables per storage area: name of the storage area and root \
+            path to the storage area's directory separated by a single \
+            space.", config_dir)
         return False
 
     mapping_file = f"{config_dir}/user-mapping.csv"
     if not exists(mapping_file):
         logger.error(
-            f"{mapping_file} does not exist. It should consist of two "
-            + "variables per user: username and subject claim separated "
-            + "by a single space."
-        )
+            "%s does not exist. It should consist of two \
+            variables per user: username and subject claim separated \
+            by a single space.", mapping_file)
         return False
 
     app_dir = f"/var/lib/{APP_NAME}"
     if not exists(app_dir):
-        logger.error(f"Parent {APP_NAME} directory does not exist.")
+        logger.error("Parent %s directory does not exist.", APP_NAME)
         return False
 
     # creating user directories,
@@ -184,7 +181,7 @@ async def _create_user_dirs(username):
 
     uid = getpwnam(username).pw_uid
     gid = getpwnam(username).pw_gid
-    logger.debug(f"user {username} has uid {uid} and gid {gid}")
+    logger.debug("user %s has uid %d and gid %d", username, uid, gid)
 
     user_dir = f"{app_dir}/user-{username}"
 
@@ -330,7 +327,7 @@ async def _start_webdav_instance(username, port):
             logger.info("cmd=%s", cmd)
             p = subprocess.Popen(cmd, preexec_fn=os.setsid, stdout=stdout_file,
                                  stderr=stderr_file, env=env_pass)
-    except Exception as e:
+    except subprocess.CalledProcessError as e:
         logger.error("Failed to start subprocess for user %s: %s", username,
                      str(e))
         return False
@@ -369,9 +366,11 @@ async def _get_proc(cmd):
     delay = 1  # seconds
 
     if "--spring.config.additional-location" not in " ".join(cmd):
-        raise RuntimeError(f"--spring.config.additional-location not found in cmd: {cmd}")
+        raise RuntimeError(f"--spring.config.additional-location \
+                           not found in cmd: {cmd}")
 
-    target_cmd = " ".join(cmd[:cmd.index("--spring.config.additional-location")])
+    target_cmd = " ".join(cmd[:cmd.index("--spring.config.additional-location"
+                                         )])
     target_args = cmd[cmd.index("--spring.config.additional-location"):]
 
     for attempt in range(retries):
@@ -379,21 +378,24 @@ async def _get_proc(cmd):
             try:
                 proc = psutil.Process(pid)
                 cmdline = " ".join(proc.cmdline())
-                if target_cmd in cmdline and all(arg in cmdline for arg in target_args):
+                if (target_cmd in cmdline and
+                        all(arg in cmdline for arg in target_args)):
                     logger.info("PID found: %d", pid)
                     return proc
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
 
         # If not found, wait a bit and retry
-        logger.debug(f"Process not found, retrying... ({attempt + 1}/{retries})")
+        logger.debug("Process not found, retrying... (%d/%d)", attempt + 1,
+                     retries)
         await anyio.sleep(delay)
 
     # If still not found, log the command lines of all processes for debugging
     for pid in psutil.pids():
         try:
             proc = psutil.Process(pid)
-            logger.debug(f"Process {pid} command line: {' '.join(proc.cmdline())}")
+            logger.debug("Process %d command line: %s", pid,
+                         ' '.join(proc.cmdline()))
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
 
@@ -401,24 +403,21 @@ async def _get_proc(cmd):
 
 
 async def _stop_webdav_instance(username):
-    logger.info(f"Stopping webdav instance for user {username}.")
+    logger.info("Stopping webdav instance for user %s.", username)
 
     logger.debug(
-        "_stop_webdav_instance: trying to acquire lock at "
-        + f"{datetime.datetime.now().isoformat()}"
-    )
+        "_stop_webdav_instance: trying to acquire lock at %s",
+        {datetime.datetime.now().isoformat()})
     async with app.state.state_lock:
         logger.debug(
-            "_stop_webdav_instance: acquired lock at "
-            + f"{datetime.datetime.now().isoformat()}"
-        )
+            "_stop_webdav_instance: acquired lock at %s",
+            {datetime.datetime.now().isoformat()})
         try:
             session = app.state.session_state.pop(username)
         except KeyError:
             logger.error(
-                "_stop_webdav_instance: session state for user "
-                + f"{username} doesn't exist."
-            )
+                "_stop_webdav_instance: session state for user %s \
+                  doesn't exist.", username)
             return -1
 
     # first naive workaround will be to just give sudo rights to teapot for
@@ -436,20 +435,20 @@ async def _stop_webdav_instance(username):
     pid = session.get("pid")
 
     if pid:
-        logger.info(f"Stopping webdav instance with PID {pid}.")
+        logger.info("Stopping webdav instance with PID %d.", pid)
         try:
             kill_proc = subprocess.Popen(
                 ["sudo", "-u", username, "kill", str(pid)])
             kill_exit_code = kill_proc.wait()
             if kill_exit_code != 0:
-                logger.info(f"could not kill process with PID {pid}.")
+                logger.info("could not kill process with PID %d.", pid)
                 exit_code = kill_exit_code
             else:
-                logger.info(f"Successfully killed process with PID {pid}.")
+                logger.info("Successfully killed process with PID %d.", pid)
                 exit_code = 0
-        except Exception as e:
-            logger.error(f"Exception occurred while trying to kill process \
-                          with PID {pid}: {e}")
+        except subprocess.CalledProcessError as e:
+            logger.error("Exception occurred while trying to kill process \
+                          with PID %d: %s.", pid, e)
             exit_code = -1
     else:
         logger.info("No PID found.")
@@ -460,31 +459,27 @@ async def _stop_webdav_instance(username):
 
 async def stop_expired_instances():
     # checks for expired instances still running
-    # TODO: incorporate config reload once implemented.
+    # TO DO: incorporate config reload once implemented.
     while True:
         await asyncio.sleep(CHECK_INTERVAL_SEC)
         logger.info("checking for expired instances")
         logger.debug(
-            "stop_expired_instances: trying to acquire 'users' lock at "
-            + f"{datetime.datetime.now().isoformat()}"
-        )
+            "stop_expired_instances: trying to acquire 'users' lock at %s",
+            {datetime.datetime.now().isoformat()})
         async with app.state.state_lock:
             logger.debug(
-                "stop_expired_instances: acquired 'users' lock at "
-                + f"{datetime.datetime.now().isoformat()}"
-            )
+                "stop_expired_instances: acquired 'users' lock at %s",
+                {datetime.datetime.now().isoformat()})
             users = list(app.state.session_state.keys())
         now = datetime.datetime.now()
         for user in users:
             logger.debug(
-                "stop_expired_instances: trying to acquire 'user_dict' "
-                + f"lock at {datetime.datetime.now().isoformat()}"
-            )
+                "stop_expired_instances: trying to acquire 'user_dict' \
+                lock at %s", {datetime.datetime.now().isoformat()})
             async with app.state.state_lock:
                 logger.debug(
-                    "stop_expired_instances: acquired 'user_dict' lock at "
-                    + f"{datetime.datetime.now().isoformat()}"
-                )
+                    "stop_expired_instances: acquired 'user_dict' lock at %s",
+                    {datetime.datetime.now().isoformat()})
                 user_dict = app.state.session_state.get(user, None)
             if user_dict is not None:
                 last_accessed = user_dict.get("last_accessed", None)
@@ -492,63 +487,56 @@ async def stop_expired_instances():
                     diff = now - datetime.datetime.fromisoformat(last_accessed)
                     if diff.seconds >= INSTANCE_TIMEOUT_SEC:
                         res = await _stop_webdav_instance(user)
-                        # TODO: remove instance from session_state
+                        # TO DO: remove instance from session_state
                         if res != 0:
                             logger.error(
-                                f"Instance for user {user} exited with code "
-                                + f"{res}."
-                            )
+                                "Instance for user %s exited with code %s.",
+                                user, str(res))
                         else:
                             logger.info(
-                                f"Instance for user {user} has been terminated"
-                                + " after timeout."
-                            )
+                                "Instance for user %s has been terminated \
+                                 after timeout.", user)
                 else:
                     logger.error(
-                        f"_stop_expired_instances: Session for user {user} "
-                        + "does not have the property 'last_accessed'."
-                    )
+                        "_stop_expired_instances: Session for user %s \
+                         does not have the property 'last_accessed'.", user)
             else:
                 logger.error(
-                    "_stop_expired_instances: No session object for user "
-                    + f"{user} in session_state."
-                )
+                    "_stop_expired_instances: No session object for user \
+                     %s in session_state.", user)
 
 
 async def _find_usable_port_no():
     used_ports = []
     logger.debug(
-        "_find_usable_port_no: trying to acquire lock at "
-        + f"{datetime.datetime.now().isoformat()}"
-    )
+        "_find_usable_port_no: trying to acquire lock at %s",
+        datetime.datetime.now().isoformat())
     async with app.state.state_lock:
         logger.debug(
-            "_find_usable_port_no: acquired lock at "
-            + f"{datetime.datetime.now().isoformat()}"
-        )
+            "_find_usable_port_no: acquired lock at %s",
+            datetime.datetime.now().isoformat())
         users = app.state.session_state.keys()
         if users:
             for user in users:
                 tmp_port = app.state.session_state[user].get("port", None)
                 logger.debug(
-                    f"find_usable_port_no: use {user} has an instance running "
-                    + f"on port {tmp_port}."
-                )
+                    "find_usable_port_no: use %s has an instance running \
+                     on port %d.", user, tmp_port)
                 used_ports.append(tmp_port)
         else:
             # if there are no instances running yet, we want the ports to
             # start from 32400
-            logger.debug(f"no port in use by teapot, using {STARTING_PORT}")
+            logger.debug("no port in use by teapot, using %d", STARTING_PORT)
             used_ports = [STARTING_PORT]
 
         if None not in used_ports:
             max_used = max(used_ports) + 1
-            logger.debug(f"testing port {max_used}")
+            logger.debug("testing port %d", max_used)
             port = await _test_port(max_used)
         else:
             logger.error(
-                "Missing port number for running instances, can not determine "
-                "fitting port number."
+                "Missing port number for running instances, can not determine \
+                    fitting port number."
             )
             port = None
             # should not happen :grimacing:
@@ -557,17 +545,17 @@ async def _find_usable_port_no():
 
 async def _test_port(port):
     # function to recursively find an open port recursively.
-    # TODO: enhance by adding a list of reserved ports that will be skipped
+    # TO DO: enhance by adding a list of reserved ports that will be skipped
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        logger.debug(f"_test_port: binding to port {port} for testing")
+        logger.debug("_test_port: binding to port %d for testing", port)
         s.bind(("127.0.0.1", port))
     except socket.error as e:
         if e.errno == errno.EADDRINUSE:
-            logger.debug(f"Port {port} is already in use")
+            logger.debug("Port %d is already in use", port)
             port = await _test_port(port + 1)
         else:
-            logger.error(f"Error while testing ports: {e}")
+            logger.error("Error while testing ports: %s", e)
             port = await _test_port(port + 1)
     finally:
         s.close()
@@ -609,9 +597,9 @@ async def _map_fed_to_local(sub):
     with open("/etc/teapot/user-mapping.csv", "r") as mapping_file:
         mappingreader = csv.reader(mapping_file, delimiter=" ")
         for row in mappingreader:
-            logger.info(f"from mapping file: {row}")
+            logger.info("from mapping file: %s", row)
             if row[1] == sub:
-                logger.info(f"found local user {row[0]}.")
+                logger.info("found local user %s", row[0])
                 return row[0]
     return None
 
@@ -628,21 +616,19 @@ async def _return_or_create_storm_instance(sub):
     # now check if an instance is running by checking the global state
     if local_user in app.state.session_state.keys():
         logger.debug(
-            "_return_or_create_storm_instance: trying to acquire 'get' lock "
-            + f"at {datetime.datetime.now().isoformat()}"
-        )
+            "_return_or_create_storm_instance: trying to acquire 'get' lock \
+             at %s", datetime.datetime.now().isoformat())
         async with app.state.state_lock:
             logger.debug(
-                "_return_or_create_storm_instance: acquired 'get' lock at "
-                + f"{datetime.datetime.now().isoformat()}"
-            )
+                "_return_or_create_storm_instance: acquired 'get' lock at \
+                    %s", datetime.datetime.now().isoformat())
             port = app.state.session_state[local_user].get("port", None)
             app.state.session_state[local_user]["last_accessed"] = str(
                 datetime.datetime.now()
             )
         logger.info(
-            f"StoRM-WebDAV instance for {local_user} is running on port {port}"
-        )
+            "StoRM-WebDAV instance for %s is running on port %d", local_user,
+            port)
     else:
         # if no instance is running, start it. but first, it has to be checked
         # if the directories exist, if not, they need to be created.
@@ -651,25 +637,22 @@ async def _return_or_create_storm_instance(sub):
         # the port, pid, storage_area and directory will be managed within
         # an sqlite database here in teapot. no external scripts anymore
         # to keep the state and its management in one place.
-        logger.debug(f"no instance running for user {local_user} yet, starting"
-                     + " now.")
+        logger.debug("no instance running for user %s yet, starting \
+                     now.", local_user)
         port = await _find_usable_port_no()
         pid = await _start_webdav_instance(local_user, port)
         if not pid:
             logger.error(
-                "something went wrong while starting instance for user "
-                + f"{local_user}."
-            )
+                "something went wrong while starting instance for user %s.",
+                local_user)
             return None, -1, local_user
         logger.debug(
-            "_return_or_create_storm_instance: trying to acquire 'set' lock "
-            + f"at {datetime.datetime.now().isoformat()}"
-        )
+            "_return_or_create_storm_instance: trying to acquire 'set' lock \
+             at %s", datetime.datetime.now().isoformat())
         async with app.state.state_lock:
             logger.debug(
-                "_return_or_create_storm_instance: acquired 'set' lock at "
-                + f"{datetime.datetime.now().isoformat()}"
-            )
+                "_return_or_create_storm_instance: acquired 'set' lock at %s",
+                datetime.datetime.now().isoformat())
             app.state.session_state[local_user] = {
                 "pid": pid,
                 "port": port,
@@ -682,25 +665,21 @@ async def _return_or_create_storm_instance(sub):
             await anyio.sleep(1)
             if loops >= STARTUP_TIMEOUT:
                 logger.info(
-                    f"instance for user {local_user} not reachable after "
-                    + f"{STARTUP_TIMEOUT} tries... stop trying."
-                )
+                    "instance for user %s not reachable after %d tries... \
+                        stop trying.", local_user, STARTUP_TIMEOUT)
                 logger.debug(
-                    "_return_or_create_storm_instance: trying to acquire "
-                    + f"'pop' lock at {datetime.datetime.now().isoformat()}"
-                )
+                    "_return_or_create_storm_instance: trying to acquire \
+                    'pop' lock at %s", datetime.datetime.now().isoformat())
                 async with app.state.state_lock:
                     logger.debug(
-                        "_return_or_create_storm_instance: acquired 'pop'"
-                        + f" lock at {datetime.datetime.now().isoformat()}"
-                    )
+                        "_return_or_create_storm_instance: acquired 'pop'\
+                         lock at %s", datetime.datetime.now().isoformat())
                     app.state.session_state.pop(local_user)
                 return None, -1, local_user
             try:
                 logger.debug(
-                    f"checking if instance for user {local_user} is listening "
-                    + f"on port {port}."
-                )
+                    "checking if instance for user {local_user} is listening \
+                        on port %d.", port)
                 context1 = ssl.create_default_context()
                 context1.load_verify_locations(
                     cafile="/etc/pki/ca-trust/source/anchors/localhost.crt")
@@ -710,12 +689,11 @@ async def _return_or_create_storm_instance(sub):
             except httpx.ConnectError:
                 loops += 1
                 logger.debug(
-                    "_return_or_create: trying to reach instance, try "
-                    + f"{loops}/{STARTUP_TIMEOUT}..."
-                )
+                    "_return_or_create: trying to reach instance, try \
+                     %d/%d...", loops, STARTUP_TIMEOUT)
 
-        logger.info(f"Storm-WebDAV instance for {local_user} started on port"
-                    + f" {port}.")
+        logger.info("Storm-WebDAV instance for %s started on port %d.",
+                    local_user, port)
     return None, port, local_user
 
 
@@ -744,7 +722,7 @@ async def root(
     if not user_infos:
         raise HTTPException(status_code=403)
 
-    logger.info(f"user_info is: {user_infos['sub']}")
+    logger.info("user_info is: %s", user_infos['sub'])
     sub = user_infos.get("sub", None)
     if not sub:
         # if there is no sub, user can not be authenticated
@@ -759,7 +737,7 @@ async def root(
         # no mapping between federated and local user identity found
         raise HTTPException(status_code=403)
     if redirect_port == -1:
-        logger.info(f"no instance for user {local_user} created...")
+        logger.info("no instance for user %s created...", local_user)
         raise HTTPException(status_code=500, detail="Problem supporting user.")
     if not redirect_port:
         # no port returned, should not happen
@@ -768,12 +746,12 @@ async def root(
         )
     if not redirect_host:
         redirect_host = "localhost"
-    logger.info(f"redirect_host: {redirect_host}, redirect_port: "
-                + f"{redirect_port}")
-    logger.info(f"request path: {request.url.path}")
+    logger.info("redirect_host: %s, redirect_port: %d", redirect_host,
+                redirect_port)
+    logger.info("request path: %s", request.url.path)
 
     redirect_url = f"https://{redirect_host}:{redirect_port}{request.url.path}"
-    logger.info(f"redirect_url is formed as {redirect_url}.")
+    logger.info("redirect_url is formed as %s.", redirect_url)
 
     forward_req = client.build_request(
         request.method,
