@@ -325,7 +325,7 @@ async def _create_user_env(username, port):
 
 
 async def _remove_user_env():
-    keys_to_remove = [key for key in os.environ()
+    keys_to_remove = [key for key in os.environ
                       if key.startswith("STORM_WEBDAV_")]
     for key in keys_to_remove:
         del os.environ[key]
@@ -468,7 +468,7 @@ async def _stop_webdav_instance(username):
 
     # first naive workaround will be to just give sudo rights to teapot for
     # /usr/bin/kill
-    # TODO: find a safer way to accomplish this!
+    # TO DO: find a safer way to accomplish this!
     # originally wanted to kill the process via os.killpg but the storm
     # process is running under the user's uid, so that is not possible
     # os.killpg(os.getpgid(p.pid), signal.SIGTERM)
