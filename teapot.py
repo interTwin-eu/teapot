@@ -20,7 +20,7 @@ import anyio
 import httpx
 import psutil
 import uvicorn
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.security import HTTPBearer
 from flaat.config import AccessLevel
 from flaat.fastapi import Flaat
@@ -201,9 +201,10 @@ async def _create_user_dirs(username):
         await makedir_chown_chmod(dir)
 
     with open(f"/usr/share/{APP_NAME}/storage_element.properties",
-              "r") as prop:
+              "r", encoding="utf-8") as prop:
         second_part = prop.readlines()
-    with open(f"{config_dir}/storage-areas", "r") as storage_areas:
+    with open(f"{config_dir}/storage-areas", "r",
+              encoding="utf-8") as storage_areas:
         for line in storage_areas:
             storage_area, path = line.split(" ")
             path_components = path.split("/")
@@ -214,7 +215,8 @@ async def _create_user_dirs(username):
             path = os.path.join(*path_components)
             sa_properties_path = f"{user_sa_d_dir}/{storage_area}.properties"
             if not exists(sa_properties_path):
-                with open(sa_properties_path, "w") as storage_area_properties:
+                with open(sa_properties_path, "w",
+                          encoding="utf-8") as storage_area_properties:
                     first_part = f"name={storage_area}\nrootPath={path}" \
                         f"accessPoints=/{storage_area}_area\n\n"
                     storage_area_properties.write(first_part)
@@ -223,21 +225,24 @@ async def _create_user_dirs(username):
                 os.chmod(sa_properties_path, STANDARD_MODE)
 
     if not exists(f"{user_config_dir}/application.yml"):
-        with open(f"{config_dir}/user-mapping.csv") as mapping:
+        with open(f"{config_dir}/user-mapping.csv",
+                  encoding="utf-8") as mapping:
             for line in mapping:
                 if line.startswith(username):
                     sub = line.split(" ")[1]
                     break
-        with open(f"{config_dir}/issuers", "r") as issuers:
+        with open(f"{config_dir}/issuers", "r", encoding="utf-8") as issuers:
             issuers_part = issuers.readlines()
-        with open("/usr/share/teapot/storage_authorizations", "r") as auths:
+        with open("/usr/share/teapot/storage_authorizations", "r",
+                  encoding="utf-8") as auths:
             authorization_part = "".join(auths.readlines())
         with open(f"{user_config_dir}/application.yml",
-                  "a") as application_yml:
+                  "a", encoding="utf-8") as application_yml:
             for line in issuers_part:
                 application_yml.write(line)
             application_yml.write("storm:\n  authz:\n    policies:\n")
-            with open(f"{config_dir}/storage-areas", "r") as storage_areas:
+            with open(f"{config_dir}/storage-areas", "r",
+                      encoding="utf-8") as storage_areas:
                 for line in storage_areas:
                     storage_area = line.split(" ")[0]
                     application_yml.write(
@@ -564,7 +569,7 @@ async def _test_port(port):
 
 async def save_session_state():
     async with app.state.state_lock:
-        with open(SESSION_STORE_PATH, "a") as f:
+        with open(SESSION_STORE_PATH, "a", encoding="utf-8") as f:
             json.dump(app.state.session_state, f)
 
 
@@ -572,10 +577,10 @@ async def load_session_state():
     async with app.state.state_lock:
         if not exists(SESSION_STORE_PATH):
             app.state.session_state = {}
-            with open(SESSION_STORE_PATH, "w") as f:
+            with open(SESSION_STORE_PATH, "w", encoding="utf-8") as f:
                 pass
         else:
-            with open(SESSION_STORE_PATH, "r") as f:
+            with open(SESSION_STORE_PATH, "r", encoding="utf-8") as f:
                 try:
                     app.state.session_state = json.load(f)
                 except json.decoder.JSONDecodeError:
@@ -594,7 +599,8 @@ async def _map_fed_to_local(sub):
     # returned. like this, it is possible to match different subs to a
     # local username but not the other way around.
 
-    with open("/etc/teapot/user-mapping.csv", "r") as mapping_file:
+    with open("/etc/teapot/user-mapping.csv", "r",
+              encoding="utf-8") as mapping_file:
         mappingreader = csv.reader(mapping_file, delimiter=" ")
         for row in mappingreader:
             logger.info("from mapping file: %s", row)
@@ -712,11 +718,20 @@ async def _return_or_create_storm_instance(sub):
     ],
 )
 @flaat.is_authenticated()
-async def root(
-    filepath: str,
-    request: Request,
-    response: Response,
-):
+async def root(request: Request):
+    """
+    This function serves as the root endpoint for the application.
+    It authenticates users using the flaat library and handles requests
+    accordingly.
+
+    Parameters:
+        filepath (str): The path requested by the client.
+        request (Request): The HTTP request object.
+        response (Response): The HTTP response object.
+
+    Returns:
+        StreamingResponse: The response to the client's request.
+    """
     # get data from userinfo endpoint
     user_infos = flaat.get_user_infos_from_request(request)
     if not user_infos:
@@ -770,6 +785,13 @@ async def root(
 
 
 def main():
+    """
+    This function starts the Teapot application using uvicorn with SSL
+    encryption. It specifies the path to the SSL key and certificate files.
+
+    Returns:
+        None
+    """
     key = "/var/lib/teapot/webdav/teapot.key"
     cert = "/var/lib/teapot/webdav/teapot.crt"
 
