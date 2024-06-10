@@ -14,7 +14,7 @@ from contextlib import asynccontextmanager
 from os.path import exists
 from pathlib import Path
 from pwd import getpwnam
-from stat import S_IRGRP, S_IRWXO, S_IRWXU,  S_IXGRP
+from stat import S_IRGRP, S_IRWXO, S_IRWXU, S_IXGRP
 
 import anyio
 import httpx
@@ -353,7 +353,7 @@ async def _start_webdav_instance(username, port):
 
     logger.info("trying to start process for user %s", username)
     apppath = f"/var/lib/teapot/user-{username}/config/application.yml"
-    cmd = ["sudo", f"--preserve-env={",".join(env_pass.keys())}", "-u",
+    cmd = ["sudo", "--preserve-env=" + ",".join(env_pass.keys()), "-u",
            username, "/usr/bin/java", "-jar",
            "/usr/share/java/storm-webdav/storm-webdav-server.jar",
            "-Xms2048m", "-Xmx2048m",
@@ -484,7 +484,7 @@ async def _stop_webdav_instance(username):
         logger.info("Stopping webdav instance with PID %d.", pid)
         try:
             kill_proc = subprocess.Popen(
-                ["sudo", "-u", username, "kill", str(pid)])
+                ["sudo", "-u", username, "/bin/kill", str(pid)])
             kill_exit_code = kill_proc.wait()
             if kill_exit_code != 0:
                 logger.info("could not kill process with PID %d.", pid)
