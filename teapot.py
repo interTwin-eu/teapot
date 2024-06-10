@@ -311,7 +311,7 @@ async def _start_webdav_instance(username, port):
 
     logger.info("trying to start process for user %s", username)
 
-    cmd = ["sudo", "--preserve-env=" + ",".join(env_pass.keys()), "-u",
+    cmd = ["sudo", f"--preserve-env={",".join(env_pass.keys())}", "-u",
            username, "/usr/bin/java", "-jar",
            "/usr/share/java/storm-webdav/storm-webdav-server.jar",
            "-Xms2048m", "-Xmx2048m",
@@ -368,12 +368,18 @@ async def _get_proc(cmd):
     retries = 5
     delay = 1  # seconds
 
+    if "--spring.config.additional-location" not in " ".join(cmd):
+        raise RuntimeError(f"--spring.config.additional-location not found in cmd: {cmd}")
+
+    target_cmd = " ".join(cmd[:cmd.index("--spring.config.additional-location")])
+    target_args = cmd[cmd.index("--spring.config.additional-location"):]
+
     for attempt in range(retries):
         for pid in psutil.pids():
             try:
                 proc = psutil.Process(pid)
-                cmdline = proc.cmdline()
-                if all(arg in cmdline for arg in cmd):
+                cmdline = " ".join(proc.cmdline())
+                if target_cmd in cmdline and all(arg in cmdline for arg in target_args):
                     logger.info("PID found: %d", pid)
                     return proc
             except (psutil.NoSuchProcess, psutil.AccessDenied):
