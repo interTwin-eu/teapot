@@ -311,6 +311,8 @@ async def _create_user_env(username, port):
     os.environ["STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME"] = "30000"
     os.environ["STORM_WEBDAV_SA_CONFIG_DIR"] = f"{user_dir}/sa.d"
     os.environ["STORM_WEBDAV_LOG"] = f"{user_dir}/log/server.log"
+    os.environ["STORM_WEBDAV_OUT"] = f"{user_dir}/log/server.out"
+    os.environ["STORM_WEBDAV_ERR"] = f"{user_dir}/log/server.err"
     os.environ["STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"] = (
         f"{etc_dir}/logback-access.xml"
     )
@@ -352,27 +354,29 @@ async def _start_webdav_instance(username, port):
     # such that it can be managed on its own.
 
     logger.info("trying to start process for user %s", username)
-    apppath = f"/var/lib/teapot/user-{username}/config/application.yml"
-    cmd = ["sudo", "--preserve-env=" + ",".join(env_pass.keys()), "-u",
-           username, "/usr/bin/java", "-jar",
-           "/usr/share/java/storm-webdav/storm-webdav-server.jar",
-           "-Xms2048m", "-Xmx2048m",
-           "-Djava.security.egd=file:/dev/./urandom",
-           f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
-           "-Dlogging.config=/etc/teapot/logback.xml",
-           f"--spring.config.additional-location=optional:file:{apppath}"
-           ]
+    # apppath = f"/var/lib/teapot/user-{username}/config/application.yml"
+    # cmd = ["sudo", "--preserve-env=" + ",".join(env_pass.keys()), "-u",
+    #        username, "/usr/bin/java", "-jar",
+    #        "/usr/share/java/storm-webdav/storm-webdav-server.jar",
+    #        "-Xms2048m", "-Xmx2048m",
+    #        "-Djava.security.egd=file:/dev/./urandom",
+    #        f"-Djava.io.tmpdir=/var/lib/user-{username}/tmp",
+    #        "-Dlogging.config=/etc/teapot/logback.xml",
+    #        f"--spring.config.additional-location=optional:file:{apppath}"
+    #        ]
 
-    stdout_path = f"/var/lib/teapot/user-{username}/log/server.out"
-    stderr_path = f"/var/lib/teapot/user-{username}/log/server.err"
+    cmd = f"sudo --preserve-env={','.join(env_pass.keys())} -u {username} \
+    /usr/bin/java -jar /usr/share/java/storm-webdav/storm-webdav-server.jar \
+    -Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom \
+    -Djava.io.tmpdir=/var/lib/user-{username}/tmp \
+    -Dlogging.config=/etc/teapot/logback.xml \
+    --spring.config.additional-location= \
+    optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml \
+     1>$STORM_WEBDAV_OUT 2>$STORM_WEBDAV_ERR &"
 
     try:
-        with open(stdout_path, "w", encoding="utf-8") as stdout_file, \
-             open(stderr_path, "w", encoding="utf-8") as stderr_file:
-            logger.info("cmd=%s", cmd)
-            p = subprocess.Popen(cmd, start_new_session=True,
-                                 stdout=stdout_file,
-                                 stderr=stderr_file, env=env_pass)
+        logger.info("cmd=%s", cmd)
+        p = subprocess.Popen(cmd, shell=True, start_new_session=True)
     except subprocess.CalledProcessError as e:
         logger.error("Failed to start subprocess for user %s: %s", username,
                      str(e))
