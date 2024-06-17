@@ -415,41 +415,49 @@ async def _get_proc(cmd):
     retries = 5
     delay = 1  # seconds
 
-    if "--spring.config.additional-location" not in " ".join(cmd):
-        raise RuntimeError(f"--spring.config.additional-location \
-                           not found in cmd: {cmd}")
+    # if "--spring.config.additional-location" not in " ".join(cmd):
+    #     raise RuntimeError(f"--spring.config.additional-location \
+    #                        not found in cmd: {cmd}")
 
-    target_cmd = " ".join(cmd[:cmd.index("--spring.config.additional-location"
-                                         )])
-    target_args = cmd[cmd.index("--spring.config.additional-location"):]
+    # target_cmd = " ".join(cmd[:cmd.index("--spring.config.additional-location"
+    #                                      )])
+    # target_args = cmd[cmd.index("--spring.config.additional-location"):]
 
-    for attempt in range(retries):
-        for pid in psutil.pids():
-            try:
-                proc = psutil.Process(pid)
-                cmdline = " ".join(proc.cmdline())
-                if (target_cmd in cmdline and
-                        all(arg in cmdline for arg in target_args)):
-                    logger.info("PID found: %d", pid)
-                    return proc
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                continue
+    # for attempt in range(retries):
+    #     for pid in psutil.pids():
+    #         try:
+    #             proc = psutil.Process(pid)
+    #             cmdline = " ".join(proc.cmdline())
+    #             if (target_cmd in cmdline and
+    #                     all(arg in cmdline for arg in target_args)):
+    #                 logger.info("PID found: %d", pid)
+    #                 return proc
+    #         except (psutil.NoSuchProcess, psutil.AccessDenied):
+    #             continue
 
-        # If not found, wait a bit and retry
-        logger.debug("Process not found, retrying... (%d/%d)", attempt + 1,
-                     retries)
-        await anyio.sleep(delay)
+    for pid in psutil.pids():
+        proc = psutil.Process(pid)
+        if cmd == " ".join(proc.cmdline()):
+            logger.info(f"PID found: {pid}")
+            return proc
+    raise RuntimeError(f"process with for full command {cmd} "
+                       + "does not exist.")
+
+    # # If not found, wait a bit and retry
+    # logger.debug("Process not found, retrying... (%d/%d)", attempt + 1,
+    # retries)
+    # await anyio.sleep(delay)
 
     # If still not found, log the command lines of all processes for debugging
-    for pid in psutil.pids():
-        try:
-            proc = psutil.Process(pid)
-            logger.debug("Process %d command line: %s", pid,
-                         ' '.join(proc.cmdline()))
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            continue
+    # for pid in psutil.pids():
+    #     try:
+    #         proc = psutil.Process(pid)
+    #         logger.debug("Process %d command line: %s", pid,
+    #                      ' '.join(proc.cmdline()))
+    #     except (psutil.NoSuchProcess, psutil.AccessDenied):
+    #         continue
 
-    raise RuntimeError(f"process with full command {cmd} does not exist.")
+    # raise RuntimeError(f"process with full command {cmd} does not exist.")
 
 
 async def _stop_webdav_instance(username):
