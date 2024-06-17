@@ -299,6 +299,9 @@ async def _create_user_env(username, port):
     storm_dir = f"/var/lib/{APP_NAME}/webdav"
     # make sure that .storm_profile is imported in the users shell init
     # by e.g. adding ". ~/.storm_profile" to the user's .bash_profile
+    os.environ["STORM_WEBDAV_JVM_OPTS"] = (
+        "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
+    )
     os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = "localhost"
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = f"{port}"
     os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"
@@ -310,9 +313,13 @@ async def _create_user_env(username, port):
     os.environ["STORM_WEBDAV_MAX_QUEUE_SIZE"] = "900"
     os.environ["STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME"] = "30000"
     os.environ["STORM_WEBDAV_SA_CONFIG_DIR"] = f"{user_dir}/sa.d"
+    os.environ["STORM_WEBDAV_JAR"] = (
+        "/usr/share/java/storm-webdav/storm-webdav-server.jar"
+    )   
     os.environ["STORM_WEBDAV_LOG"] = f"{user_dir}/log/server.log"
     os.environ["STORM_WEBDAV_OUT"] = f"{user_dir}/log/server.out"
     os.environ["STORM_WEBDAV_ERR"] = f"{user_dir}/log/server.err"
+    os.environ["STORM_WEBDAV_LOG_CONFIGURATION"] = f"{etc_dir}/logback.xml"
     os.environ["STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"] = (
         f"{etc_dir}/logback-access.xml"
     )
@@ -366,10 +373,9 @@ async def _start_webdav_instance(username, port):
     #        ]
 
     cmd = f"sudo --preserve-env={','.join(env_pass.keys())} -u {username} \
-    /usr/bin/java -jar /usr/share/java/storm-webdav/storm-webdav-server.jar \
-    -Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom \
+    /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
     -Djava.io.tmpdir=/var/lib/user-{username}/tmp \
-    -Dlogging.config=/etc/teapot/logback.xml \
+    -Dlogging.config=$STORM_WEBDAV_LOG_CONFIGURATION \
     --spring.config.additional-location= \
     optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml \
      1>$STORM_WEBDAV_OUT 2>$STORM_WEBDAV_ERR &"
@@ -388,6 +394,12 @@ async def _start_webdav_instance(username, port):
     # teapot
     p.poll()
 
+    # get rid of additional whitespace, trailing "&" and output redirects from
+    # cmdline, expand env vars
+    cmd = " ".join(cmd.split())[:-1]
+    cmd = " ".join(cmd.split(","))
+    cmd = os.path.expandvars(cmd)
+    cmd = cmd.split("1>")[0].rstrip()
     # we can remove all env vars for the user process from teapot now as they
     # were given to the forked process as a copy
     await _remove_user_env()
@@ -412,8 +424,8 @@ async def _start_webdav_instance(username, port):
 
 async def _get_proc(cmd):
     # Retry finding the process a few times with a small delay
-    retries = 5
-    delay = 1  # seconds
+    # retries = 5
+    # delay = 1  # seconds
 
     # if "--spring.config.additional-location" not in " ".join(cmd):
     #     raise RuntimeError(f"--spring.config.additional-location \
@@ -438,9 +450,9 @@ async def _get_proc(cmd):
     for pid in psutil.pids():
         proc = psutil.Process(pid)
         if cmd == " ".join(proc.cmdline()):
-            logger.info(f"PID found: {pid}")
+            logger.info("PID found: %d", pid)
             return proc
-    raise RuntimeError(f"process with for full command {cmd} "
+    raise RuntimeError("process with for full command ", + cmd
                        + "does not exist.")
 
     # # If not found, wait a bit and retry
