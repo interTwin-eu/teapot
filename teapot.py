@@ -352,8 +352,8 @@ async def _start_webdav_instance(username, port):
         logger.error("could not create user env for %s", username)
         return False
 
-    env_pass = {key: value for key, value in os.environ.items()
-                if key.startswith("STORM_WEBDAV_")}
+    env_pass = [key for key in os.environ.keys()
+                if key.startswith("STORM_WEBDAV_")]
 
     # starting subprocess with all necessary options now.
     # using os.setsid() as a function handle before execution should execute
@@ -372,7 +372,7 @@ async def _start_webdav_instance(username, port):
     #        f"--spring.config.additional-location=optional:file:{apppath}"
     #        ]
 
-    cmd = f"sudo --preserve-env={','.join(env_pass.keys())} -u {username} \
+    cmd = f"sudo --preserve-env={','.join(env_pass)} -u {username} \
     /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
     -Djava.io.tmpdir=/var/lib/user-{username}/tmp \
     -Dlogging.config=$STORM_WEBDAV_LOG_CONFIGURATION \
