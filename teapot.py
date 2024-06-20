@@ -508,7 +508,7 @@ async def _stop_webdav_instance(username):
         logger.info("Stopping webdav instance with PID %d.", pid)
         try:
             kill_proc = subprocess.Popen(
-                ["sudo", "-u", username, "/bin/kill", str(pid)])
+                f"sudo -u {username} kill {pid}", shell=True)
             kill_exit_code = kill_proc.wait()
             if kill_exit_code != 0:
                 logger.info("could not kill process with PID %d.", pid)
