@@ -382,7 +382,7 @@ async def _start_webdav_instance(username, port):
 
     try:
         logger.info("cmd=%s", cmd)
-        p = subprocess.Popen(cmd, shell=True, start_new_session=True)
+        p = subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)
     except subprocess.CalledProcessError as e:
         logger.error("Failed to start subprocess for user %s: %s", username,
                      str(e))
