@@ -380,13 +380,13 @@ async def _start_webdav_instance(username, port):
     optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml \
      1>$STORM_WEBDAV_OUT 2>$STORM_WEBDAV_ERR &"
 
-    try:
-        logger.info("cmd=%s", cmd)
-        p = subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)
-    except subprocess.CalledProcessError as e:
-        logger.error("Failed to start subprocess for user %s: %s", username,
-                     str(e))
-        return False
+    # try:
+    logger.info("cmd=%s", cmd)
+    p = subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)
+    # except subprocess.CalledProcessError as e:
+    #     logger.error("Failed to start subprocess for user %s: %s", username,
+    #                  str(e))
+    #     return False
 
     # wait for it...
     await anyio.sleep(1)
