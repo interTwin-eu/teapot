@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+# trunk-ignore-all(black)
 import asyncio
 import csv
 import datetime
