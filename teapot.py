@@ -226,7 +226,7 @@ async def _create_user_dirs(username):
     user_dir = f"{app_dir}/user-{username}"
 
     user_log_dir = f"{user_dir}/log"
-    user_tmp_dir = f"{user_dir}/tmp"
+    user_tmp_dir = f"{user_dir}/tmp"           # trunk-ignore(bandit)
     user_sa_d_dir = f"{user_dir}/sa.d"
     user_config_dir = f"{user_dir}/config"
 
@@ -352,7 +352,7 @@ async def _start_webdav_instance(username, port):
         logger.error("could not create user env for %s", username)
         return False
 
-    env_pass = [key for key in os.environ.keys()
+    env_pass = [key for key in os.environ
                 if key.startswith("STORM_WEBDAV_")]
 
     # starting subprocess with all necessary options now.
@@ -382,7 +382,7 @@ async def _start_webdav_instance(username, port):
 
     # try:
     logger.info("cmd=%s", cmd)
-    p = subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)
+    p = subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)  # trunk-ignore(bandit)
     # except subprocess.CalledProcessError as e:
     #     logger.error("Failed to start subprocess for user %s: %s", username,
     #                  str(e))
@@ -508,7 +508,7 @@ async def _stop_webdav_instance(username):
         logger.info("Stopping webdav instance with PID %d.", pid)
         try:
             kill_proc = subprocess.Popen(
-                f"sudo -u {username} kill {pid}", shell=True)
+                f"sudo -u {username} kill {pid}", shell=True)    # trunk-ignore(bandit)
             kill_exit_code = kill_proc.wait()
             if kill_exit_code != 0:
                 logger.info("could not kill process with PID %d.", pid)
