@@ -175,7 +175,7 @@ async def makedir_chown_chmod(dir, mode=STANDARD_MODE):
                 "Directory %s already exists, therefore this message \
                 should not exist. Something is wrong...",
                 dir,
-                )
+            )
         try:
             os.chmod(dir, mode)
         except OSError:
@@ -202,7 +202,7 @@ async def _create_user_dirs(username):
             path to the storage area's directory separated by a single \
             space.",
             config_dir,
-            )
+        )
         return False
 
     mapping_file = f"{config_dir}/user-mapping.csv"
@@ -212,7 +212,7 @@ async def _create_user_dirs(username):
             variables per user: username and subject claim separated \
             by a single space.",
             mapping_file,
-            )
+        )
         return False
 
     app_dir = f"/var/lib/{APP_NAME}"
@@ -246,11 +246,15 @@ async def _create_user_dirs(username):
     for dir in dirs_to_create:
         await makedir_chown_chmod(dir)
 
-    with open(f"/usr/share/{APP_NAME}/storage_element.properties",
-              "r", encoding="utf-8") as prop:
+    with open(
+        f"/usr/share/{APP_NAME}/storage_element.properties",
+        "r",
+        encoding="utf-8"
+    ) as prop:
         second_part = prop.readlines()
-    with open(f"{config_dir}/storage-areas", "r",
-              encoding="utf-8") as storage_areas:
+    with open(
+        f"{config_dir}/storage-areas", "r", encoding="utf-8"
+    ) as storage_areas:
         for line in storage_areas:
             storage_area, path = line.split(" ")
             path_components = path.split("/")
@@ -266,8 +270,7 @@ async def _create_user_dirs(username):
                 ) as storage_area_properties:
                     first_part = (
                         f"name={storage_area}\nrootPath={path}"
-                        f"accessPoints=/{storage_area}_area"
-
+                        f"accessPoints=/{storage_area}_area\n"
                     )
                     storage_area_properties.write(first_part)
                     for line in second_part:
@@ -275,8 +278,9 @@ async def _create_user_dirs(username):
                 os.chmod(sa_properties_path, STANDARD_MODE)
 
     if not exists(f"{user_config_dir}/application.yml"):
-        with open(f"{config_dir}/user-mapping.csv",
-                  encoding="utf-8") as mapping:
+        with open(
+            f"{config_dir}/user-mapping.csv", encoding="utf-8"
+        ) as mapping:
             for line in mapping:
                 if line.startswith(username):
                     sub = line.split(" ")[1]
@@ -314,7 +318,7 @@ async def _create_user_env(username, port):
     # by e.g. adding ". ~/.storm_profile" to the user's .bash_profile
     os.environ[
         "STORM_WEBDAV_JVM_OPTS"
-        ] = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
+    ] = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
     os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = "localhost"
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = f"{port}"
     os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"
@@ -328,14 +332,14 @@ async def _create_user_env(username, port):
     os.environ["STORM_WEBDAV_SA_CONFIG_DIR"] = f"{user_dir}/sa.d"
     os.environ[
         "STORM_WEBDAV_JAR"
-        ] = "/usr/share/java/storm-webdav/storm-webdav-server.jar"
+    ] = "/usr/share/java/storm-webdav/storm-webdav-server.jar"
     os.environ["STORM_WEBDAV_LOG"] = f"{user_dir}/log/server.log"
     os.environ["STORM_WEBDAV_OUT"] = f"{user_dir}/log/server.out"
     os.environ["STORM_WEBDAV_ERR"] = f"{user_dir}/log/server.err"
     os.environ["STORM_WEBDAV_LOG_CONFIGURATION"] = f"{etc_dir}/logback.xml"
-    os.environ["STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"] = (
-        f"{etc_dir}/logback-access.xml"
-    )
+    os.environ[
+        "STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"
+    ] = f"{etc_dir}/logback-access.xml"
     os.environ["STORM_WEBDAV_VO_MAP_FILES_ENABLE"] = "false"
     os.environ["STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL"] = "21600"
     os.environ["STORM_WEBDAV_TPC_MAX_CONNECTIONS"] = "50"
@@ -426,7 +430,7 @@ async def _start_webdav_instance(username, port):
             "start_webdav_instance: instance for user %s is running \
             under PID %d",
             username,
-            kill_proc.pid
+            kill_proc.pid,
         )
         return kill_proc.pid
     else:
@@ -434,7 +438,7 @@ async def _start_webdav_instance(username, port):
             "_start_webdav_instance: instance for user %s could not \
             be started. pid was %d.",
             username,
-            kill_proc.pid
+            kill_proc.pid,
         )
         # if there was a returncode, we wait for the process and terminate it.
         kill_proc.wait()
@@ -497,7 +501,8 @@ async def _stop_webdav_instance(username):
 
     logger.debug(
         "_stop_webdav_instance: trying to acquire lock at %s",
-        {datetime.datetime.now().isoformat()})
+        {datetime.datetime.now().isoformat()},
+    )
     async with app.state.state_lock:
         logger.debug(
             "_stop_webdav_instance: acquired lock at %s",
@@ -532,7 +537,7 @@ async def _stop_webdav_instance(username):
         try:
             kill_proc = subprocess.Popen(
                 f"sudo -u {username} kill {pid}", shell=True  # trunk-ignore(bandit)
-                )
+            )
             kill_exit_code = kill_proc.wait()
             if kill_exit_code != 0:
                 logger.info("could not kill process with PID %d.", pid)
@@ -804,16 +809,18 @@ async def _return_or_create_storm_instance(sub):
         # the port, pid, storage_area and directory will be managed within
         # an sqlite database here in teapot. no external scripts anymore
         # to keep the state and its management in one place.
-        logger.debug("no instance running for user %s yet, starting \
-                     now.",
-                     local_user,
-                     )
+        logger.debug(
+            "no instance running for user %s yet, starting \
+             now.",
+            local_user,
+        )
         port = await _find_usable_port_no()
         pid = await _start_webdav_instance(local_user, port)
         if not pid:
             logger.error(
                 "something went wrong while starting instance for user %s.",
-                local_user)
+                local_user,
+            )
             return None, -1, local_user
         logger.debug(
             "_return_or_create_storm_instance: trying to acquire 'set' lock \
@@ -859,11 +866,12 @@ async def _return_or_create_storm_instance(sub):
                 logger.debug(
                     "checking if instance for user {local_user} is listening \
                         on port %d.",
-                    port
+                    port,
                 )
                 context1 = ssl.create_default_context()
                 context1.load_verify_locations(
-                    cafile="/etc/pki/ca-trust/source/anchors/localhost.crt")
+                    cafile="/etc/pki/ca-trust/source/anchors/localhost.crt"
+                )
                 resp = httpx.get(f"https://localhost:{port}/", verify=context1)
                 if resp.status_code >= 200:
                     running = True
@@ -880,7 +888,7 @@ async def _return_or_create_storm_instance(sub):
             "Storm-WebDAV instance for %s started on port %d.",
             local_user,
             port,
-            )
+        )
     return None, port, local_user
 
 
@@ -925,7 +933,9 @@ async def root(request: Request):
         raise HTTPException(status_code=403)
     # user is valid, so check if a storm instance is running for this sub
     redirect_host, redirect_port, local_user = \
-        await _return_or_create_storm_instance(sub)
+        await _return_or_create_storm_instance(
+            sub
+        )
 
     # REVISIT: should these errors be thrown from
     # _return_or_create_storm_instance?
@@ -942,10 +952,11 @@ async def root(request: Request):
         )
     if not redirect_host:
         redirect_host = "localhost"
-    logger.info("redirect_host: %s, redirect_port: %d",
-                redirect_host,
-                redirect_port,
-                )
+    logger.info(
+        "redirect_host: %s, redirect_port: %d",
+        redirect_host,
+        redirect_port,
+    )
     logger.info("request path: %s", request.url.path)
 
     redirect_url = f"https://{redirect_host}:{redirect_port}{request.url.path}"
@@ -980,7 +991,7 @@ def main():
 
     uvicorn.run(
         app, host="teapot", port=8081, ssl_keyfile=key, ssl_certfile=cert
-        )
+    )
 
 
 if __name__ == "__main__":
