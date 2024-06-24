@@ -399,7 +399,9 @@ async def _start_webdav_instance(username, port):
 
     # try:
     logger.info("cmd=%s", cmd)
-    p = subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)  # trunk-ignore(bandit)
+    p = subprocess.Popen(
+        cmd, shell=True, preexec_fn=os.setsid  # trunk-ignore(bandit)
+        )
     # except subprocess.CalledProcessError as e:
     #     logger.error("Failed to start subprocess for user %s: %s", username,
     #                  str(e))
@@ -446,30 +448,6 @@ async def _start_webdav_instance(username, port):
 
 
 async def _get_proc(cmd):
-    # Retry finding the process a few times with a small delay
-    # retries = 5
-    # delay = 1  # seconds
-
-    # if "--spring.config.additional-location" not in " ".join(cmd):
-    #     raise RuntimeError(f"--spring.config.additional-location \
-    #                        not found in cmd: {cmd}")
-
-    # target_cmd = " ".join(cmd[:cmd.index("--spring.config.additional-location"
-    #                                      )])
-    # target_args = cmd[cmd.index("--spring.config.additional-location"):]
-
-    # for attempt in range(retries):
-    #     for pid in psutil.pids():
-    #         try:
-    #             proc = psutil.Process(pid)
-    #             cmdline = " ".join(proc.cmdline())
-    #             if (target_cmd in cmdline and
-    #                     all(arg in cmdline for arg in target_args)):
-    #                 logger.info("PID found: %d", pid)
-    #                 return proc
-    #         except (psutil.NoSuchProcess, psutil.AccessDenied):
-    #             continue
-
     for pid in psutil.pids():
         proc = psutil.Process(pid)
         if cmd == " ".join(proc.cmdline()):
@@ -478,22 +456,6 @@ async def _get_proc(cmd):
     raise RuntimeError(
         "process with for full command ", + cmd + "does not exist."
     )
-
-    # # If not found, wait a bit and retry
-    # logger.debug("Process not found, retrying... (%d/%d)", attempt + 1,
-    # retries)
-    # await anyio.sleep(delay)
-
-    # If still not found, log the command lines of all processes for debugging
-    # for pid in psutil.pids():
-    #     try:
-    #         proc = psutil.Process(pid)
-    #         logger.debug("Process %d command line: %s", pid,
-    #                      ' '.join(proc.cmdline()))
-    #     except (psutil.NoSuchProcess, psutil.AccessDenied):
-    #         continue
-
-    # raise RuntimeError(f"process with full command {cmd} does not exist.")
 
 
 async def _stop_webdav_instance(username):
@@ -536,7 +498,8 @@ async def _stop_webdav_instance(username):
         logger.info("Stopping webdav instance with PID %d.", pid)
         try:
             kill_proc = subprocess.Popen(
-                f"sudo -u {username} kill {pid}", shell=True  # trunk-ignore(bandit)
+                f"sudo -u {username} kill {pid}",
+                shell=True  # trunk-ignore(bandit)
             )
             kill_exit_code = kill_proc.wait()
             if kill_exit_code != 0:
