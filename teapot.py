@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# trunk-ignore-all(black)
 import asyncio
 import csv
 import datetime
@@ -85,8 +84,8 @@ flaat.set_access_levels([AccessLevel("user", HasSubIss())])
 
 flaat.set_trusted_OP_list(
     [
-        "https://aai-demo.egi.eu/auth/realms/egi",
         "https://keycloak:8443/realms/test-realm",
+        "https://aai-demo.egi.eu/auth/realms/egi",
     ]
 )
 
@@ -232,7 +231,7 @@ async def _create_user_dirs(username):
     user_dir = f"{app_dir}/user-{username}"
 
     user_log_dir = f"{user_dir}/log"
-    user_tmp_dir = f"{user_dir}/tmp"  # trunk-ignore(bandit)
+    user_tmp_dir = f"{user_dir}/tmp"  # trunk-ignore(bandit/B108)
     user_sa_d_dir = f"{user_dir}/sa.d"
     user_config_dir = f"{user_dir}/config"
 
@@ -400,7 +399,7 @@ async def _start_webdav_instance(username, port):
     # try:
     logger.info("cmd=%s", cmd)
     p = subprocess.Popen(
-        cmd, shell=True, preexec_fn=os.setsid  # trunk-ignore(bandit)
+        cmd, shell=True, preexec_fn=os.setsid  # trunk-ignore(bandit/B602)
         )
     # except subprocess.CalledProcessError as e:
     #     logger.error("Failed to start subprocess for user %s: %s", username,
