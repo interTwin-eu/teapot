@@ -369,14 +369,13 @@ async def _start_webdav_instance(username, port):
     # such that it can be managed on its own.
 
     logger.info("trying to start process for user %s", username)
-
+    loc = "/var/lib/{APP_NAME}/user-{username}/config/application.yml"
     # trunk-ignore(bandit/B108)
-    # trunk-ignore(flake8/E501)
     cmd = f"sudo --preserve-env={','.join(env_pass)} -u {username} \
     /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
     -Djava.io.tmpdir=/var/lib/user-{username}/tmp \
     -Dlogging.config=$STORM_WEBDAV_LOG_CONFIGURATION \
-    --spring.config.additional-location=optional:file:/var/lib/{APP_NAME}/user-{username}/config/application.yml \
+    --spring.config.additional-location=optional:file:{loc} \
      1>$STORM_WEBDAV_OUT 2>$STORM_WEBDAV_ERR &"
 
     # try:
