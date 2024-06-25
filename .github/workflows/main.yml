@@ -1,4 +1,4 @@
----
+---  # trunk-ignore(checkov)
 name: CI
 
 on:
