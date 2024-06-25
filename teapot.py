@@ -369,7 +369,7 @@ async def _start_webdav_instance(username, port):
     # such that it can be managed on its own.
 
     logger.info("trying to start process for user %s", username)
-    loc = "/var/lib/{APP_NAME}/user-{username}/config/application.yml"
+    loc = f"/var/lib/{APP_NAME}/user-{username}/config/application.yml"
     # trunk-ignore(bandit/B108)
     cmd = f"sudo --preserve-env={','.join(env_pass)} -u {username} \
     /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
