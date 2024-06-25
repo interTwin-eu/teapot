@@ -311,7 +311,7 @@ async def _create_user_env(username, port):
     # by e.g. adding ". ~/.storm_profile" to the user's .bash_profile
     os.environ[
         "STORM_WEBDAV_JVM_OPTS"
-        ] = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
+    ] = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
     os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = "localhost"
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = f"{port}"
     os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"
@@ -325,14 +325,14 @@ async def _create_user_env(username, port):
     os.environ["STORM_WEBDAV_SA_CONFIG_DIR"] = f"{user_dir}/sa.d"
     os.environ[
         "STORM_WEBDAV_JAR"
-        ] = "/usr/share/java/storm-webdav/storm-webdav-server.jar"
+    ] = "/usr/share/java/storm-webdav/storm-webdav-server.jar"
     os.environ["STORM_WEBDAV_LOG"] = f"{user_dir}/log/server.log"
     os.environ["STORM_WEBDAV_OUT"] = f"{user_dir}/log/server.out"
     os.environ["STORM_WEBDAV_ERR"] = f"{user_dir}/log/server.err"
     os.environ["STORM_WEBDAV_LOG_CONFIGURATION"] = f"{etc_dir}/logback.xml"
     os.environ[
         "STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"
-        ] = f"{etc_dir}/logback-access.xml"
+    ] = f"{etc_dir}/logback-access.xml"
     os.environ["STORM_WEBDAV_VO_MAP_FILES_ENABLE"] = "false"
     os.environ["STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL"] = "21600"
     os.environ["STORM_WEBDAV_TPC_MAX_CONNECTIONS"] = "50"
