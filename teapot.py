@@ -264,8 +264,8 @@ async def _create_user_dirs(username):
                     sa_properties_path, "w", encoding="utf-8"
                 ) as storage_area_properties:
                     first_part = (
-                        f"name={storage_area}\nrootPath={path}"
-                        f"accessPoints=/{storage_area}_area\n"
+                        f"name={storage_area}\nrootPath={path}\n"
+                        f"accessPoints=/{storage_area}_area\n\n"
                     )
                     storage_area_properties.write(first_part)
                     for line in second_part:
