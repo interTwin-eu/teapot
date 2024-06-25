@@ -85,7 +85,7 @@ flaat.set_access_levels([AccessLevel("user", HasSubIss())])
 flaat.set_trusted_OP_list(
     [
         "https://keycloak:8443/realms/test-realm",
-        "https://aai-demo.egi.eu/auth/realms/egi",
+        "https://aai-demo.egi.eu/auth/realms/egi"
     ]
 )
 
@@ -388,6 +388,7 @@ async def _start_webdav_instance(username, port):
     #        f"--spring.config.additional-location=optional:file:{apppath}"
     #        ]
 
+    # trunk-ignore(bandit/B108)
     cmd = f"sudo --preserve-env={','.join(env_pass)} -u {username} \
     /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
     -Djava.io.tmpdir=/var/lib/user-{username}/tmp \
