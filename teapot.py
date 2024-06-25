@@ -85,7 +85,7 @@ flaat.set_access_levels([AccessLevel("user", HasSubIss())])
 flaat.set_trusted_OP_list(
     [
         "https://keycloak:8443/realms/test-realm",
-        "https://aai-demo.egi.eu/auth/realms/egi"
+        "https://aai-demo.egi.eu/auth/realms/egi",
     ]
 )
 
@@ -246,14 +246,10 @@ async def _create_user_dirs(username):
         await makedir_chown_chmod(dir)
 
     with open(
-        f"/usr/share/{APP_NAME}/storage_element.properties",
-        "r",
-        encoding="utf-8"
+        f"/usr/share/{APP_NAME}/storage_element.properties", "r", encoding="utf-8"
     ) as prop:
         second_part = prop.readlines()
-    with open(
-        f"{config_dir}/storage-areas", "r", encoding="utf-8"
-    ) as storage_areas:
+    with open(f"{config_dir}/storage-areas", "r", encoding="utf-8") as storage_areas:
         for line in storage_areas:
             storage_area, path = line.split(" ")
             path_components = path.split("/")
@@ -277,9 +273,7 @@ async def _create_user_dirs(username):
                 os.chmod(sa_properties_path, STANDARD_MODE)
 
     if not exists(f"{user_config_dir}/application.yml"):
-        with open(
-            f"{config_dir}/user-mapping.csv", encoding="utf-8"
-        ) as mapping:
+        with open(f"{config_dir}/user-mapping.csv", encoding="utf-8") as mapping:
             for line in mapping:
                 if line.startswith(username):
                     sub = line.split(" ")[1]
@@ -315,9 +309,9 @@ async def _create_user_env(username, port):
     storm_dir = f"/var/lib/{APP_NAME}/webdav"
     # make sure that .storm_profile is imported in the users shell init
     # by e.g. adding ". ~/.storm_profile" to the user's .bash_profile
-    os.environ[
-        "STORM_WEBDAV_JVM_OPTS"
-    ] = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
+    os.environ["STORM_WEBDAV_JVM_OPTS"] = (
+        "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
+    )
     os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = "localhost"
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = f"{port}"
     os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"
@@ -329,16 +323,16 @@ async def _create_user_env(username, port):
     os.environ["STORM_WEBDAV_MAX_QUEUE_SIZE"] = "900"
     os.environ["STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME"] = "30000"
     os.environ["STORM_WEBDAV_SA_CONFIG_DIR"] = f"{user_dir}/sa.d"
-    os.environ[
-        "STORM_WEBDAV_JAR"
-    ] = "/usr/share/java/storm-webdav/storm-webdav-server.jar"
+    os.environ["STORM_WEBDAV_JAR"] = (
+        "/usr/share/java/storm-webdav/storm-webdav-server.jar"
+    )
     os.environ["STORM_WEBDAV_LOG"] = f"{user_dir}/log/server.log"
     os.environ["STORM_WEBDAV_OUT"] = f"{user_dir}/log/server.out"
     os.environ["STORM_WEBDAV_ERR"] = f"{user_dir}/log/server.err"
     os.environ["STORM_WEBDAV_LOG_CONFIGURATION"] = f"{etc_dir}/logback.xml"
-    os.environ[
-        "STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"
-    ] = f"{etc_dir}/logback-access.xml"
+    os.environ["STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"] = (
+        f"{etc_dir}/logback-access.xml"
+    )
     os.environ["STORM_WEBDAV_VO_MAP_FILES_ENABLE"] = "false"
     os.environ["STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL"] = "21600"
     os.environ["STORM_WEBDAV_TPC_MAX_CONNECTIONS"] = "50"
@@ -350,9 +344,7 @@ async def _create_user_env(username, port):
 
 
 async def _remove_user_env():
-    keys_to_remove = [
-        key for key in os.environ if key.startswith("STORM_WEBDAV_")
-    ]
+    keys_to_remove = [key for key in os.environ if key.startswith("STORM_WEBDAV_")]
     for key in keys_to_remove:
         del os.environ[key]
 
@@ -401,7 +393,7 @@ async def _start_webdav_instance(username, port):
     logger.info("cmd=%s", cmd)
     p = subprocess.Popen(
         cmd, shell=True, preexec_fn=os.setsid  # trunk-ignore(bandit/B602)
-        )
+    )  # GitHub Issue #30
     # except subprocess.CalledProcessError as e:
     #     logger.error("Failed to start subprocess for user %s: %s", username,
     #                  str(e))
@@ -453,9 +445,7 @@ async def _get_proc(cmd):
         if cmd == " ".join(proc.cmdline()):
             logger.info("PID found: %d", pid)
             return proc
-    raise RuntimeError(
-        "process with for full command ", + cmd + "does not exist."
-    )
+    raise RuntimeError("process with for full command ", +cmd + "does not exist.")
 
 
 async def _stop_webdav_instance(username):
@@ -498,9 +488,8 @@ async def _stop_webdav_instance(username):
         logger.info("Stopping webdav instance with PID %d.", pid)
         try:
             kill_proc = subprocess.Popen(
-                f"sudo -u {username} kill {pid}",
-                shell=True  # trunk-ignore(bandit)
-            )
+                f"sudo -u {username} kill {pid}", shell=True  # trunk-ignore(bandit)
+            )  # GitHub Issue #30
             kill_exit_code = kill_proc.wait()
             if kill_exit_code != 0:
                 logger.info("could not kill process with PID %d.", pid)
@@ -721,9 +710,7 @@ async def _map_fed_to_local(sub):
     # returned. like this, it is possible to match different subs to a
     # local username but not the other way around.
 
-    with open(
-        "/etc/teapot/user-mapping.csv", "r", encoding="utf-8"
-         ) as mapping_file:
+    with open("/etc/teapot/user-mapping.csv", "r", encoding="utf-8") as mapping_file:
         mappingreader = csv.reader(mapping_file, delimiter=" ")
         for row in mappingreader:
             logger.info("from mapping file: %s", row)
@@ -895,10 +882,9 @@ async def root(request: Request):
         # if there is no sub, user can not be authenticated
         raise HTTPException(status_code=403)
     # user is valid, so check if a storm instance is running for this sub
-    redirect_host, redirect_port, local_user = \
-        await _return_or_create_storm_instance(
-            sub
-        )
+    redirect_host, redirect_port, local_user = await _return_or_create_storm_instance(
+        sub
+    )
 
     # REVISIT: should these errors be thrown from
     # _return_or_create_storm_instance?
@@ -952,9 +938,7 @@ def main():
     key = "/var/lib/teapot/webdav/teapot.key"
     cert = "/var/lib/teapot/webdav/teapot.crt"
 
-    uvicorn.run(
-        app, host="teapot", port=8081, ssl_keyfile=key, ssl_certfile=cert
-    )
+    uvicorn.run(app, host="teapot", port=8081, ssl_keyfile=key, ssl_certfile=cert)
 
 
 if __name__ == "__main__":
