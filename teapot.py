@@ -371,6 +371,7 @@ async def _start_webdav_instance(username, port):
     logger.info("trying to start process for user %s", username)
 
     # trunk-ignore(bandit/B108)
+    # trunk-ignore(flake8/E501)
     cmd = f"sudo --preserve-env={','.join(env_pass)} -u {username} \
     /usr/bin/java -jar $STORM_WEBDAV_JAR $STORM_WEBDAV_JVM_OPTS \
     -Djava.io.tmpdir=/var/lib/user-{username}/tmp \
@@ -429,6 +430,14 @@ async def _start_webdav_instance(username, port):
 
 
 async def _get_proc(cmd):
+    # here we are simply looking through all processes and try to find a
+    # match for the full command that was issued to start the instance in
+    # question. then return the process handle. it should contain the process
+    # that is running as root and forked the storm instance for the user
+    # themselves. looking through all processes seems a bit overkill but at
+    # the moment this is the only halfway surefire method I could find to
+    # accomplish this task. shamelessly stolen from
+    # https://codereview.stackexchange.com/questions/183091/start-a-sub-process-with-sudo-as-head-of-new-process-group-kill-it-after-time
     for pid in psutil.pids():
         proc = psutil.Process(pid)
         if cmd == " ".join(proc.cmdline()):
