@@ -9,7 +9,7 @@ concurrency:
   group: ${{ github.workflow }}
 
 jobs:
-  build:
+  build-fedora:
     name: build-fedora
     runs-on: ubuntu-latest
     container: fedora:39
@@ -30,9 +30,72 @@ jobs:
           name: teapot-rpm-fedora
           path: /github/home/rpmbuild/RPMS/noarch/teapot-v*.noarch.rpm
 
+  build-rockylinux:
+    name: build-rockylinux
+    runs-on: ubuntu-latest
+    container: rockylinux:9.3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install build requisites
+        run: |
+          dnf -y update
+          dnf -y install rpmdevtools rpmlint rsync
+      - name: Build rpm
+        run: |
+          chmod 777 rpm/teapot-rpm.sh
+          rpm/teapot-rpm.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: teapot-rpm-rockylinux
+          path: /github/home/rpmbuild/RPMS/noarch/teapot-v*.noarch.rpm
+
+  build-almalinux:
+    name: build-almalinux
+    runs-on: ubuntu-latest
+    container: almalinux:9.4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install build requisites
+        run: |
+          dnf -y update
+          dnf -y install rpmdevtools rpmlint rsync
+      - name: Build rpm
+        run: |
+          chmod 777 rpm/teapot-rpm.sh
+          rpm/teapot-rpm.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: teapot-rpm-almalinux
+          path: /github/home/rpmbuild/RPMS/noarch/teapot-v*.noarch.rpm
+
+  build-opensuse:
+    name: build-opensuse/leap
+    runs-on: ubuntu-latest
+    container: opensuse/leap:15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install build requisites
+        run: |
+          dnf -y update
+          dnf -y install rpmdevtools rpmlint rsync
+      - name: Build rpm
+        run: |
+          chmod 777 rpm/teapot-rpm.sh
+          rpm/teapot-rpm.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: teapot-rpm-opensuse/leap
+          path: /github/home/rpmbuild/RPMS/noarch/teapot-v*.noarch.rpm
+
   containerization:
     name: containerization
-    needs: build
+    needs: build-fedora
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -54,7 +117,7 @@ jobs:
 
   test:
     name: test
-    needs: [build, containerization]
+    needs: [build-fedora, containerization]
     runs-on: ubuntu-latest
     container:
       image: dvrbanec/main:latest
