@@ -23,11 +23,12 @@ jobs:
           dnf -y install rpmdevtools rpmlint rsync
       - name: Build rpm
         run: |
+          echo "version=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-rpm-fedora
+          name: teapot-$version-rpm-fedora
           path: /github/home/rpmbuild/RPMS/noarch/teapot-v*.noarch.rpm
 
   build-rockylinux:
@@ -48,7 +49,7 @@ jobs:
           rpm/teapot-rpm.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-rpm-rockylinux
+          name: teapot-$version-rpm-rockylinux
           path: /github/home/rpmbuild/RPMS/noarch/teapot-v*.noarch.rpm
 
   build-almalinux:
@@ -69,28 +70,7 @@ jobs:
           rpm/teapot-rpm.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-rpm-almalinux
-          path: /github/home/rpmbuild/RPMS/noarch/teapot-v*.noarch.rpm
-
-  build-opensuse:
-    name: build-opensuse/leap
-    runs-on: ubuntu-latest
-    container: opensuse/leap:15
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Install build requisites
-        run: |
-          dnf -y update
-          dnf -y install rpmdevtools rpmlint rsync
-      - name: Build rpm
-        run: |
-          chmod 777 rpm/teapot-rpm.sh
-          rpm/teapot-rpm.sh
-      - uses: actions/upload-artifact@v4
-        with:
-          name: teapot-rpm-opensuse/leap
+          name: teapot-$version-rpm-almalinux
           path: /github/home/rpmbuild/RPMS/noarch/teapot-v*.noarch.rpm
 
   containerization:
@@ -103,7 +83,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
-          name: teapot-rpm-fedora
+          name: teapot-$version-rpm-fedora
           path: /home/runner/work/teapot/teapot/robot
       - name: Building Teapot docker image
         env:

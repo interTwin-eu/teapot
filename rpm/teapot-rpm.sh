@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export version=v0.5.0
-
 #setting up a file tree for the RPM package in home directory
 rpmdev-setuptree
 
@@ -26,4 +24,4 @@ rm storm-webdav-server.jar
 mv storm-webdav-server.tar.gz "$HOME"/rpmbuild/SOURCES/
 
 #building the RPM package
-rpmbuild -ba ~/rpmbuild/SPECS/teapot.spec
+rpmbuild -ba --define "version_ $version" ~/rpmbuild/SPECS/teapot.spec
