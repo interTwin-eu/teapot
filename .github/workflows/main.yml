@@ -8,6 +8,9 @@ on:
 concurrency:
   group: ${{ github.workflow }}
 
+env:
+  version: 0.6.0
+
 jobs:
   build-fedora:
     name: build-fedora
@@ -23,11 +26,8 @@ jobs:
           dnf -y install rpmdevtools rpmlint rsync git
       - name: Build rpm
         run: |
-          echo "version=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
-        env:
-          version: ${{ env.version }}
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-$version-rpm-fedora
