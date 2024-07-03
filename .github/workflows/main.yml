@@ -31,7 +31,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-$version-rpm-fedora
-          path: /github/home/rpmbuild/RPMS/noarch/teapot-v*.noarch.rpm
+          path: /github/home/rpmbuild/RPMS/noarch/teapot-*.noarch.rpm
 
   build-rockylinux:
     name: build-rockylinux
@@ -52,7 +52,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-$version-rpm-rockylinux
-          path: /github/home/rpmbuild/RPMS/noarch/teapot-v*.noarch.rpm
+          path: /github/home/rpmbuild/RPMS/noarch/teapot-*.noarch.rpm
 
   build-almalinux:
     name: build-almalinux
@@ -73,7 +73,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-$version-rpm-almalinux
-          path: /github/home/rpmbuild/RPMS/noarch/teapot-v*.noarch.rpm
+          path: /github/home/rpmbuild/RPMS/noarch/teapot-*.noarch.rpm
 
   containerization:
     name: containerization
