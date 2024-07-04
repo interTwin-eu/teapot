@@ -27,7 +27,7 @@ jobs:
       - name: Build rpm
         run: |
           echo "version=v0.0.0" >> "$GITHUB_ENV"
-          echo "$GITHUB_ENV"
+          echo ${{ env.version }}
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
       - uses: actions/upload-artifact@v4
