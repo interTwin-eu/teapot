@@ -36,6 +36,7 @@ jobs:
 
   build-rockylinux:
     name: build-rockylinux
+    needs: build-fedora
     runs-on: ubuntu-latest
     container: rockylinux:9.3
     steps:
@@ -57,6 +58,7 @@ jobs:
 
   build-almalinux:
     name: build-almalinux
+    needs: build-fedora
     runs-on: ubuntu-latest
     container: almalinux:9.4
     steps:
