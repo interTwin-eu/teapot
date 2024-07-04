@@ -27,8 +27,11 @@ jobs:
       - name: Build rpm
         run: |
           echo "version=v0.0.0" >> "$GITHUB_ENV"
+          echo $version
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
+        env:
+          version: $version
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ env.version }}_rpm_fedora
