@@ -23,6 +23,7 @@ jobs:
           fetch-depth: 0
       - id: rpm_build
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           export "version=$(git describe --tags --dirty)"
           echo "version=$(git describe --tags --dirty)"  >> "$GITHUB_OUTPUT"
           echo "version is $version"
