@@ -24,4 +24,4 @@ rm storm-webdav-server.jar
 mv storm-webdav-server.tar.gz "$HOME"/rpmbuild/SOURCES/
 
 #building the RPM package
-rpmbuild -ba --define "version_ $version" ~/rpmbuild/SPECS/teapot.spec
+rpmbuild -ba --define "version_ $version_rpm" ~/rpmbuild/SPECS/teapot.spec

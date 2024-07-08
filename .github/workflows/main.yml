@@ -24,9 +24,10 @@ jobs:
       - id: rpm_build
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          export "version=$(git describe --tags --dirty)"
           echo "version=$(git describe --tags --dirty)"  >> "$GITHUB_OUTPUT"
+          echo "versio_rpm=$(git describe --tags --abbrev=0)"  >> "$GITHUB_OUTPUT"
           echo "version is $version"
+          echo "version for RPMs is $version_rpm"
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
       - uses: actions/upload-artifact@v4
@@ -35,6 +36,7 @@ jobs:
           path: /github/home/rpmbuild/RPMS/noarch/teapot-*.noarch.rpm
     outputs:
       version: ${{ steps.rpm_build.outputs.version }}
+      version_rpm: ${{ steps.rpm_build.outputs.version_rpm }}
 
   build-rockylinux:
     name: build-rockylinux
@@ -51,7 +53,7 @@ jobs:
           dnf -y install rpmdevtools rpmlint rsync
       - name: Build rpm
         run: |
-          echo "${{ needs.build-fedora.outputs.version }}"
+          echo "${{ needs.build-fedora.outputs.version_rpm }}"
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
       - uses: actions/upload-artifact@v4
@@ -74,6 +76,7 @@ jobs:
           dnf -y install rpmdevtools rpmlint rsync
       - name: Build rpm
         run: |
+          echo "${{ needs.build-fedora.outputs.version_rpm }}"
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
       - uses: actions/upload-artifact@v4
