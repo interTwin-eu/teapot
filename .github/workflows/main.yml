@@ -79,6 +79,7 @@ jobs:
       - name: Build rpm
         run: |
           export "version_rpm=${{ needs.build-fedora.outputs.version_rpm }}"
+          echo "version_rpm is $version_rpm"
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
       - uses: actions/upload-artifact@v4
