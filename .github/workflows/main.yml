@@ -24,17 +24,19 @@ jobs:
         run: |
           dnf -y update
           dnf -y install rpmdevtools rpmlint rsync git
-      - name: Build_rpm
+      - id: rpm_build
         run: |
-          echo "version=v0.0.0" >> "$GITHUB_ENV"
+          export version=v0.0.0
+          echo "version=v0.0.0" >> "$GITHUB_OUTPUT"
           echo "version is $version"
-          echo "version is again ${{ env.build-fedora.Build_rpm.version }}"
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ env.version }}_rpm_fedora
           path: /github/home/rpmbuild/RPMS/noarch/teapot-*.noarch.rpm
+    outputs:
+      version: ${{ steps.rpm_build.outputs.version }}
 
   build-rockylinux:
     name: build-rockylinux
