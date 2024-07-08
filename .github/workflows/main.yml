@@ -131,6 +131,7 @@ jobs:
         run: |
           eval "$(oidc-agent)"
           oidc-agent --version
+          mkdir -p /etc/oidc-agent/issuer.config.d/
           cp keycloak-setup/client_config.json /etc/oidc-agent/issuer.config.d/pubclients.config
           oidc-gen --flow password --pub --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
           oidc-gen --flow password --pub --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
