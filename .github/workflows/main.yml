@@ -24,8 +24,8 @@ jobs:
       - id: rpm_build
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          echo "version=$(git describe --tags --dirty)"  >> "$GITHUB_OUTPUT"
-          echo "versio_rpm=$(git describe --tags --abbrev=0)"  >> "$GITHUB_OUTPUT"
+          export "version=$(git describe --tags --dirty)"  >> "$GITHUB_OUTPUT"
+          export "versio_rpm=$(git describe --tags --abbrev=0)"  >> "$GITHUB_OUTPUT"
           echo "version is $version"
           echo "version for RPMs is $version_rpm"
           chmod 777 rpm/teapot-rpm.sh
