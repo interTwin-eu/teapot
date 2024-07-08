@@ -14,13 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     container: fedora:39
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Install build requisites
         run: |
           dnf -y update
           dnf -y install rpmdevtools rpmlint rsync git
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - id: rpm_build
         run: |
           export "version=$(git describe --tags --dirty)"
