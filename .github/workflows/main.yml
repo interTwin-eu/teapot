@@ -33,7 +33,7 @@ jobs:
           rpm/teapot-rpm.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-${{ env.version }}_rpm_fedora
+          name: teapot-${{ steps.rpm_build.outputs.version }}_rpm_fedora
           path: /github/home/rpmbuild/RPMS/noarch/teapot-*.noarch.rpm
     outputs:
       version: ${{ steps.rpm_build.outputs.version }}
@@ -58,7 +58,7 @@ jobs:
           rpm/teapot-rpm.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-${{ env.version }}_rpm_rockylinux
+          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_rockylinux
           path: /github/home/rpmbuild/RPMS/noarch/teapot-*.noarch.rpm
 
   build-almalinux:
@@ -80,7 +80,7 @@ jobs:
           rpm/teapot-rpm.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-${{ env.version }}_rpm_almalinux
+          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_almalinux
           path: /github/home/rpmbuild/RPMS/noarch/teapot-*.noarch.rpm
 
   containerization:
@@ -93,7 +93,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
-          name: teapot-${{ env.version }}_rpm_fedora
+          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_fedora
           path: /home/runner/work/teapot/teapot/robot
       - name: Building Teapot docker image
         env:
