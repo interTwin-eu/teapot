@@ -7,11 +7,11 @@ rpmdev-setuptree
 cp rpm/teapot.spec "$HOME"/rpmbuild/SPECS/
 
 #getting the teapot scripts
-mkdir teapot-"$(version_rpm)"
-rsync -av --progress * teapot-"$(version_rpm)"/ --exclude teapot-"$(version_rpm)"
-tar cfz teapot-"$(version_rpm)".tar.gz teapot-"$(version_rpm)"
-rm -r teapot-"$(version_rpm)"
-mv teapot-"$(version_rpm)".tar.gz "$HOME"/rpmbuild/SOURCES/
+mkdir teapot-"$version_rpm"
+rsync -av --progress * teapot-"$version_rpm"/ --exclude teapot-"$version_rpm"
+tar cfz teapot-"$version_rpm".tar.gz teapot-"$version_rpm"
+rm -r teapot-"$version_rpm"
+mv teapot-"$version_rpm".tar.gz "$HOME"/rpmbuild/SOURCES/
 
 #getting the storm-webdav.jar file
 curl -O https://repo.cloud.cnaf.infn.it/repository/storm-rpm-stable/centos7/storm-webdav-1.4.2-1.el7.noarch.rpm
@@ -24,4 +24,4 @@ rm storm-webdav-server.jar
 mv storm-webdav-server.tar.gz "$HOME"/rpmbuild/SOURCES/
 
 #building the RPM package
-rpmbuild -ba --define "version_ $(version_rpm)" ~/rpmbuild/SPECS/teapot.spec
+rpmbuild -ba --define "version_ $version_rpm" ~/rpmbuild/SPECS/teapot.spec
