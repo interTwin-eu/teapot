@@ -8,9 +8,6 @@ on:
 concurrency:
   group: ${{ github.workflow }}
 
-env:
-  version: v0.0.1
-
 jobs:
   build-fedora:
     name: build-fedora
@@ -26,8 +23,8 @@ jobs:
           dnf -y install rpmdevtools rpmlint rsync git
       - id: rpm_build
         run: |
-          export version=v0.0.0
-          echo "version=v0.0.0" >> "$GITHUB_OUTPUT"
+          export "version=$(git describe --tags --dirty)"
+          echo "version=$(git describe --tags --dirty)"  >> "$GITHUB_OUTPUT"
           echo "version is $version"
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
