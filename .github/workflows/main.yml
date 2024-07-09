@@ -115,7 +115,7 @@ jobs:
       image: dvrbanec/main:latest
     services:
       keycloak:
-        image: dvrbanec/keycloak-dev:latest
+        image: dvrbanec/keycloak-dev:1
       teapot:
         image: ghcr.io/intertwin-eu/teapot:latest
         credentials:
@@ -128,8 +128,6 @@ jobs:
       - name: Test Teapot
         run: |
           eval "$(oidc-agent)"
-          cat keycloak-setup/issuer_info >> /etc/oidc-agent/pubclients.config
-          cat /etc/oidc-agent/pubclients.config
           oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
           oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
           robot --outputdir /__w/teapot/teapot/robot/output/ /__w/teapot/teapot/robot/teapot-tests.robot
