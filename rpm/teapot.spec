@@ -1,5 +1,5 @@
 Name:           teapot
-Version:        v0.5.0
+Version:        %{version_}
 Release:        1%{?dist}
 Summary:        A WebDAV solution supporting multitenancy based on StoRM-WebDAV
 BuildArch:      noarch

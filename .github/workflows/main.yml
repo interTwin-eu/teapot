@@ -9,10 +9,40 @@ concurrency:
   group: ${{ github.workflow }}
 
 jobs:
-  build:
-    name: build
+  build-fedora:
+    name: build-fedora
     runs-on: ubuntu-latest
     container: fedora:39
+    steps:
+      - name: Install build requisites
+        run: |
+          dnf -y update
+          dnf -y install rpmdevtools rpmlint rsync git
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: rpm_build
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          export "version=$(git describe --tags --dirty)"
+          echo "version=$(git describe --tags --dirty)"  >> "$GITHUB_OUTPUT"
+          export "version_rpm=$(git describe --tags --abbrev=0)"
+          echo "version_rpm=$(git describe --tags --abbrev=0)"  >> "$GITHUB_OUTPUT"
+          chmod 777 rpm/teapot-rpm.sh
+          rpm/teapot-rpm.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: teapot-${{ steps.rpm_build.outputs.version }}_rpm_fedora
+          path: /github/home/rpmbuild/RPMS/noarch/teapot-*.noarch.rpm
+    outputs:
+      version: ${{ steps.rpm_build.outputs.version }}
+      version_rpm: ${{ steps.rpm_build.outputs.version_rpm }}
+
+  build-rockylinux:
+    name: build-rockylinux
+    needs: build-fedora
+    runs-on: ubuntu-latest
+    container: rockylinux:9.3
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,16 +53,41 @@ jobs:
           dnf -y install rpmdevtools rpmlint rsync
       - name: Build rpm
         run: |
+          export "version_rpm=${{ needs.build-fedora.outputs.version_rpm }}"
           chmod 777 rpm/teapot-rpm.sh
           rpm/teapot-rpm.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-rpm
-          path: /github/home/rpmbuild/RPMS/noarch/teapot-v*.noarch.rpm
+          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_rockylinux
+          path: /github/home/rpmbuild/RPMS/noarch/teapot-*.noarch.rpm
+
+  build-almalinux:
+    name: build-almalinux
+    needs: build-fedora
+    runs-on: ubuntu-latest
+    container: almalinux:9.4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install build requisites
+        run: |
+          dnf -y update
+          dnf -y install rpmdevtools rpmlint rsync
+      - name: Build rpm
+        run: |
+          export "version_rpm=${{ needs.build-fedora.outputs.version_rpm }}"
+          echo "version_rpm is $version_rpm"
+          chmod 777 rpm/teapot-rpm.sh
+          rpm/teapot-rpm.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_almalinux
+          path: /github/home/rpmbuild/RPMS/noarch/teapot-*.noarch.rpm
 
   containerization:
     name: containerization
-    needs: build
+    needs: build-fedora
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,7 +95,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
-          name: teapot-rpm
+          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_fedora
           path: /home/runner/work/teapot/teapot/robot
       - name: Building Teapot docker image
         env:
@@ -54,13 +109,13 @@ jobs:
 
   test:
     name: test
-    needs: [build, containerization]
+    needs: [build-fedora, containerization]
     runs-on: ubuntu-latest
     container:
       image: dvrbanec/main:latest
     services:
       keycloak:
-        image: dvrbanec/keycloak-dev:latest
+        image: dvrbanec/keycloak-dev:1
       teapot:
         image: ghcr.io/intertwin-eu/teapot:latest
         credentials:
