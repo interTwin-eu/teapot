@@ -41,7 +41,7 @@ cp %{_builddir}/%name-%version/templates/teapot.log $RPM_BUILD_ROOT/%{_localstat
 cp %{_builddir}/%name-%version/templates/uvicorn.log $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/grid-security/vomsdir/
-cp %{_builddir}/%name-%version/teapot.service $RPM_BUILD_ROOT/%{_libdir}/systemd/system/
+cp %{_builddir}/%name-%version/teapot.service $RPM_BUILD_ROOT/%{_prefix}/lib/systemd/system/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -63,7 +63,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(775, teapot, teapot) %{_sharedstatedir}/%name/webdav
 %attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 %attr(775, root, root) %{_sysconfdir}/grid-security/vomsdir/
-%attr(774, root, root) %{_libdir}/systemd/system/teapot.service
+%attr(774, root, root) %{_prefix}/lib/systemd/system/teapot.service
 
 %changelog
 * Thu Jul 11 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
