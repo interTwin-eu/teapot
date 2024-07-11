@@ -7,7 +7,7 @@ BuildArch:      noarch
 License:        Apache 2.0
 Source0:        teapot-%version.tar.gz
 Source1:        storm-webdav-server.tar.gz
-Requires:       java-11-openjdk openssl >= 3.0 nc python(abi) >= 3.0 python(abi)-fastapi python(abi)-flaat python(abi)-httpx python(abi)-liboidcagent python(abi)-logging python(abi)-pydantic python(abi)-regex python(abi)-requests python(abi)-uvicorn python(abi)-anyio python(abi)-asyncio
+Requires:       java-11-openjdk openssl >= 3.0 nc python(abi) >= 3.0 python3-fastapi python3-flaat python3-httpx python3-liboidcagent python3-logging python3-pydantic python3-regex python3-requests python3-uvicorn python3-anyio python3-asyncio
 
 %description    
 A WebDAV solution supporting multitenancy based on StoRM-WebDAV
