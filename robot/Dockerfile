@@ -10,7 +10,7 @@ WORKDIR /tmp
 COPY teapot-v*.noarch.rpm .
 RUN \
     adduser teapot && \
-    rpm -i teapot-v*.noarch.rpm --nodeps
+    rpm -i teapot-v*.noarch.rpm
 
 WORKDIR /etc/pki/ca-trust/source/anchors
 ADD --chmod=744 https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
