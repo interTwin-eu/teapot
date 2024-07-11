@@ -25,7 +25,6 @@ mkdir -p $RPM_BUILD_ROOT/%{_datadir}/java/storm-webdav
 cp %{_builddir}/%name-%version/storm-webdav-server.jar $RPM_BUILD_ROOT/%{_datadir}/java/storm-webdav/storm-webdav-server.jar
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/%name/
 cp %{_builddir}/%name-%version/teapot.py $RPM_BUILD_ROOT/%{_datadir}/%name/
-cp %{_builddir}/%name-%version/run-teapot.sh $RPM_BUILD_ROOT/%{_datadir}/%name/
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/%name
 cp %{_builddir}/%name-%version/templates/issuers $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
 cp %{_builddir}/%name-%version/templates/logback.xml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
@@ -49,7 +48,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %attr(644, root, root) %{_datadir}/java/storm-webdav/storm-webdav-server.jar
-%attr(755, teapot, teapot) %{_datadir}/%name/run-teapot.sh
 %attr(774, teapot, teapot) %{_datadir}/%name/teapot.py
 %attr(644, root, root) %{_sysconfdir}/%name/issuers
 %attr(744, teapot, teapot) %{_sysconfdir}/%name/logback.xml
@@ -65,6 +63,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(775, teapot, teapot) %{_sharedstatedir}/%name/webdav
 %attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 %attr(775, root, root) %{_sysconfdir}/grid-security/vomsdir/
+%attr(774, root, root) %{_libdir}/systemd/system/teapot.service
 
 %changelog
 * Thu Jul 11 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
