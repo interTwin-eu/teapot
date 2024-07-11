@@ -41,6 +41,7 @@ cp %{_builddir}/%name-%version/templates/teapot.log $RPM_BUILD_ROOT/%{_localstat
 cp %{_builddir}/%name-%version/templates/uvicorn.log $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/grid-security/vomsdir/
+mkdir -p $RPM_BUILD_ROOT/%{_prefix}/lib/systemd/system/
 cp %{_builddir}/%name-%version/teapot.service $RPM_BUILD_ROOT/%{_prefix}/lib/systemd/system/
 
 %clean
