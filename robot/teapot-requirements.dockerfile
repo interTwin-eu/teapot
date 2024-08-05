@@ -24,5 +24,3 @@ WORKDIR /usr/local/lib/python3.12/site-packages/certifi/
 RUN \
     rm -f cacert.pem && \
     ln -s /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem cacert.pem
-
-USER nobody
