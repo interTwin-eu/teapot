@@ -3,15 +3,12 @@ FROM fedora:39
 USER root
 
 RUN \
-    dnf -y install initscripts java-11-openjdk && \
-    dnf -y install perl-IPC-Cmd perl-Test-Simple && \
+    dnf -y install initscripts java-11-openjdk perl-IPC-Cmd perl-Test-Simple && \
     dnf -y group install "Development Tools" && \
-    dnf -y install jq unzip && \
-    dnf -y install libffi libffi-devel openssl && \
-    dnf -y install python3-pip && \
-    pip install --upgrade pip && \
-    pip install pydantic httpx logging uvicorn requests flaat==1.1.18 && \
-    pip install fastapi anyio asyncio psutil robotframework robotframework-requests python-keycloak
+    dnf -y install libffi libffi-devel python3-pip python3-fastapi && \
+    dnf -y install python3-httpx python3-pydantic python3-requests && \
+    dnf -y install python3-uvicorn python3-anyio python3-psutil && \
+    pip install logging flaat==1.1.18 asyncio
 
 WORKDIR /usr/local/ssl
 RUN ln -s /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem cert.pem
