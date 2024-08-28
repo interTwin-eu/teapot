@@ -51,9 +51,9 @@ mkdir -p %{buildroot}/%{_sysconfdir}/grid-security/vomsdir/
 mkdir -p %{buildroot}/%{_prefix}/lib/systemd/system/
 cp %{_builddir}/%name-%version/teapot.service %{buildroot}/%{_prefix}/lib/systemd/system/
 mkdir -p %{buildroot}/%{_exec_prefix}/local/lib64/python3.12/site-packages/
-install -m 755 %{_builddir}/%name-%version//%{_exec_prefix}/local/lib64/python3.12/site-packages/* %{buildroot}/%{_exec_prefix}/local/lib64/python3.12/site-packages/*
+install -m 755 %{_builddir}/%name-%version//%{_exec_prefix}/local/lib64/python3.12/site-packages/* %{buildroot}/%{_exec_prefix}/local/lib64/python3.12/site-packages/
 mkdir -p %{buildroot}/%{_exec_prefix}/local/lib/python3.12/site-packages/
-install -m 755 %{_builddir}/%name-%version//%{_exec_prefix}/local/lib/python3.12/site-packages/* %{buildroot}/%{_exec_prefix}/local/lib/python3.12/site-packages/*
+install -m 755 %{_builddir}/%name-%version//%{_exec_prefix}/local/lib/python3.12/site-packages/* %{buildroot}/%{_exec_prefix}/local/lib/python3.12/site-packages/
 
 %clean
 rm -rf %{buildroot}
