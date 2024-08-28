@@ -7,10 +7,10 @@ FROM dvrbanec/teapot-requirements:1.5
 
 # installing Teapot
 WORKDIR /tmp
-COPY teapot-v*.noarch.rpm .
+COPY teapot-v*.x86_64.rpm .
 RUN \
     adduser teapot && \
-    rpm -i teapot-v*.noarch.rpm
+    rpm -i teapot-v*.x86_64.rpm
 
 WORKDIR /etc/pki/ca-trust/source/anchors
 ADD --chmod=744 https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
