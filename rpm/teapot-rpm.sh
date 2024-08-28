@@ -23,7 +23,8 @@ tar cf storm-webdav-server.tar.gz storm-webdav-server.jar
 rm storm-webdav-server.jar
 mv storm-webdav-server.tar.gz "$HOME"/rpmbuild/SOURCES/
 
-curl -O https://syncandshare.desy.de/index.php/s/SYF66KoeW9mTQc8/download/python-lib64.tar.gz "$HOME"/rpmbuild/SOURCES/
-curl -O https://syncandshare.desy.de/index.php/s/eHS5Q5CKmoWPPNo/download/python-lib.tar.gz "$HOME"/rpmbuild/SOURCES/
+wget https://syncandshare.desy.de/index.php/s/SYF66KoeW9mTQc8/download/python-lib64.tar.gz "$HOME"/rpmbuild/SOURCES/
+wget https://syncandshare.desy.de/index.php/s/eHS5Q5CKmoWPPNo/download/python-lib.tar.gz "$HOME"/rpmbuild/SOURCES/
+
 #building the RPM package
 rpmbuild -ba --define "version_ $version_rpm" ~/rpmbuild/SPECS/teapot-$OS.spec
