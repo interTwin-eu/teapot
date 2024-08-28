@@ -2,7 +2,7 @@ Name:           teapot
 Version:        %{version_}
 Release:        1%{?dist}
 Summary:        A WebDAV solution supporting multitenancy based on StoRM-WebDAV
-BuildArch:      x86-64
+BuildArch:      x86_64
 
 License:        Apache 2.0
 URL:            https://github.com/interTwin-eu/%name
