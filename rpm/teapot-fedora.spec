@@ -13,7 +13,12 @@ Source3:        https://syncandshare.desy.de/index.php/s/eHS5Q5CKmoWPPNo/downloa
 Requires:       java-11-openjdk python(abi) >= 3.0 python3-fastapi python3-httpx python3-pydantic python3-requests python3-uvicorn python3-anyio python3-psutil
 
 %description    
-A WebDAV solution supporting multitenancy based on StoRM-WebDAV
+Teapot provides a WebDAV that supports multi-tenancy. It is based on StoRM-WebDAV. We have added a manager level that
+accepts requests, authenticates the user, identifies the local username of the user, starts a StoRM-WebDAV server
+for that local user with a randomly assigned port to listen on, and forwards the user's request to that port.
+The StoRM-WebDAV server will then handle the request in the usual way. If the StoRM-WebDAV server is inactive for
+10 minutes, it will be shut down by the manager. If another request comes in for a different user, the manager will
+start another StoRM-WebDAV server for that user in the same way.
 
 %define __jar_repack %{nil}
 %global debug_package %{nil}

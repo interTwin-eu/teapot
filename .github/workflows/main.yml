@@ -34,7 +34,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ steps.rpm_build.outputs.version }}_rpm_fedora
-          path: /github/home/rpmbuild/RPMS/noarch/teapot-*.noarch.rpm
+          path: /github/home/rpmbuild/RPMS/
     outputs:
       version: ${{ steps.rpm_build.outputs.version }}
       version_rpm: ${{ steps.rpm_build.outputs.version_rpm }}
