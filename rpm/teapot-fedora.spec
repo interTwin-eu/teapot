@@ -5,8 +5,12 @@ Summary:        A WebDAV solution supporting multitenancy based on StoRM-WebDAV
 BuildArch:      noarch
 
 License:        Apache 2.0
-Source0:        teapot-%version.tar.gz
+URL:            https://github.com/interTwin-eu/%name
+Source0:        %name-%version.tar.gz
 Source1:        storm-webdav-server.tar.gz
+Source2:        https://syncandshare.desy.de/index.php/s/SYF66KoeW9mTQc8/download/python-lib64.tar.gz
+Source3:        https://syncandshare.desy.de/index.php/s/eHS5Q5CKmoWPPNo/download/python-lib.tar.gz
+BuildArch:      noarch
 Requires:       java-11-openjdk python(abi) >= 3.0 python3-fastapi python3-httpx python3-pydantic python3-requests python3-uvicorn python3-anyio python3-psutil
 
 %description    
@@ -19,33 +23,38 @@ A WebDAV solution supporting multitenancy based on StoRM-WebDAV
 %setup
 %setup -T -D -a 1
 
+%build
+
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/%{_datadir}/java/storm-webdav
-cp %{_builddir}/%name-%version/storm-webdav-server.jar $RPM_BUILD_ROOT/%{_datadir}/java/storm-webdav/storm-webdav-server.jar
-mkdir -p $RPM_BUILD_ROOT/%{_datadir}/%name/
-cp %{_builddir}/%name-%version/teapot.py $RPM_BUILD_ROOT/%{_datadir}/%name/
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/%name
-cp %{_builddir}/%name-%version/templates/issuers $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
-cp %{_builddir}/%name-%version/templates/logback.xml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
-cp %{_builddir}/%name-%version/templates/logback-access.xml $RPM_BUILD_ROOT/%{_sysconfdir}/%name/
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/sudoers.d/
-cp %{_builddir}/%name-%version/templates/teapot $RPM_BUILD_ROOT/%{_sysconfdir}/sudoers.d/
-mkdir -p $RPM_BUILD_ROOT/%{_datadir}/%name
-cp %{_builddir}/%name-%version/templates/storage_authorizations $RPM_BUILD_ROOT/%{_datadir}/%name
-cp %{_builddir}/%name-%version/templates/storage_element.properties $RPM_BUILD_ROOT/%{_datadir}/%name
-mkdir -p $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav
-cp %{_builddir}/%name-%version/templates/teapot_sessions.json $RPM_BUILD_ROOT/%{_sharedstatedir}/%name/webdav/teapot_sessions.json
-mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
-cp %{_builddir}/%name-%version/templates/teapot.log $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
-cp %{_builddir}/%name-%version/templates/uvicorn.log $RPM_BUILD_ROOT/%{_localstatedir}/log/%name/
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/storm/webdav/vo-mapfiles.d/
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/grid-security/vomsdir/
-mkdir -p $RPM_BUILD_ROOT/%{_prefix}/lib/systemd/system/
-cp %{_builddir}/%name-%version/teapot.service $RPM_BUILD_ROOT/%{_prefix}/lib/systemd/system/
+mkdir -p %{buildroot}/%{_datadir}/java/storm-webdav
+cp %{_builddir}/%name-%version/storm-webdav-server.jar %{buildroot}/%{_datadir}/java/storm-webdav/storm-webdav-server.jar
+mkdir -p %{buildroot}/%{_datadir}/%name/
+cp %{_builddir}/%name-%version/teapot.py %{buildroot}/%{_datadir}/%name/
+mkdir -p %{buildroot}/%{_sysconfdir}/%name
+cp %{_builddir}/%name-%version/templates/issuers %{buildroot}/%{_sysconfdir}/%name/
+cp %{_builddir}/%name-%version/templates/logback.xml %{buildroot}/%{_sysconfdir}/%name/
+cp %{_builddir}/%name-%version/templates/logback-access.xml %{buildroot}/%{_sysconfdir}/%name/
+mkdir -p %{buildroot}/%{_sysconfdir}/sudoers.d/
+cp %{_builddir}/%name-%version/templates/teapot %{buildroot}/%{_sysconfdir}/sudoers.d/
+mkdir -p %{buildroot}/%{_datadir}/%name
+cp %{_builddir}/%name-%version/templates/storage_authorizations %{buildroot}/%{_datadir}/%name
+cp %{_builddir}/%name-%version/templates/storage_element.properties %{buildroot}/%{_datadir}/%name
+mkdir -p %{buildroot}/%{_sharedstatedir}/%name/webdav
+cp %{_builddir}/%name-%version/templates/teapot_sessions.json %{buildroot}/%{_sharedstatedir}/%name/webdav/teapot_sessions.json
+mkdir -p %{buildroot}/%{_localstatedir}/log/%name/
+cp %{_builddir}/%name-%version/templates/teapot.log %{buildroot}/%{_localstatedir}/log/%name/
+cp %{_builddir}/%name-%version/templates/uvicorn.log %{buildroot}/%{_localstatedir}/log/%name/
+mkdir -p %{buildroot}/%{_sysconfdir}/storm/webdav/vo-mapfiles.d/
+mkdir -p %{buildroot}/%{_sysconfdir}/grid-security/vomsdir/
+mkdir -p %{buildroot}/%{_prefix}/lib/systemd/system/
+cp %{_builddir}/%name-%version/teapot.service %{buildroot}/%{_prefix}/lib/systemd/system/
+mkdir -p %{buildroot}/%{_exec_prefix}/local/lib64/python3.12/site-packages/
+cp %{builddir}/%{_exec_prefix}/local/lib64/python3.12/site-packages/* %{buildroot}/%{_exec_prefix}/local/lib64/python3.12/site-packages/*
+mkdir -p %{buildroot}/%{_exec_prefix}/local/lib/python3.12/site-packages/
+cp %{builddir}/%{_exec_prefix}/local/lib/python3.12/site-packages/* %{buildroot}/%{_exec_prefix}/local/lib/python3.12/site-packages/*
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %files
 %attr(644, root, root) %{_datadir}/java/storm-webdav/storm-webdav-server.jar
@@ -65,7 +74,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 %attr(775, root, root) %{_sysconfdir}/grid-security/vomsdir/
 %attr(774, root, root) %{_prefix}/lib/systemd/system/teapot.service
+%attr(755, root, root) %{_exec_prefix}/local/lib/python3.12/site-packages/*
+%attr(755, root, root) %{_exec_prefix}/local/lib/python3.12/site-packages/*
 
 %changelog
-* Thu Jul 11 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Wed Aug 28 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}
