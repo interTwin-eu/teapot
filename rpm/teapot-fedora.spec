@@ -21,6 +21,8 @@ A WebDAV solution supporting multitenancy based on StoRM-WebDAV
 %prep
 %setup
 %setup -T -D -a 1
+%setup -T -D -a 2
+%setup -T -D -a 3
 
 %build
 
