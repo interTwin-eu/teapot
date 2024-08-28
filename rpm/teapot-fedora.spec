@@ -16,6 +16,7 @@ Requires:       java-11-openjdk python(abi) >= 3.0 python3-fastapi python3-httpx
 A WebDAV solution supporting multitenancy based on StoRM-WebDAV
 
 %define __jar_repack %{nil}
+%global debug_package %{nil}
 
 %prep
 %setup
