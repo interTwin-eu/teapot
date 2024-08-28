@@ -76,7 +76,7 @@ rm -rf %{buildroot}
 %attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 %attr(775, root, root) %{_sysconfdir}/grid-security/vomsdir/
 %attr(774, root, root) %{_prefix}/lib/systemd/system/teapot.service
-%attr(755, root, root) %{_exec_prefix}/local/lib/python3.12/site-packages/*
+%attr(755, root, root) %{_exec_prefix}/local/lib64/python3.12/site-packages/*
 %attr(755, root, root) %{_exec_prefix}/local/lib/python3.12/site-packages/*
 
 %changelog
