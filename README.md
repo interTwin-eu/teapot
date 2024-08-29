@@ -14,13 +14,14 @@ will start another StoRM-WebDAV server for that user in the same way.
 
 ### Requirements
 
-Software requirements for installing Teapot can be found in
-[requirements.txt](https://github.com/interTwin-eu/teapot/blob/main/requirements.txt).
+The required Python packages for installing Teapot are listed in the
+[requirements.txt](https://github.com/interTwin-eu/teapot/blob/main/requirements.txt) file.
 
 ### Installation & Configuration
 
-To install Teapot, first build the rpm package from source by running
-`./rpm/teapot-rpm.sh`, then install it.
+Teapot can be installed via an RPM package. On the release page, we provide RPMs for Fedora 39,
+AlmaLinux 9.4, and Rocky Linux 9.3. If you need an RPM file for a different distribution,
+feel free to contact us, and we’ll gladly provide you with one for your specific Linux distribution.
 
 Please refer to
 [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md)
@@ -28,16 +29,15 @@ for information on how to configure Teapot.
 
 ### Starting
 
-To start Teapot, run `python3 /usr/share/teapot/teapot.py`.
+Teapot is automatically started with a unit file upon installation.
 
 ## Automated testing
 
-Functional tests can be found in `/robot`. To execute them, run e.g.
-`robot teapot-tests.robot`.
+Functional tests can be found in `/robot`. To execute them, run `robot teapot-tests.robot`.
 
 ## Version
 
-The current version of Teapot is 0.5.0.
+The current version of Teapot is 0.6.0.
 
 ## Authors
 

@@ -19,20 +19,18 @@ necessary information for configuration files and for more details on
 configuration files, please refer to
 [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md).
 
-`teapot.py` has to be run as the user `teapot` (create if necessary) with the
-python modules installed from `requirements.txt` and with the sudoers
-permissions from the file `templates/teapot`.
+`teapot.py` must be run as the `teapot` user, with the Python modules listed in
+`requirements.txt` and the sudoers permissions defined in the `templates/teapot` file.
 
 ## Log files
 
-Teapot log files for WebDAV traffic can be found in `teapot-proxy.log`. Log
-files for each user can be found in `/var/lib/teapot/user-$USER/log/`. Templates
-for user log files can be found in `/templates`.
+Upon installation, Teapot log files can be found in `/var/log/teapot/`. Log files for
+StoRM-WebDAV server for each user can be found in `/var/lib/teapot/user-$USER/log/`.
+Configuration files for user log files can be found in `/etc/teapot/`.
 
 ## List of ports
 
-Teapot listens on port 8081. It will proxy WebDAV servers to listen to any open
-port greater than 8081.
+Teapot listens on port 8081.
 
 ## List of cron jobs
 
