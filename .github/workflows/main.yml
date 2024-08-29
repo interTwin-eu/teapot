@@ -51,7 +51,7 @@ jobs:
       - name: Install build requisites
         run: |
           dnf -y update
-          dnf -y install rpmdevtools rpmlint rsync
+          dnf -y install rpmdevtools rpmlint rsync systemd-rpm-macros
       - name: Build rpm
         run: |
           export "version_rpm=${{ needs.build-fedora.outputs.version_rpm }}"
@@ -75,7 +75,7 @@ jobs:
       - name: Install build requisites
         run: |
           dnf -y update
-          dnf -y install rpmdevtools rpmlint rsync
+          dnf -y install rpmdevtools rpmlint rsync systemd-rpm-macros
       - name: Build rpm
         run: |
           export "version_rpm=${{ needs.build-fedora.outputs.version_rpm }}"

@@ -40,4 +40,4 @@ EXPOSE 8081
 
 WORKDIR /usr/share/teapot/
 
-USER teapot
+CMD su -c "python3 teapot.py" teapot
