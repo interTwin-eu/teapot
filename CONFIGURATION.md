@@ -40,8 +40,10 @@ To configure the OIDC provider information, make the following changes:
 4. Modify the OIDC provider list in `teapot.py` under
    `flaat.set_trusted_OP_list`.
 
-StoRM WebDAV servers require `SSL` certificates. To generate self-signed
-certificates, run `sudo self-signed-cert-gen.sh`.
+Both Teapot and StoRM WebDAV servers require `SSL` certificates. Teapot requires signed
+certificates to be added to `/var/lib/teapot/webdav`. To generate self-signed
+certificates for StoRM WebDAV and add them to the trust store, run
+`sudo self-signed-cert-gen.sh`.
 
 To run Teapot, OpenSSL certificates may need to be adjusted. To do
 this please do the following: In `OPENSSLDIR`, which can be found with
