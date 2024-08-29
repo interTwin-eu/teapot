@@ -10,7 +10,6 @@ Source0:        %name-%version.tar.gz
 Source1:        storm-webdav-server.tar.gz
 Source2:        https://syncandshare.desy.de/index.php/s/SYF66KoeW9mTQc8/download/python-lib64.tar.gz
 Source3:        https://syncandshare.desy.de/index.php/s/eHS5Q5CKmoWPPNo/download/python-lib.tar.gz
-BuildRequires:  systemd-rpm-macros
 Requires:       java-11-openjdk python(abi) >= 3.0 python3-fastapi python3-httpx python3-pydantic python3-requests python3-uvicorn python3-anyio python3-psutil
 
 %description    
@@ -94,7 +93,7 @@ fi
 %attr(775, teapot, teapot) %{_sharedstatedir}/%name/webdav
 %attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 %attr(775, root, root) %{_sysconfdir}/grid-security/vomsdir/
-%attr(774, root, root) %{_prefix}/lib/systemd/system/teapot.service
+%attr(774, root, root) %{_unitdir}/teapot.service
 %attr(755, root, root) %{_exec_prefix}/local/lib64/python3.12/site-packages/*
 %attr(755, root, root) %{_exec_prefix}/local/lib/python3.12/site-packages/*
 
