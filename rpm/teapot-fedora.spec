@@ -36,8 +36,9 @@ start another StoRM-WebDAV server for that user in the same way.
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_datadir}/java/storm-webdav
 cp %{_builddir}/%name-%version/storm-webdav-server.jar %{buildroot}/%{_datadir}/java/storm-webdav/storm-webdav-server.jar
-mkdir -p %{buildroot}/%{_datadir}/%name/
+mkdir -p %{buildroot}/%{_datadir}/%name
 cp %{_builddir}/%name-%version/teapot.py %{buildroot}/%{_datadir}/%name/
+cp %{_builddir}/%name-%version/self-signed-cert-gen.sh %{buildroot}/%{_datadir}/%name/
 mkdir -p %{buildroot}/%{_sysconfdir}/%name
 cp %{_builddir}/%name-%version/templates/issuers %{buildroot}/%{_sysconfdir}/%name/
 cp %{_builddir}/%name-%version/templates/logback.xml %{buildroot}/%{_sysconfdir}/%name/
@@ -80,6 +81,7 @@ fi
 %files
 %attr(644, root, root) %{_datadir}/java/storm-webdav/storm-webdav-server.jar
 %attr(774, teapot, teapot) %{_datadir}/%name/teapot.py
+%attr(774, root, root) %{_datadir}/%name/self-signed-cert-gen.sh
 %attr(644, root, root) %{_sysconfdir}/%name/issuers
 %attr(744, teapot, teapot) %{_sysconfdir}/%name/logback.xml
 %attr(744, teapot, teapot) %{_sysconfdir}/%name/logback-access.xml
