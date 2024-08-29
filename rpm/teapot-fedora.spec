@@ -10,6 +10,7 @@ Source0:        %name-%version.tar.gz
 Source1:        storm-webdav-server.tar.gz
 Source2:        https://syncandshare.desy.de/index.php/s/SYF66KoeW9mTQc8/download/python-lib64.tar.gz
 Source3:        https://syncandshare.desy.de/index.php/s/eHS5Q5CKmoWPPNo/download/python-lib.tar.gz
+BuildRequires:  systemd-rpm-macros
 Requires:       java-11-openjdk python(abi) >= 3.0 python3-fastapi python3-httpx python3-pydantic python3-requests python3-uvicorn python3-anyio python3-psutil
 
 %description    
@@ -53,8 +54,8 @@ cp %{_builddir}/%name-%version/templates/teapot.log %{buildroot}/%{_localstatedi
 cp %{_builddir}/%name-%version/templates/uvicorn.log %{buildroot}/%{_localstatedir}/log/%name/
 mkdir -p %{buildroot}/%{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 mkdir -p %{buildroot}/%{_sysconfdir}/grid-security/vomsdir/
-mkdir -p %{buildroot}/%{_prefix}/lib/systemd/system/
-cp %{_builddir}/%name-%version/teapot.service %{buildroot}/%{_prefix}/lib/systemd/system/
+mkdir -p %{buildroot}/%{_unitdir}
+cp %{_builddir}/%name-%version/teapot.service %{buildroot}/%{_unitdir}/
 mkdir -p %{buildroot}/%{_exec_prefix}/local/lib64/python3.12/site-packages/
 cp -r %{_builddir}/%name-%version//%{_exec_prefix}/local/lib64/python3.12/site-packages/* %{buildroot}/%{_exec_prefix}/local/lib64/python3.12/site-packages/
 mkdir -p %{buildroot}/%{_exec_prefix}/local/lib/python3.12/site-packages/
@@ -62,6 +63,19 @@ cp -r %{_builddir}/%name-%version//%{_exec_prefix}/local/lib/python3.12/site-pac
 
 %clean
 rm -rf %{buildroot}
+
+%post
+if [ $1 -gt 1 ] ; then
+    %systemd_post teapot.service
+fi
+
+%preun
+%systemd_preun teapot.service
+
+%postun
+if [ $1 -eq 0 ] ; then
+    %systemd_postun_with_restart teapot.service
+fi
 
 %files
 %attr(644, root, root) %{_datadir}/java/storm-webdav/storm-webdav-server.jar
@@ -85,5 +99,5 @@ rm -rf %{buildroot}
 %attr(755, root, root) %{_exec_prefix}/local/lib/python3.12/site-packages/*
 
 %changelog
-* Wed Aug 28 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Thu Aug 29 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}
