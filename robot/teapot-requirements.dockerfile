@@ -19,5 +19,3 @@ ADD  --chmod=744 https://letsencrypt.org/certs/lets-encrypt-r3.pem .
 ADD  --chmod=744 http://crl.usertrust.com/USERTrustRSACertificationAuthority.crl .
 ADD  --chmod=744 http://crt.usertrust.com/USERTrustRSAAddTrustCA.crt .
 RUN update-ca-trust 
-
-USER nobody
