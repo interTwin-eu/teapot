@@ -4,7 +4,7 @@
 rpmdev-setuptree
 
 #adding a spec file
-cp rpm/teapot-$OS.spec "$HOME"/rpmbuild/SPECS/
+cp rpm/teapot-fedora.spec "$HOME"/rpmbuild/SPECS/
 
 #getting the teapot scripts
 mkdir teapot-"$version_rpm"
