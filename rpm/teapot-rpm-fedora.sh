@@ -29,4 +29,4 @@ curl -O https://syncandshare.desy.de/index.php/s/eHS5Q5CKmoWPPNo/download/python
 mv /tmp/python-lib*.tar.gz "$HOME"/rpmbuild/SOURCES/
 
 #building the RPM package
-rpmbuild -ba --define "version_ $version_rpm" ~/rpmbuild/SPECS/teapot-$OS.spec
+rpmbuild -ba --define "version_ $version_rpm" ~/rpmbuild/SPECS/teapot-fedora.spec
