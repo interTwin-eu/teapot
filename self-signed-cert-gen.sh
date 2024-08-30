@@ -3,12 +3,7 @@
 path=/var/lib/teapot/webdav
 mkdir -p "$path"
 
-openssl req -nodes -x509 -sha256 -newkey rsa:4096 \
-  -keyout "$path"/localhost.key \
-  -out "$path"/localhost.crt \
-  -days 356 \
-  -subj "/C=. /ST=. /L=. /O=. Corp/OU=. Dept/CN=localhost"  \
-  -addext "subjectAltName = DNS:localhost,DNS:localhost"
+openssl req -newkey rsa:2048 -keyout "$path"/lolcahost.key -x509 -days 365 -out "$path"/localhost.crt -subj "/C=. /ST=. /L=. /O=. Corp/OU=. Dept/CN=localhost"
 
 chmod ugo+r "$path"/localhost.key
 
