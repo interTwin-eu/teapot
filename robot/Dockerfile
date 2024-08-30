@@ -31,8 +31,9 @@ RUN \
     su -c "mkdir -p /home/test-user1/interTwin" test-user1 && \
     su -c "mkdir -p /home/test-user1/interTwin_extra" test-user1 && \
     su -c "mkdir -p /home/test-user2/interTwin" test-user2 && \
-    su -c "mkdir -p /home/test-user2/interTwin_extra" test-user2 \
-    /usr/share/teapot/self-signed-cert-gen.sh
+    su -c "mkdir -p /home/test-user2/interTwin_extra" test-user2
+
+RUN    /usr/share/teapot/self-signed-cert-gen.sh
 
 EXPOSE 8081
 
