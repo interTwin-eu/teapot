@@ -23,6 +23,8 @@ Teapot can be installed via an RPM package. On the release page, we provide RPMs
 AlmaLinux 9.4, and Rocky Linux 9.3. If you need an RPM file for a different distribution,
 feel free to contact us, and we’ll gladly provide you with one for your specific Linux distribution.
 
+To install teapot, first a user `teapot` must be created. To do that run `sudo adduser teapot`.
+
 Please refer to
 [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md)
 for information on how to configure Teapot.
