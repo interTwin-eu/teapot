@@ -27,7 +27,9 @@ COPY --chmod=744 testing-configurations/storage-areas .
 COPY --chmod=744 testing-configurations/user-mapping.csv .
 RUN \
     adduser test-user1 && \
-    adduser test-user2  && \
+    adduser test-user2 && \
+    usermod -a -G teapot test-user1 && \
+    usermod -a -G teapot test-user2 && \
     su -c "mkdir -p /home/test-user1/interTwin" test-user1 && \
     su -c "mkdir -p /home/test-user1/interTwin_extra" test-user1 && \
     su -c "mkdir -p /home/test-user2/interTwin" test-user2 && \
