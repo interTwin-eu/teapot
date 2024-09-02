@@ -11,7 +11,7 @@ Source1:        storm-webdav-server.tar.gz
 Source2:        https://syncandshare.desy.de/index.php/s/XN5T5aBZRByGXYj/download/python-lib64-alma.tar.gz
 Source3:        https://syncandshare.desy.de/index.php/s/roALWCXRZ5AATSP/download/python-lib-alma.tar.gz
 BuildRequires:  systemd-rpm-macros
-Requires:       java-11-openjdk openssl >= 1:3.0 python(abi) = 3.9 python3-psutil python3-requests
+Requires:       java-11-openjdk openssl >= 3.0 python(abi) = 3.9 python3-psutil python3-requests
 
 %description    
 Teapot provides a WebDAV that supports multi-tenancy. It is based on StoRM-WebDAV. We have added a manager level that
