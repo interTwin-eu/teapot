@@ -31,12 +31,12 @@ user should be on a single line, separated by a single space.
 
 To configure the OIDC provider information, make the following changes:
 
-1. Modify the OIDC provider in `issuers` by changing the `name` and `issuer`
+1. Modify the OIDC provider in `/etc/teapot/issuers` by changing the `name` and `issuer`
    information.
-2. Modify the OIDC provider in `storage_authorizations` by modifying the `iss`
+2. Modify the OIDC provider in `/usr/share/teapot/storage_authorizations` by modifying the `iss`
    information which stands for issuer.
 3. Modify the OIDC providers that have access to the storage area by modifying
-   the `org` information in `storage_element.properties`.
+   the `org` information in `/usr/share/teapot/storage_element.properties`.
 4. Modify the OIDC provider list in `teapot.py` under
    `flaat.set_trusted_OP_list`.
 
