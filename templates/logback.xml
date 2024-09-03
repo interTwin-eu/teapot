@@ -14,10 +14,10 @@
   
   <appender name="FILE"
     class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <File>/var/lib/teapot/user-${user.name}/log/server.log</File>
+    <File>/var/log/teapot/storm-webdav-server.log</File>
     <rollingPolicy
       class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <FileNamePattern>/var/lib/teapot/user-${user.name}/log/server.log-%d{yyyyMMdd}.gz</FileNamePattern>
+      <FileNamePattern>/var/log/teapot/storm-webdav-server.log-%d{yyyyMMdd}.gz</FileNamePattern>
     </rollingPolicy>
 
     <encoder>

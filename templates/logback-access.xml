@@ -3,10 +3,10 @@
 
   <appender name="FILE"
     class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <File>/var/lib/teapot/server-access.log</File>
+    <File>/var/log/teapot/storm-webdav-server-access.log</File>
     <rollingPolicy
       class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <FileNamePattern>/var/lib/teapot/server-access.%d{yyyyMMdd}.log.gz</FileNamePattern>
+      <FileNamePattern>/var/log/teapot/strom-webdav-server-access.%d{yyyyMMdd}.log.gz</FileNamePattern>
     </rollingPolicy>
 
     <!-- Check http://logback.qos.ch/manual/layouts.html#AccessPatternLayout to get the meaning of the fields -->
