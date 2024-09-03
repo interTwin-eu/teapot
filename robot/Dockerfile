@@ -41,4 +41,4 @@ EXPOSE 8081
 
 WORKDIR /usr/share/teapot/
 
-CMD su -c "python3 teapot.py" teapot
+CMD su -c "python3 teapot.py" teapot > /var/log/teapot/uvicorn.log
