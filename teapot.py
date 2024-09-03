@@ -329,13 +329,13 @@ async def _create_user_env(username, port):
     ] = "/usr/share/java/storm-webdav/storm-webdav-server.jar"
     os.environ[
         "STORM_WEBDAV_LOG"
-        ] = f"{log_dir}/storm-webdav-server-user-{username}.log"
+    ] = f"{log_dir}/storm-webdav-server-user-{username}.log"
     os.environ[
         "STORM_WEBDAV_OUT"
-        ] = f"{log_dir}/storm-webdav-server-user-{username}.out"
+    ] = f"{log_dir}/storm-webdav-server-user-{username}.out"
     os.environ[
         "STORM_WEBDAV_ERR"
-        ] = f"{log_dir}/storm-webdav-server-user-{username}.err"
+    ] = f"{log_dir}/storm-webdav-server-user-{username}.err"
     os.environ["STORM_WEBDAV_LOG_CONFIGURATION"] = f"{etc_dir}/logback.xml"
     os.environ[
         "STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"
