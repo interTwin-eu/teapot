@@ -8,8 +8,8 @@ License:        Apache 2.0
 URL:            https://github.com/interTwin-eu/%name
 Source0:        %name-%version.tar.gz
 Source1:        storm-webdav-server.tar.gz
-Source2:        https://syncandshare.desy.de/index.php/s/SYF66KoeW9mTQc8/download/python-lib64.tar.gz
-Source3:        https://syncandshare.desy.de/index.php/s/eHS5Q5CKmoWPPNo/download/python-lib.tar.gz
+Source2:        https://syncandshare.desy.de/index.php/s/oSjdrPwCd6KkfJm/download/python-lib64-fedora.tar.gz
+Source3:        https://syncandshare.desy.de/index.php/s/PqN432X83764Lm4/download/python-lib-fedora.tar.gz
 BuildRequires:  systemd-rpm-macros
 Requires:       java-11-openjdk openssl >= 1:3.0 python(abi) = 3.12 python3-fastapi python3-httpx python3-pydantic python3-uvicorn python3-anyio python3-psutil
 
@@ -101,5 +101,5 @@ fi
 %attr(755, root, root) %{_exec_prefix}/local/lib/python3.12/site-packages/*
 
 %changelog
-* Fri Aug 30 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Wed Sep 04 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}
