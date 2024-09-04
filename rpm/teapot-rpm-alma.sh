@@ -24,8 +24,8 @@ rm storm-webdav-server.jar
 mv storm-webdav-server.tar.gz "$HOME"/rpmbuild/SOURCES/
 
 cd /tmp
-curl -O https://syncandshare.desy.de/index.php/s/XN5T5aBZRByGXYj/download/python-lib64-alma.tar.gz .
-curl -O https://syncandshare.desy.de/index.php/s/roALWCXRZ5AATSP/download/python-lib-alma.tar.gz .
+curl -O https://syncandshare.desy.de/index.php/s/ZE6M6ZDYPoftnbG/download/python-lib64-alma1.tar.gz .
+curl -O https://syncandshare.desy.de/index.php/s/WdEpm9idqqYy8Sp/download/python-lib-alma1.tar.gz .
 mv /tmp/python-lib*.tar.gz "$HOME"/rpmbuild/SOURCES/
 
 #building the RPM package
