@@ -8,10 +8,10 @@ License:        Apache 2.0
 URL:            https://github.com/interTwin-eu/%name
 Source0:        %name-%version.tar.gz
 Source1:        storm-webdav-server.tar.gz
-Source2:        https://syncandshare.desy.de/index.php/s/YaAxAH4odzMyrHY/download/python-lib64-rocky.tar.gz
-Source3:        https://syncandshare.desy.de/index.php/s/ddfGKitf9SJ4Yb4/download/python-lib-rocky.tar.gz
+Source2:        https://syncandshare.desy.de/index.php/s/nsCALcFF3JAnW9j/download/python-lib64-rocky1.tar.gz
+Source3:        https://syncandshare.desy.de/index.php/s/y2y95e8BTxrqyZG/download/python-lib-rocky1.tar.gz
 BuildRequires:  systemd-rpm-macros
-Requires:       java-11-openjdk openssl >= 1:3.0 python(abi) = 3.9 python3-psutil python3-requests
+Requires:       java-11-openjdk openssl >= 1:3.0 python(abi) = 3.9 python3-psutil
 
 %description    
 Teapot provides a WebDAV that supports multi-tenancy. It is based on StoRM-WebDAV. We have added a manager level that
@@ -101,5 +101,5 @@ fi
 %attr(755, root, root) %{_exec_prefix}/local/lib/python3.9/site-packages/*
 
 %changelog
-* Fri Aug 30 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Fri Sep 04 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}
