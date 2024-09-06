@@ -8,7 +8,7 @@ the certificate should also be added to the system's trust store. To generate se
 certificates for StoRM WebDAV and add them to the trust store, run
 `sudo self-signed-cert-gen.sh`.
 
-In `teapot.py` line 945, uvicorn host name needs to be replaced with the machine DNS name,
+In `teapot.py` line 945, uvicorn hostname needs to be replaced with the machine DNS name,
 and paths to the certificate/key pair for that DNS name should be added here.
 
 ## Storm-webdav configuration

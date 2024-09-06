@@ -27,7 +27,8 @@ feel free to contact us and we’ll gladly provide you with one for your specifi
 
 To install teapot, first a user `teapot` must be created. To do that run `sudo adduser teapot`.
 
-Please refer to [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md) for information on how to configure Teapot.
+Please refer to [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md) for information on
+how to configure Teapot.
 
 ### Starting
 
