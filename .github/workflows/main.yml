@@ -32,7 +32,7 @@ jobs:
           rpm/teapot-rpm-fedora.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-${{ steps.rpm_build.outputs.version }}_rpm_fedora
+          name: teapot-${{ steps.rpm_build.outputs.version }}_rpm_fedora_39
           path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ steps.rpm_build.outputs.version_rpm }}*.x86_64.rpm
     outputs:
       version: ${{ steps.rpm_build.outputs.version }}
@@ -58,7 +58,7 @@ jobs:
           rpm/teapot-rpm-rocky.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_rockylinux
+          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_rockylinux_9.3
           path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ steps.rpm_build.outputs.version_rpm }}*.x86_64.rpm
 
   build-almalinux:
@@ -82,7 +82,7 @@ jobs:
           rpm/teapot-rpm-alma.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_almalinux
+          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_almalinux_9.4
           path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ steps.rpm_build.outputs.version_rpm }}*.x86_64.rpm
 
   containerization:
