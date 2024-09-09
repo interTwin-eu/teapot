@@ -4,7 +4,7 @@
 rpmdev-setuptree
 
 #adding a spec file
-cp rpm/teapot.spec "$HOME"/rpmbuild/SPECS/
+cp rpm/teapot-fedora.spec "$HOME"/rpmbuild/SPECS/
 
 #getting the teapot scripts
 mkdir teapot-"$version_rpm"
@@ -23,5 +23,10 @@ tar cf storm-webdav-server.tar.gz storm-webdav-server.jar
 rm storm-webdav-server.jar
 mv storm-webdav-server.tar.gz "$HOME"/rpmbuild/SOURCES/
 
+cd /tmp
+curl -O https://syncandshare.desy.de/index.php/s/oSjdrPwCd6KkfJm/download/python-lib64-fedora.tar.gz .
+curl -O https://syncandshare.desy.de/index.php/s/PqN432X83764Lm4/download/python-lib-fedora.tar.gz .
+mv /tmp/python-lib*.tar.gz "$HOME"/rpmbuild/SOURCES/
+
 #building the RPM package
-rpmbuild -ba --define "version_ $version_rpm" ~/rpmbuild/SPECS/teapot.spec
+rpmbuild -ba --define "version_ $version_rpm" ~/rpmbuild/SPECS/teapot-fedora.spec

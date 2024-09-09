@@ -14,30 +14,34 @@ will start another StoRM-WebDAV server for that user in the same way.
 
 ### Requirements
 
-Software requirements for installing Teapot can be found in
-[requirements.txt](https://github.com/interTwin-eu/teapot/blob/main/requirements.txt).
+Teapot needs `Python3` to run, the specific distribution depends on the operating system.
+The required Python packages for installing Teapot are listed in the [requirements.txt](https://github.com/interTwin-eu/teapot/blob/main/requirements.txt)
+file. Python packages that aren't provided in the rpm format are already included in Teapot's rpm file.
+To automatically generate self-signed certificate `openssl>3` is needed. Storm-webdav needs `java-11`.
 
 ### Installation & Configuration
 
-To install Teapot, first build the rpm package from source by running
-`./rpm/teapot-rpm.sh`, then install it.
+Teapot can be installed via an RPM package. On the release page, we provide RPMs for Fedora 39,
+AlmaLinux 9.4, and Rocky Linux 9.3. If you need an RPM file for another Linux distribution,
+feel free to contact us and we’ll gladly provide you with one for your specific Linux distribution.
 
-Please refer to
-[CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md)
-for information on how to configure Teapot.
+To install teapot, first a user `teapot` must be created. To do that run `sudo adduser teapot`.
+
+Please refer to [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md) for information on
+how to configure Teapot.
 
 ### Starting
 
-To start Teapot, run `python3 /usr/share/teapot/teapot.py`.
+Teapot is automatically started with a systemd unit file upon installation. After it has been properly
+configured you can restart the service with `sudo systemctl restart teapot.service`.
 
 ## Automated testing
 
-Functional tests can be found in `/robot`. To execute them, run e.g.
-`robot teapot-tests.robot`.
+Functional tests can be found in `/robot`. To execute them, run `robot teapot-tests.robot`.
 
 ## Version
 
-The current version of Teapot is 0.5.0.
+The current version of Teapot is 0..0.
 
 ## Authors
 

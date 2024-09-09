@@ -12,30 +12,28 @@ start another StoRM-WebDAV server for that user in the same way.
 
 ## List of configuration files
 
-All templates for configuration files are located in `/templates`. All
-configuration files for each user are automatically generated in
+All templates for configuration files are located in `/templates`. Teapot
+configuration file can be found in `/etc/teapot/`. All configuration files for
+StoRM-WebdDAV for each user are automatically generated in
 `/var/lib/teapot/user-$USER/` when user sends its first request. To provide the
 necessary information for configuration files and for more details on
-configuration files, please refer to
-[CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md).
+configuration files, please refer to [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md).
 
-`teapot.py` has to be run as the user `teapot` (create if necessary) with the
-python modules installed from `requirements.txt` and with the sudoers
-permissions from the file `templates/teapot`.
+`teapot.py` must be run as the `teapot` user, with the Python modules listed in
+`requirements.txt` and the sudoers permissions defined in the `templates/teapot` file.
+Teapot is started by systemd using the `teapot.service` file.
 
 ## Log files
 
-Teapot log files for WebDAV traffic can be found in `teapot-proxy.log`. Log
-files for each user can be found in `/var/lib/teapot/user-$USER/log/`. Templates
-for user log files can be found in `/templates`.
+Upon installation, Teapot log files can be found in `/var/log/teapot/`. Configuration
+files for StoRM-WebDAV user log files can be found in `/etc/teapot/`.
 
 ## List of ports
 
-Teapot listens on port 8081. It will proxy WebDAV servers to listen to any open
-port greater than 8081.
+Teapot listens on port 8081.
 
 ## List of cron jobs
 
-If you plan to run the `self-signed-cert-gen.sh` script to generate the `SSL`
-certificates, the script will trigger a cron job to automatically renew the
-certificate once a year.
+If you run the `self-signed-cert-gen.sh` script to generate the self-signed
+certificates for StoRM-WebDAV, the script will trigger a cron job to automatically
+renew the certificate once a year.

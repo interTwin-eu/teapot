@@ -17,7 +17,7 @@ jobs:
       - name: Install build requisites
         run: |
           dnf -y update
-          dnf -y install rpmdevtools rpmlint rsync git
+          dnf -y install rpmdevtools systemd-rpm-macros rpmlint rsync git
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -28,12 +28,12 @@ jobs:
           echo "version=$(git describe --tags --dirty)"  >> "$GITHUB_OUTPUT"
           export "version_rpm=$(git describe --tags --abbrev=0)"
           echo "version_rpm=$(git describe --tags --abbrev=0)"  >> "$GITHUB_OUTPUT"
-          chmod 777 rpm/teapot-rpm.sh
-          rpm/teapot-rpm.sh
+          chmod 777 rpm/teapot-rpm-fedora.sh
+          rpm/teapot-rpm-fedora.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-${{ steps.rpm_build.outputs.version }}_rpm_fedora
-          path: /github/home/rpmbuild/RPMS/noarch/teapot-*.noarch.rpm
+          name: teapot-${{ steps.rpm_build.outputs.version }}_rpm_fedora_39
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ steps.rpm_build.outputs.version_rpm }}*.x86_64.rpm
     outputs:
       version: ${{ steps.rpm_build.outputs.version }}
       version_rpm: ${{ steps.rpm_build.outputs.version_rpm }}
@@ -50,16 +50,16 @@ jobs:
       - name: Install build requisites
         run: |
           dnf -y update
-          dnf -y install rpmdevtools rpmlint rsync
+          dnf -y install rpmdevtools rpmlint rsync systemd-rpm-macros
       - name: Build rpm
         run: |
           export "version_rpm=${{ needs.build-fedora.outputs.version_rpm }}"
-          chmod 777 rpm/teapot-rpm.sh
-          rpm/teapot-rpm.sh
+          chmod 777 rpm/teapot-rpm-rocky.sh
+          rpm/teapot-rpm-rocky.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_rockylinux
-          path: /github/home/rpmbuild/RPMS/noarch/teapot-*.noarch.rpm
+          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_rockylinux_9.3
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ steps.rpm_build.outputs.version_rpm }}*.x86_64.rpm
 
   build-almalinux:
     name: build-almalinux
@@ -73,17 +73,17 @@ jobs:
       - name: Install build requisites
         run: |
           dnf -y update
-          dnf -y install rpmdevtools rpmlint rsync
+          dnf -y install rpmdevtools rpmlint rsync systemd-rpm-macros
       - name: Build rpm
         run: |
           export "version_rpm=${{ needs.build-fedora.outputs.version_rpm }}"
           echo "version_rpm is $version_rpm"
-          chmod 777 rpm/teapot-rpm.sh
-          rpm/teapot-rpm.sh
+          chmod 777 rpm/teapot-rpm-alma.sh
+          rpm/teapot-rpm-alma.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_almalinux
-          path: /github/home/rpmbuild/RPMS/noarch/teapot-*.noarch.rpm
+          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_almalinux_9.4
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ steps.rpm_build.outputs.version_rpm }}*.x86_64.rpm
 
   containerization:
     name: containerization
@@ -95,7 +95,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
-          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_fedora
+          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_fedora_39
           path: /home/runner/work/teapot/teapot/robot
       - name: Building Teapot docker image
         env:

@@ -307,6 +307,7 @@ async def _create_user_env(username, port):
     etc_dir = f"/etc/{APP_NAME}"
     user_dir = f"/var/lib/{APP_NAME}/user-{username}"
     storm_dir = f"/var/lib/{APP_NAME}/webdav"
+    log_dir = f"/var/log/{APP_NAME}"
     # make sure that .storm_profile is imported in the users shell init
     # by e.g. adding ". ~/.storm_profile" to the user's .bash_profile
     os.environ[
@@ -326,9 +327,15 @@ async def _create_user_env(username, port):
     os.environ[
         "STORM_WEBDAV_JAR"
     ] = "/usr/share/java/storm-webdav/storm-webdav-server.jar"
-    os.environ["STORM_WEBDAV_LOG"] = f"{user_dir}/log/server.log"
-    os.environ["STORM_WEBDAV_OUT"] = f"{user_dir}/log/server.out"
-    os.environ["STORM_WEBDAV_ERR"] = f"{user_dir}/log/server.err"
+    os.environ[
+        "STORM_WEBDAV_LOG"
+    ] = f"{log_dir}/storm-webdav-server-user-{username}.log"
+    os.environ[
+        "STORM_WEBDAV_OUT"
+    ] = f"{log_dir}/storm-webdav-server-user-{username}.out"
+    os.environ[
+        "STORM_WEBDAV_ERR"
+    ] = f"{log_dir}/storm-webdav-server-user-{username}.err"
     os.environ["STORM_WEBDAV_LOG_CONFIGURATION"] = f"{etc_dir}/logback.xml"
     os.environ[
         "STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"
