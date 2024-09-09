@@ -75,6 +75,9 @@ user1 subclaim1
 user2 subclaim2
 ```
 
+All users must be added to the `teapot` group. This can be done by running
+`usermod -a -G teapot $USERNAME`.
+
 ## System certificates
 
 To run Teapot, OpenSSL certificates may need to be adjusted. To do this please
