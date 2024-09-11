@@ -14,6 +14,7 @@ from os.path import exists
 from pathlib import Path
 from pwd import getpwnam
 from stat import S_IRGRP, S_IRWXO, S_IRWXU, S_IXGRP
+import configparser
 
 import anyio
 import httpx
@@ -26,6 +27,9 @@ from flaat.fastapi import Flaat
 from flaat.requirements import HasSubIss
 from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
+
+config = configparser.ConfigParser()
+config.read('config.ini')
 
 
 # lifespan function for startup and shutdown functions
@@ -82,22 +86,13 @@ security = HTTPBearer()
 
 flaat.set_access_levels([AccessLevel("user", HasSubIss())])
 
-flaat.set_trusted_OP_list(
-    [
-        "https://keycloak:8443/realms/test-realm",
-        "https://aai-demo.egi.eu/auth/realms/egi",
-    ]
-)
+flaat.set_trusted_OP_list(list(config['Teapot']['trusted_OP']))
 
 # logging is important
-LOGFILE = os.environ.get("TEAPOT_LOGFILE", "/var/log/teapot/teapot.log")
+LOGFILE = os.environ.get("TEAPOT_LOGFILE", config['Teapot']['log_location'])
 LOGLEVEL = os.environ.get("TEAPOT_LOGLEVEL", "INFO").upper()
 logging.basicConfig(filename=LOGFILE, level=logging.getLevelName(LOGLEVEL))
 logger = logging.getLogger(__name__)
-
-# globals
-# TO DO: load globals via config file on startup and reload on every run of
-# stop_expired_instances, maybe rename function to "housekeeping" or the like.
 
 SESSION_STORE_PATH = os.environ.get(
     "TEAPOT_SESSIONS", "/var/lib/teapot/webdav/teapot_sessions.json"
@@ -138,7 +133,7 @@ app.state.state_lock = anyio.Lock()
 
 context = ssl.create_default_context()
 context.load_verify_locations(
-    cafile="/etc/pki/ca-trust/source/anchors/Teapot-testing.crt"
+    cafile=config['Teapot']['Teapot_CA']
 )
 client = httpx.AsyncClient(verify=context)
 
@@ -304,48 +299,32 @@ async def _create_user_dirs(username):
 
 
 async def _create_user_env(username, port):
-    etc_dir = f"/etc/{APP_NAME}"
-    user_dir = f"/var/lib/{APP_NAME}/user-{username}"
-    storm_dir = f"/var/lib/{APP_NAME}/webdav"
-    log_dir = f"/var/log/{APP_NAME}"
     # make sure that .storm_profile is imported in the users shell init
     # by e.g. adding ". ~/.storm_profile" to the user's .bash_profile
-    os.environ[
-        "STORM_WEBDAV_JVM_OPTS"
-    ] = "-Xms2048m -Xmx2048m -Djava.security.egd=file:/dev/./urandom"
-    os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = "localhost"
-    os.environ["STORM_WEBDAV_HTTPS_PORT"] = f"{port}"
-    os.environ["STORM_WEBDAV_HTTP_PORT"] = f"{port+1}"
-    os.environ["STORM_WEBDAV_CERTIFICATE_PATH"] = f"{storm_dir}/localhost.crt"
-    os.environ["STORM_WEBDAV_PRIVATE_KEY_PATH"] = f"{storm_dir}/localhost.key"
-    os.environ["STORM_WEBDAV_TRUST_ANCHORS_DIR"] = "/etc/ssl/certs"
-    os.environ["STORM_WEBDAV_TRUST_ANCHORS_REFRESH_INTERVAL"] = "86400"
-    os.environ["STORM_WEBDAV_MAX_CONNECTIONS"] = "300"
-    os.environ["STORM_WEBDAV_MAX_QUEUE_SIZE"] = "900"
-    os.environ["STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME"] = "30000"
-    os.environ["STORM_WEBDAV_SA_CONFIG_DIR"] = f"{user_dir}/sa.d"
-    os.environ[
-        "STORM_WEBDAV_JAR"
-    ] = "/usr/share/java/storm-webdav/storm-webdav-server.jar"
-    os.environ[
-        "STORM_WEBDAV_LOG"
-    ] = f"{log_dir}/storm-webdav-server-user-{username}.log"
-    os.environ[
-        "STORM_WEBDAV_OUT"
-    ] = f"{log_dir}/storm-webdav-server-user-{username}.out"
-    os.environ[
-        "STORM_WEBDAV_ERR"
-    ] = f"{log_dir}/storm-webdav-server-user-{username}.err"
-    os.environ["STORM_WEBDAV_LOG_CONFIGURATION"] = f"{etc_dir}/logback.xml"
-    os.environ[
-        "STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"
-    ] = f"{etc_dir}/logback-access.xml"
-    os.environ["STORM_WEBDAV_VO_MAP_FILES_ENABLE"] = "false"
-    os.environ["STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL"] = "21600"
-    os.environ["STORM_WEBDAV_TPC_MAX_CONNECTIONS"] = "50"
-    os.environ["STORM_WEBDAV_TPC_VERIFY_CHECKSUM"] = "false"
-    os.environ["STORM_WEBDAV_REQUIRE_CLIENT_CERT"] = "false"
-    os.environ["STORM_WEBDAV_TPC_USE_CONSCRYPT"] = "true"
+    os.environ["STORM_WEBDAV_JVM_OPTS"] = config['Storm-webdav']['JVM_OPTS']
+    os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = config['Storm-webdav']['SERVER_ADDRESS']
+    os.environ["STORM_WEBDAV_HTTPS_PORT"] = config['Storm-webdav']['HTTPS_PORT']
+    os.environ["STORM_WEBDAV_HTTP_PORT"] = config['Storm-webdav']['HTTP_PORT']
+    os.environ["STORM_WEBDAV_CERTIFICATE_PATH"] = config['Storm-webdav']['CERTIFICATE_PATH']
+    os.environ["STORM_WEBDAV_PRIVATE_KEY_PATH"] = config['Storm-webdav']['PRIVATE_KEY_PATH']
+    os.environ["STORM_WEBDAV_TRUST_ANCHORS_DIR"] = config['Storm-webdav']['TRUST_ANCHORS_DIR']
+    os.environ["STORM_WEBDAV_TRUST_ANCHORS_REFRESH_INTERVAL"] = config['Storm-webdav']['TRUST_ANCHORS_REFRESH_INTERVAL']
+    os.environ["STORM_WEBDAV_MAX_CONNECTIONS"] = config['Storm-webdav']['MAX_CONNECTIONS']
+    os.environ["STORM_WEBDAV_MAX_QUEUE_SIZE"] = config['Storm-webdav']['MAX_QUEUE_SIZE']
+    os.environ["STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME"] = config['Storm-webdav']['CONNECTOR_MAX_IDLE_TIME']
+    os.environ["STORM_WEBDAV_SA_CONFIG_DIR"] = config['Storm-webdav']['SA_CONFIG_DIR']
+    os.environ["STORM_WEBDAV_JAR"] = config['Storm-webdav']['JAR']
+    os.environ["STORM_WEBDAV_LOG"] = config['Storm-webdav']['LOG']
+    os.environ["STORM_WEBDAV_OUT"] = config['Storm-webdav']['OUT']
+    os.environ["STORM_WEBDAV_ERR"] = config['Storm-webdav']['ERR']
+    os.environ["STORM_WEBDAV_LOG_CONFIGURATION"] = config['Storm-webdav']['LOG_CONFIGURATION']
+    os.environ["STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"] = config['Storm-webdav']['ACCESS_LOG_CONFIGURATION']
+    os.environ["STORM_WEBDAV_VO_MAP_FILES_ENABLE"] = config['Storm-webdav']['VO_MAP_FILES_ENABLE']
+    os.environ["STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL"] = config['Storm-webdav']['VO_MAP_FILES_REFRESH_INTERVAL']
+    os.environ["STORM_WEBDAV_TPC_MAX_CONNECTIONS"] = config['Storm-webdav']['TPC_MAX_CONNECTIONS']
+    os.environ["STORM_WEBDAV_TPC_VERIFY_CHECKSUM"] = config['Storm-webdav']['TPC_VERIFY_CHECKSUM']
+    os.environ["STORM_WEBDAV_REQUIRE_CLIENT_CERT"] = config['Storm-webdav']['REQUIRE_CLIENT_CERT']
+    os.environ["STORM_WEBDAV_TPC_USE_CONSCRYPT"] = config['Storm-webdav']['TPC_USE_CONSCRYPT']
 
     return True
 
@@ -628,7 +607,6 @@ async def _find_usable_port_no():
                     fitting port number."
             )
             port = None
-            # should not happen :grimacing:
         return port
 
 
@@ -824,9 +802,12 @@ async def _return_or_create_storm_instance(sub):
                 )
                 context1 = ssl.create_default_context()
                 context1.load_verify_locations(
-                    cafile="/etc/pki/ca-trust/source/anchors/localhost.crt"
+                    cafile=config['Storm-webdav']['Storm-webdav_CA']
                 )
-                resp = httpx.get(f"https://localhost:{port}/", verify=context1)
+                resp = httpx.get(
+                    f"https://{config['Storm-webdav']['SERVER_ADDRESS']}:{port}/",
+                    verify=context1
+                    )
                 if resp.status_code >= 200:
                     running = True
             except httpx.ConnectError:
@@ -939,10 +920,10 @@ def main():
     Returns:
         None
     """
-    key = "/var/lib/teapot/webdav/teapot.key"
-    cert = "/var/lib/teapot/webdav/teapot.crt"
+    cert = config['Teapot']['Teapot_ssl_certificate']
+    key = config['Teapot']['Teapot_ssl_key']
 
-    uvicorn.run(app, host="teapot", port=8081, ssl_keyfile=key, ssl_certfile=cert)
+    uvicorn.run(app, host=config['Teapot']['hostname'], port=config['Teapot']['port'], ssl_keyfile=key, ssl_certfile=cert)
 
 
 if __name__ == "__main__":
