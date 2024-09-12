@@ -831,7 +831,11 @@ async def _return_or_create_storm_instance(sub):
                     cafile=config["Storm-webdav"]["Storm-webdav_CA"]
                 )
                 resp = httpx.get(
-                    "https://"+{config["Storm-webdav"]["SERVER_ADDRESS"]}+":"+port+"/",
+                    "https://"
+                    + config["Storm-webdav"]["SERVER_ADDRESS"]
+                    + ":"
+                    + port
+                    + "/",
                     verify=context1
                 )
                 if resp.status_code >= 200:
@@ -949,7 +953,13 @@ def main():
     cert = config["Teapot"]["Teapot_ssl_certificate"]
     key = config["Teapot"]["Teapot_ssl_key"]
 
-    uvicorn.run(app, host=config["Teapot"]["hostname"], port=config["Teapot"]["port"], ssl_keyfile=key, ssl_certfile=cert)
+    uvicorn.run(
+        app,
+        host=config["Teapot"]["hostname"],
+        port=config.getint("Teapot", "port"),
+        ssl_keyfile=key,
+        ssl_certfile=cert
+    )
 
 
 if __name__ == "__main__":
