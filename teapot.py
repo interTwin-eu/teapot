@@ -305,7 +305,7 @@ async def _create_user_env(username, port):
     # make sure that .storm_profile is imported in the users shell init
     # by e.g. adding ". ~/.storm_profile" to the user's .bash_profile
     config_update = configparser.ConfigParser()
-    config_update.set("Storm-webdav", "username", str(username))
+    config_update.set('Storm-webdav', "username", str(username))
     config_update.set("Storm-webdav", "port", str(port))
     config_update.set("Storm-webdav", "port1", str(port + 1))
     with open("/etc/teapot/config.ini", "ab", encoding="utf-8") as configfile:
