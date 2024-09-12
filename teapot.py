@@ -86,7 +86,12 @@ security = HTTPBearer()
 
 flaat.set_access_levels([AccessLevel("user", HasSubIss())])
 
-flaat.set_trusted_OP_list(list(config["Teapot"]["trusted_OP"]))
+flaat.set_trusted_OP_list(
+    [
+        "https://keycloak:8443/realms/test-realm",
+        "https://aai-demo.egi.eu/auth/realms/egi",
+    ]
+)
 
 # logging is important
 LOGFILE = os.environ.get("TEAPOT_LOGFILE", config["Teapot"]["log_location"])
@@ -836,7 +841,7 @@ async def _return_or_create_storm_instance(sub):
                     + ":"
                     + port
                     + "/",
-                    verify=context1
+                    verify=context1,
                 )
                 if resp.status_code >= 200:
                     running = True
@@ -958,7 +963,7 @@ def main():
         host=config["Teapot"]["hostname"],
         port=config.getint("Teapot", "port"),
         ssl_keyfile=key,
-        ssl_certfile=cert
+        ssl_certfile=cert,
     )
 
 
