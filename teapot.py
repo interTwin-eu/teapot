@@ -831,7 +831,7 @@ async def _return_or_create_storm_instance(sub):
                     cafile=config["Storm-webdav"]["Storm-webdav_CA"]
                 )
                 resp = httpx.get(
-                    f"https://{config["Storm-webdav"]["SERVER_ADDRESS"]}:{port}/",
+                    "https://"+{config["Storm-webdav"]["SERVER_ADDRESS"]}+":"+port+"/",
                     verify=context1
                 )
                 if resp.status_code >= 200:
