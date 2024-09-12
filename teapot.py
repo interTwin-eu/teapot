@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import asyncio
+import configparser
 import csv
 import datetime
 import errno
@@ -14,7 +15,6 @@ from os.path import exists
 from pathlib import Path
 from pwd import getpwnam
 from stat import S_IRGRP, S_IRWXO, S_IRWXU, S_IXGRP
-import configparser
 
 import anyio
 import httpx
@@ -29,7 +29,7 @@ from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
 
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read("/etc/teapot/config.ini")
 
 
 # lifespan function for startup and shutdown functions
@@ -86,10 +86,10 @@ security = HTTPBearer()
 
 flaat.set_access_levels([AccessLevel("user", HasSubIss())])
 
-flaat.set_trusted_OP_list(list(config['Teapot']['trusted_OP']))
+flaat.set_trusted_OP_list(list(config["Teapot"]["trusted_OP"]))
 
 # logging is important
-LOGFILE = os.environ.get("TEAPOT_LOGFILE", config['Teapot']['log_location'])
+LOGFILE = os.environ.get("TEAPOT_LOGFILE", config["Teapot"]["log_location"])
 LOGLEVEL = os.environ.get("TEAPOT_LOGLEVEL", "INFO").upper()
 logging.basicConfig(filename=LOGFILE, level=logging.getLevelName(LOGLEVEL))
 logger = logging.getLogger(__name__)
@@ -119,7 +119,7 @@ STARTUP_TIMEOUT = int(os.environ.get("TEAPOT_STARTUP_TIMEOUT", 30))
 # standard mode for file creation, currently rwxr-x---
 # directories and files are created with the corresponding os.mkdir, os.chmod,
 # os.chown commands.
-# those are using the bit patterns provided with the 'stat' module as below,
+# those are using the bit patterns provided with the "stat" module as below,
 # combining them happens via bitwise OR
 # TO DO: find a way to not have to use rwx for others!
 STANDARD_MODE = S_IRWXU | S_IRGRP | S_IXGRP | S_IRWXO
@@ -132,9 +132,7 @@ app.state.session_state = {}
 app.state.state_lock = anyio.Lock()
 
 context = ssl.create_default_context()
-context.load_verify_locations(
-    cafile=config['Teapot']['Teapot_CA']
-)
+context.load_verify_locations(cafile=config["Teapot"]["Teapot_CA"])
 client = httpx.AsyncClient(verify=context)
 
 
@@ -301,30 +299,58 @@ async def _create_user_dirs(username):
 async def _create_user_env(username, port):
     # make sure that .storm_profile is imported in the users shell init
     # by e.g. adding ". ~/.storm_profile" to the user's .bash_profile
-    os.environ["STORM_WEBDAV_JVM_OPTS"] = config['Storm-webdav']['JVM_OPTS']
-    os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = config['Storm-webdav']['SERVER_ADDRESS']
-    os.environ["STORM_WEBDAV_HTTPS_PORT"] = config['Storm-webdav']['HTTPS_PORT']
-    os.environ["STORM_WEBDAV_HTTP_PORT"] = config['Storm-webdav']['HTTP_PORT']
-    os.environ["STORM_WEBDAV_CERTIFICATE_PATH"] = config['Storm-webdav']['CERTIFICATE_PATH']
-    os.environ["STORM_WEBDAV_PRIVATE_KEY_PATH"] = config['Storm-webdav']['PRIVATE_KEY_PATH']
-    os.environ["STORM_WEBDAV_TRUST_ANCHORS_DIR"] = config['Storm-webdav']['TRUST_ANCHORS_DIR']
-    os.environ["STORM_WEBDAV_TRUST_ANCHORS_REFRESH_INTERVAL"] = config['Storm-webdav']['TRUST_ANCHORS_REFRESH_INTERVAL']
-    os.environ["STORM_WEBDAV_MAX_CONNECTIONS"] = config['Storm-webdav']['MAX_CONNECTIONS']
-    os.environ["STORM_WEBDAV_MAX_QUEUE_SIZE"] = config['Storm-webdav']['MAX_QUEUE_SIZE']
-    os.environ["STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME"] = config['Storm-webdav']['CONNECTOR_MAX_IDLE_TIME']
-    os.environ["STORM_WEBDAV_SA_CONFIG_DIR"] = config['Storm-webdav']['SA_CONFIG_DIR']
-    os.environ["STORM_WEBDAV_JAR"] = config['Storm-webdav']['JAR']
-    os.environ["STORM_WEBDAV_LOG"] = config['Storm-webdav']['LOG']
-    os.environ["STORM_WEBDAV_OUT"] = config['Storm-webdav']['OUT']
-    os.environ["STORM_WEBDAV_ERR"] = config['Storm-webdav']['ERR']
-    os.environ["STORM_WEBDAV_LOG_CONFIGURATION"] = config['Storm-webdav']['LOG_CONFIGURATION']
-    os.environ["STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"] = config['Storm-webdav']['ACCESS_LOG_CONFIGURATION']
-    os.environ["STORM_WEBDAV_VO_MAP_FILES_ENABLE"] = config['Storm-webdav']['VO_MAP_FILES_ENABLE']
-    os.environ["STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL"] = config['Storm-webdav']['VO_MAP_FILES_REFRESH_INTERVAL']
-    os.environ["STORM_WEBDAV_TPC_MAX_CONNECTIONS"] = config['Storm-webdav']['TPC_MAX_CONNECTIONS']
-    os.environ["STORM_WEBDAV_TPC_VERIFY_CHECKSUM"] = config['Storm-webdav']['TPC_VERIFY_CHECKSUM']
-    os.environ["STORM_WEBDAV_REQUIRE_CLIENT_CERT"] = config['Storm-webdav']['REQUIRE_CLIENT_CERT']
-    os.environ["STORM_WEBDAV_TPC_USE_CONSCRYPT"] = config['Storm-webdav']['TPC_USE_CONSCRYPT']
+    os.environ["STORM_WEBDAV_JVM_OPTS"] = config["Storm-webdav"]["JVM_OPTS"]
+    os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = config["Storm-webdav"]["SERVER_ADDRESS"]
+    os.environ["STORM_WEBDAV_HTTPS_PORT"] = config["Storm-webdav"]["HTTPS_PORT"]
+    os.environ["STORM_WEBDAV_HTTP_PORT"] = config["Storm-webdav"]["HTTP_PORT"]
+    os.environ["STORM_WEBDAV_CERTIFICATE_PATH"] = config["Storm-webdav"][
+        "CERTIFICATE_PATH"
+    ]
+    os.environ["STORM_WEBDAV_PRIVATE_KEY_PATH"] = config["Storm-webdav"][
+        "PRIVATE_KEY_PATH"
+    ]
+    os.environ["STORM_WEBDAV_TRUST_ANCHORS_DIR"] = config["Storm-webdav"][
+        "TRUST_ANCHORS_DIR"
+    ]
+    os.environ["STORM_WEBDAV_TRUST_ANCHORS_REFRESH_INTERVAL"] = config["Storm-webdav"][
+        "TRUST_ANCHORS_REFRESH_INTERVAL"
+    ]
+    os.environ["STORM_WEBDAV_MAX_CONNECTIONS"] = config["Storm-webdav"][
+        "MAX_CONNECTIONS"
+    ]
+    os.environ["STORM_WEBDAV_MAX_QUEUE_SIZE"] = config["Storm-webdav"]["MAX_QUEUE_SIZE"]
+    os.environ["STORM_WEBDAV_CONNECTOR_MAX_IDLE_TIME"] = config["Storm-webdav"][
+        "CONNECTOR_MAX_IDLE_TIME"
+    ]
+    os.environ["STORM_WEBDAV_SA_CONFIG_DIR"] = config["Storm-webdav"]["SA_CONFIG_DIR"]
+    os.environ["STORM_WEBDAV_JAR"] = config["Storm-webdav"]["JAR"]
+    os.environ["STORM_WEBDAV_LOG"] = config["Storm-webdav"]["LOG"]
+    os.environ["STORM_WEBDAV_OUT"] = config["Storm-webdav"]["OUT"]
+    os.environ["STORM_WEBDAV_ERR"] = config["Storm-webdav"]["ERR"]
+    os.environ["STORM_WEBDAV_LOG_CONFIGURATION"] = config["Storm-webdav"][
+        "LOG_CONFIGURATION"
+    ]
+    os.environ["STORM_WEBDAV_ACCESS_LOG_CONFIGURATION"] = config["Storm-webdav"][
+        "ACCESS_LOG_CONFIGURATION"
+    ]
+    os.environ["STORM_WEBDAV_VO_MAP_FILES_ENABLE"] = config["Storm-webdav"][
+        "VO_MAP_FILES_ENABLE"
+    ]
+    os.environ["STORM_WEBDAV_VO_MAP_FILES_REFRESH_INTERVAL"] = config["Storm-webdav"][
+        "VO_MAP_FILES_REFRESH_INTERVAL"
+    ]
+    os.environ["STORM_WEBDAV_TPC_MAX_CONNECTIONS"] = config["Storm-webdav"][
+        "TPC_MAX_CONNECTIONS"
+    ]
+    os.environ["STORM_WEBDAV_TPC_VERIFY_CHECKSUM"] = config["Storm-webdav"][
+        "TPC_VERIFY_CHECKSUM"
+    ]
+    os.environ["STORM_WEBDAV_REQUIRE_CLIENT_CERT"] = config["Storm-webdav"][
+        "REQUIRE_CLIENT_CERT"
+    ]
+    os.environ["STORM_WEBDAV_TPC_USE_CONSCRYPT"] = config["Storm-webdav"][
+        "TPC_USE_CONSCRYPT"
+    ]
 
     return True
 
@@ -802,12 +828,12 @@ async def _return_or_create_storm_instance(sub):
                 )
                 context1 = ssl.create_default_context()
                 context1.load_verify_locations(
-                    cafile=config['Storm-webdav']['Storm-webdav_CA']
+                    cafile=config["Storm-webdav"]["Storm-webdav_CA"]
                 )
                 resp = httpx.get(
-                    f"https://{config['Storm-webdav']['SERVER_ADDRESS']}:{port}/",
+                    f"https://{config["Storm-webdav"]["SERVER_ADDRESS"]}:{port}/",
                     verify=context1
-                    )
+                )
                 if resp.status_code >= 200:
                     running = True
             except httpx.ConnectError:
@@ -920,10 +946,10 @@ def main():
     Returns:
         None
     """
-    cert = config['Teapot']['Teapot_ssl_certificate']
-    key = config['Teapot']['Teapot_ssl_key']
+    cert = config["Teapot"]["Teapot_ssl_certificate"]
+    key = config["Teapot"]["Teapot_ssl_key"]
 
-    uvicorn.run(app, host=config['Teapot']['hostname'], port=config['Teapot']['port'], ssl_keyfile=key, ssl_certfile=cert)
+    uvicorn.run(app, host=config["Teapot"]["hostname"], port=config["Teapot"]["port"], ssl_keyfile=key, ssl_certfile=cert)
 
 
 if __name__ == "__main__":
