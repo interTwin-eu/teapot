@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import asyncio
 import configparser
+from configparser import ExtendedInterpolation
 import csv
 import datetime
 import errno
@@ -28,7 +29,7 @@ from flaat.requirements import HasSubIss
 from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
 
-config = configparser.ConfigParser()
+config = configparser.ConfigParser(interpolation=ExtendedInterpolation())
 config.read("/etc/teapot/config.ini")
 
 
