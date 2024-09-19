@@ -16,7 +16,7 @@ will start another StoRM-WebDAV server for that user in the same way.
 
 Teapot needs `Python3` to run, the specific distribution depends on the operating system.
 The required Python packages for installing Teapot are listed in the [requirements.txt](https://github.com/interTwin-eu/teapot/blob/main/requirements.txt)
-file. Python packages that aren't provided in the rpm format are already included in Teapot's rpm file.
+file. Python packages that aren't available in the rpm format are already included in Teapot's rpm file.
 To automatically generate self-signed certificate `openssl>3` is needed. Storm-webdav needs `java-11`.
 
 ### Installation & Configuration
@@ -27,8 +27,7 @@ feel free to contact us and we’ll gladly provide you with one for your specifi
 
 To install teapot, first a user `teapot` must be created. To do that run `sudo adduser teapot`.
 
-Please refer to [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md) for information on
-how to configure Teapot.
+Please refer to [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md) for information on how to configure Teapot and Storm-Webdav.
 
 ### Starting
 
