@@ -87,12 +87,7 @@ security = HTTPBearer()
 
 flaat.set_access_levels([AccessLevel("user", HasSubIss())])
 
-flaat.set_trusted_OP_list(
-    [
-        "https://keycloak:8443/realms/test-realm",
-        "https://aai-demo.egi.eu/auth/realms/egi",
-    ]
-)
+flaat.set_trusted_OP_list(config["Teapot"]["trusted_OP"].split(', '))
 
 # logging is important
 LOGFILE = os.environ.get("TEAPOT_LOGFILE", config["Teapot"]["log_location"])
