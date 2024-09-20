@@ -11,7 +11,7 @@ Source1:        storm-webdav-server.tar.gz
 Source2:        https://syncandshare.desy.de/index.php/s/oSjdrPwCd6KkfJm/download/python-lib64-fedora.tar.gz
 Source3:        https://syncandshare.desy.de/index.php/s/PqN432X83764Lm4/download/python-lib-fedora.tar.gz
 BuildRequires:  systemd-rpm-macros
-Requires:       java-11-openjdk openssl >= 1:3.0 python(abi) = 3.12 python3-fastapi python3-httpx python3-pydantic python3-uvicorn python3-anyio python3-psutil
+Requires:       java-11-openjdk openssl >= 1:3.0 python(abi) = 3.12 python3-fastapi python3-httpx python3-pydantic python3-uvicorn python3-anyio python3-psutil python3-dotenv
 
 %description    
 Teapot provides a WebDAV that supports multi-tenancy. It is based on StoRM-WebDAV. We have added a manager level that
@@ -38,6 +38,7 @@ mkdir -p %{buildroot}/%{_datadir}/java/storm-webdav
 cp %{_builddir}/%name-%version/storm-webdav-server.jar %{buildroot}/%{_datadir}/java/storm-webdav/storm-webdav-server.jar
 mkdir -p %{buildroot}/%{_datadir}/%name
 cp %{_builddir}/%name-%version/teapot.py %{buildroot}/%{_datadir}/%name/
+cp %{_builddir}/%name-%version/teapot-vars.env %{buildroot}/%{_datadir}/%name/
 cp %{_builddir}/%name-%version/self-signed-cert-gen.sh %{buildroot}/%{_datadir}/%name/
 mkdir -p %{buildroot}/%{_sysconfdir}/%name
 cp %{_builddir}/%name-%version/templates/issuers %{buildroot}/%{_sysconfdir}/%name/
@@ -82,7 +83,8 @@ fi
 
 %files
 %attr(644, root, root) %{_datadir}/java/storm-webdav/storm-webdav-server.jar
-%attr(774, teapot, teapot) %{_datadir}/%name/teapot.py
+%attr(744, teapot, teapot) %{_datadir}/%name/teapot.py
+%attr(744, teapot, teapot) %{_datadir}/%name/teapot-vars.env
 %attr(774, root, root) %{_datadir}/%name/self-signed-cert-gen.sh
 %attr(644, root, root) %{_sysconfdir}/%name/issuers
 %attr(744, teapot, teapot) %{_sysconfdir}/%name/logback.xml
@@ -105,5 +107,5 @@ fi
 %attr(755, root, root) %{_exec_prefix}/local/lib/python3.12/site-packages/*
 
 %changelog
-* Wed Sep 04 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Fri Sep 20 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}
