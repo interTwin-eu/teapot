@@ -12,7 +12,6 @@ import ssl
 import subprocess
 from configparser import ExtendedInterpolation
 from contextlib import asynccontextmanager
-from dotenv import load_dotenv
 from os.path import exists
 from pathlib import Path
 from pwd import getpwnam
@@ -22,6 +21,7 @@ import anyio
 import httpx
 import psutil
 import uvicorn
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.security import HTTPBearer
 from flaat.config import AccessLevel
@@ -99,10 +99,22 @@ logger = logging.getLogger(__name__)
 SESSION_STORE_PATH = os.environ.get(
     "TEAPOT_SESSIONS", "/var/lib/teapot/webdav/teapot_sessions.json"
 )
+APP_NAME = os.getenv("APP_NAME")
+# one less than the first port that is going to be used by any storm webdav
+# instance, should be above 1024, as all ports below this are privileged and
+# normal users will not be able to use them to run services.
+STARTING_PORT = os.getenv("STARTING_PORT")
 # toggle restarting teapot without deleting saved state and without
 # terminating running webdav instances.
 # N.B. will only consider the value set at startup of this app.
 RESTART = os.environ.get("TEAPOT_RESTART", "False") == "True"
+# instance timeout, instances are deleted after this time without being
+# accessed.
+# default: 10 minutes
+INSTANCE_TIMEOUT_SEC = os.getenv("INSTANCE_TIMEOUT_SEC")
+# interval between instance timeout checks in stop_expired_instances
+# default: 3 minutes
+CHECK_INTERVAL_SEC = os.getenv("CHECK_INTERVAL_SEC")
 # number of times that teapot will try to connect to a recently started
 # instance
 STARTUP_TIMEOUT = int(os.environ.get("TEAPOT_STARTUP_TIMEOUT", 30))
