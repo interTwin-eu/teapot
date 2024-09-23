@@ -27,7 +27,6 @@ from fastapi.security import HTTPBearer
 from flaat.config import AccessLevel
 from flaat.fastapi import Flaat
 from flaat.requirements import HasSubIss
-from typing import Optional
 from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
 
@@ -106,7 +105,7 @@ APP_NAME = os.getenv("APP_NAME")
 # instance, should be above 1024, as all ports below this are privileged and
 # normal users will not be able to use them to run services.
 str_STARTING_PORT = os.getenv("STARTING_PORT")
-STARTING_POINT = int(str_STARTING_PORT) if str_STARTING_PORT is not None else None
+STARTING_PORT = int(str_STARTING_PORT) if str_STARTING_PORT is not None else None
 # toggle restarting teapot without deleting saved state and without
 # terminating running webdav instances.
 # N.B. will only consider the value set at startup of this app.
@@ -115,13 +114,16 @@ RESTART = os.environ.get("TEAPOT_RESTART", "False") == "True"
 # accessed.
 # default: 10 minutes
 str_INSTANCE_TIMEOUT_SEC = os.getenv("INSTANCE_TIMEOUT_SEC")
-INSTANCE_TIMEOUT_SEC = int(str_INSTANCE_TIMEOUT_SEC) if str_INSTANCE_TIMEOUT_SEC is not None else None
+INSTANCE_TIMEOUT_SEC = (
+    int(str_INSTANCE_TIMEOUT_SEC) if str_INSTANCE_TIMEOUT_SEC is not None else None
+)
 # interval between instance timeout checks in stop_expired_instances
 # default: 3 minutes
 str_CHECK_INTERVAL_SEC = os.getenv("CHECK_INTERVAL_SEC")
-CHECK_INTERVAL_SEC = int(str_CHECK_INTERVAL_SEC) if str_CHECK_INTERVAL_SEC is not None else None
-# number of times that teapot will try to connect to a recently started
-# instance
+CHECK_INTERVAL_SEC = (
+    int(str_CHECK_INTERVAL_SEC) if str_CHECK_INTERVAL_SEC is not None else None
+)
+
 STARTUP_TIMEOUT = os.environ.get("TEAPOT_STARTUP_TIMEOUT", 30)
 # standard mode for file creation, currently rwxr-x---
 # directories and files are created with the corresponding os.mkdir, os.chmod,
