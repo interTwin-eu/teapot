@@ -9,15 +9,15 @@ After=network.target
 #User under which the scripts are running
 User=teapot
 #Environment Variables
-Environment=APP_NAME="teapot"
+Environment=APP_NAME=teapot
 #One less than the first port that is going to be used by any storm webdav
-Environment=STARTING_PORT="32399"
+Environment=STARTING_PORT=32399
 # instance timeout, Storm-webdav instances are automatically deleted after a period of inactivity specified here
 # default: 10 minutes
-Environment=INSTANCE_TIMEOUT_SEC="600"
+Environment=INSTANCE_TIMEOUT_SEC=600
 # interval between instance timeout checks in stop_expired_instances
 # default: 3 minutes
-Environment=CHECK_INTERVAL_SEC="180"
+Environment=CHECK_INTERVAL_SEC=180
 
 #Default: Startup type
 Type=Exec

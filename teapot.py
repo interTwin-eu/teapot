@@ -27,6 +27,7 @@ from fastapi.security import HTTPBearer
 from flaat.config import AccessLevel
 from flaat.fastapi import Flaat
 from flaat.requirements import HasSubIss
+from typing import Optional
 from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
 
@@ -104,7 +105,8 @@ APP_NAME = os.getenv("APP_NAME")
 # one less than the first port that is going to be used by any storm webdav
 # instance, should be above 1024, as all ports below this are privileged and
 # normal users will not be able to use them to run services.
-STARTING_PORT = int(os.getenv("STARTING_PORT"))
+STARTING_PORT: Optional[int] = None
+STARTING_PORT = int(os.getenv("STARTING_PORT")) if os.getenv("STARTING_PORT") is not None else None
 # toggle restarting teapot without deleting saved state and without
 # terminating running webdav instances.
 # N.B. will only consider the value set at startup of this app.
@@ -112,10 +114,12 @@ RESTART = os.environ.get("TEAPOT_RESTART", "False") == "True"
 # instance timeout, instances are deleted after this time without being
 # accessed.
 # default: 10 minutes
-INSTANCE_TIMEOUT_SEC = int(os.getenv("INSTANCE_TIMEOUT_SEC"))
+INSTANCE_TIMEOUT_SEC: Optional[int] = None
+INSTANCE_TIMEOUT_SEC = int(os.getenv("INSTANCE_TIMEOUT_SEC")) if os.getenv("INSTANCE_TIMEOUT_SEC") is not None else None
 # interval between instance timeout checks in stop_expired_instances
 # default: 3 minutes
-CHECK_INTERVAL_SEC = int(os.getenv("CHECK_INTERVAL_SEC"))
+CHECK_INTERVAL_SEC: Optional[int] = None
+CHECK_INTERVAL_SEC = int(os.getenv("CHECK_INTERVAL_SEC")) if os.getenv("CHECK_INTERVAL_SEC") is not None else None
 # number of times that teapot will try to connect to a recently started
 # instance
 STARTUP_TIMEOUT = os.environ.get("TEAPOT_STARTUP_TIMEOUT", 30)
