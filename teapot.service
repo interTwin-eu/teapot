@@ -9,7 +9,7 @@ After=network.target
 #User under which the scripts are running
 User=teapot
 #Default: Startup type
-Type=Exec
+Type=Simple
 #ExecStart runs this executable script
 ExecStart=/usr/bin/python3 /usr/share/teapot/teapot.py
 
