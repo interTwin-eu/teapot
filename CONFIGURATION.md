@@ -1,20 +1,19 @@
 # Configuration
 
+All configuration information for both Teapot and StoRM WebDAV is contained in
+the `config.ini` file. Please update this file as needed to meet your requirements.
+
 ## Certificates
 
 Both Teapot and StoRM WebDAV servers require `SSL` certificates. Teapot requires
-a certificate/key pair for the machine's DNS name to be added to
+an appropriate server certificate/key pair for the machine to be added to
 `/var/lib/teapot/webdav`. The certificate should also be added to the system's
 trust store. To generate self-signed certificates for StoRM WebDAV and add them
 to the trust store, run `sudo /usr/share/teapot/self-signed-cert-gen.sh`.
 
-In `teapot.py` line 945, uvicorn hostname needs to be replaced with the machine
-DNS name, and paths to the certificate/key pair for that DNS name should be
-added here.
+## Additional Storm-webdav configuration
 
-## Storm-webdav configuration
-
-Two main pieces of information are required to configure StoRM-WebDAV:
+Two main pieces of additional information are required to configure StoRM-WebDAV:
 
 - Storage Areas (SA), which are folders assigned to each user
 - OIDC provider and identity mapping information
@@ -47,9 +46,9 @@ For information on how to configure storage-areas, please refer to the
 ### OIDC provider and identity mapping information
 
 OIDC provider information used to authenticate users must be provided. See below
-for information on where to change the OIDC provider information. For more
-details on authentication to the storage areas, refer to the
-[StoRM WebDAV Guidelines](https://github.com/italiangrid/storm-webdav/blob/master/doc/storage-area-configuration.md).
+for information on where to change the OIDC provider information, besides the
+changes already made in `config.ini` file. For more details on authentication to
+the storage areas, refer to the [StoRM WebDAV Guidelines](https://github.com/italiangrid/storm-webdav/blob/master/doc/storage-area-configuration.md).
 
 To configure the OIDC provider information, make the following changes:
 
@@ -59,8 +58,6 @@ To configure the OIDC provider information, make the following changes:
    modifying the `iss` information which stands for issuer.
 3. Modify the OIDC providers that have access to the storage area by modifying
    the `org` information in `/usr/share/teapot/storage_element.properties`.
-4. Modify the OIDC provider list in `teapot.py` under
-   `flaat.set_trusted_OP_list`.
 
 If no other way for mapping user's local and global identities is provided, the
 rudementary way is defined as explained next. The `user-mapping.csv` file is to

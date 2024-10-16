@@ -7,4 +7,6 @@ uvicorn
 anyio
 asyncio
 psutil
+configparser
+dotenv
 

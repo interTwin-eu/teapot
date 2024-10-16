@@ -43,6 +43,8 @@ mkdir -p %{buildroot}/%{_sysconfdir}/%name
 cp %{_builddir}/%name-%version/templates/issuers %{buildroot}/%{_sysconfdir}/%name/
 cp %{_builddir}/%name-%version/templates/logback.xml %{buildroot}/%{_sysconfdir}/%name/
 cp %{_builddir}/%name-%version/templates/logback-access.xml %{buildroot}/%{_sysconfdir}/%name/
+cp %{_builddir}/%name-%version/config.ini %{buildroot}/%{_sysconfdir}/%name/
+cp %{_builddir}/%name-%version/user_config.ini %{buildroot}/%{_sysconfdir}/%name/
 mkdir -p %{buildroot}/%{_sysconfdir}/sudoers.d/
 cp %{_builddir}/%name-%version/templates/teapot %{buildroot}/%{_sysconfdir}/sudoers.d/
 mkdir -p %{buildroot}/%{_datadir}/%name
@@ -85,6 +87,8 @@ fi
 %attr(644, root, root) %{_sysconfdir}/%name/issuers
 %attr(744, teapot, teapot) %{_sysconfdir}/%name/logback.xml
 %attr(744, teapot, teapot) %{_sysconfdir}/%name/logback-access.xml
+%attr(744, teapot, teapot) %{_sysconfdir}/%name/config.ini
+%attr(744, teapot, teapot) %{_sysconfdir}/%name/user_config.ini
 %attr(644, root, root) %{_datadir}/%name/storage_authorizations
 %attr(644, root, root) %{_datadir}/%name/storage_element.properties
 %attr(755, teapot, teapot) %{_localstatedir}/log/%name/
@@ -101,5 +105,5 @@ fi
 %attr(755, root, root) %{_exec_prefix}/local/lib/python3.9/site-packages/*
 
 %changelog
-* Fri Sep 04 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Thu Sep 19 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}

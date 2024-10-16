@@ -12,12 +12,15 @@ start another StoRM-WebDAV server for that user in the same way.
 
 ## List of configuration files
 
-All templates for configuration files are located in `/templates`. Teapot
-configuration file can be found in `/etc/teapot/`. All configuration files for
-StoRM-WebdDAV for each user are automatically generated in
-`/var/lib/teapot/user-$USER/` when user sends its first request. To provide the
-necessary information for configuration files and for more details on
-configuration files, please refer to [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md).
+The primary configuration for Teapot and Storm WebDAV can be found at
+`/etc/teapot/config.ini`. All templates for configuration files for individual users
+are located in `usr/share/teapot/templates`. All configuration files for
+StoRM-WebdDAV's individual users are automatically generated in their user directories
+as defined in `config.ini`, when a particular user sends its first request. To provide
+the necessary information for configuration files and for more details on configuration
+files, please refer to [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md).
+
+## Run setting
 
 `teapot.py` must be run as the `teapot` user, with the Python modules listed in
 `requirements.txt` and the sudoers permissions defined in the `templates/teapot` file.
