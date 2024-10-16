@@ -8,5 +8,4 @@ anyio
 asyncio
 psutil
 configparser
-dotenv
 
