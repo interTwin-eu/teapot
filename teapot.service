@@ -8,7 +8,6 @@ After=network.target
 [Service]
 #User under which the scripts are running
 User=teapot
-
 #Default: Startup type
 Type=Exec
 #ExecStart runs this executable script
