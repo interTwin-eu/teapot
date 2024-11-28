@@ -504,8 +504,9 @@ async def _stop_webdav_instance(username):
     if pid:
         logger.info("Stopping webdav instance with PID %d.", pid)
         try:
+            pid_storm = subprocess.Popen(f"grep PID /var/log/teapot/storm-webdav-server-user-{username}.out | cut -c 186- | grep -Eo "[0-9]+"")
             kill_proc = subprocess.Popen(
-                f"sudo -u {username} kill {pid}", shell=True  # trunk-ignore(bandit)
+                f"sudo -u {username} kill {pid_storm}", shell=True  # trunk-ignore(bandit)
             )  # GitHub Issue #30
             kill_exit_code = kill_proc.wait()
             if kill_exit_code != 0:
