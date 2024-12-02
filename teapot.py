@@ -65,7 +65,7 @@ async def lifespan(app: FastAPI):
         loop = asyncio.get_event_loop()
     except RuntimeError:
         loop = asyncio.new_event_loop()
-        loop.create_task(stop_expired_instances())
+    loop.create_task(stop_expired_instances())
 
     yield
 
@@ -462,7 +462,7 @@ async def _get_proc(cmd):
         if cmd == " ".join(proc.cmdline()):
             logger.info("PID found: %d", pid)
             return proc
-    raise RuntimeError("process with for full command ", +cmd + "does not exist.")
+    raise RuntimeError("process with full command ", +cmd + "does not exist.")
 
 
 async def _stop_webdav_instance(username):
@@ -505,7 +505,7 @@ async def _stop_webdav_instance(username):
         logger.info("Stopping webdav instance with PID %d.", pid)
         try:
             kill_proc = subprocess.Popen(
-                f"sudo kill {pid}", shell=True  # trunk-ignore(bandit)
+                f"sudo /usr/bin/kill {pid}", shell=True  # trunk-ignore(bandit)
             )  # GitHub Issue #30
             kill_exit_code = kill_proc.wait()
             if kill_exit_code != 0:
