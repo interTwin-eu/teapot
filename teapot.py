@@ -505,7 +505,7 @@ async def _stop_webdav_instance(username):
         logger.info("Stopping webdav instance with PID %d.", pid)
         try:
             kill_proc = subprocess.Popen(
-                f"sudo /usr/bin/kill {pid}", shell=True  # trunk-ignore(bandit)
+                f"sudo kill {pid}", shell=True  # trunk-ignore(bandit)
             )  # GitHub Issue #30
             kill_exit_code = kill_proc.wait()
             if kill_exit_code != 0:
