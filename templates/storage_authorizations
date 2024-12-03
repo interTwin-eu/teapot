@@ -2,7 +2,7 @@
       actions:
       - all
       effect: permit
-      description: Grant complete access to user $USER in the $storage_area area
+      description: Grant complete access to the user in the $storage_area area
       paths:
       - /**
       principals:
