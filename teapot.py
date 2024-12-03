@@ -223,14 +223,12 @@ async def _create_user_dirs(username):
 
     user_dir = f"{app_dir}/user-{username}"
 
-    user_log_dir = f"{user_dir}/log"
     user_tmp_dir = f"{user_dir}/tmp"  # trunk-ignore(bandit/B108)
     user_sa_d_dir = f"{user_dir}/sa.d"
     user_config_dir = f"{user_dir}/config"
 
     dirs_to_create = [
         user_dir,
-        user_log_dir,
         user_tmp_dir,
         user_sa_d_dir,
         user_config_dir,
