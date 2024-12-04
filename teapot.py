@@ -243,12 +243,7 @@ async def _create_user_dirs(username):
     with open(f"{config_dir}/storage-areas", "r", encoding="utf-8") as storage_areas:
         for line in storage_areas:
             storage_area, path = line.split(" ")
-            path_components = path.split("/")
-            # check for different paths in storage-areas that need to be
-            # corrected.
-            if path_components[0] == "$HOME":
-                path_components[0] = f"/home/{username}"
-            path = os.path.join(*path_components)
+            path = os.path.expandvars(path)
             sa_properties_path = f"{user_sa_d_dir}/{storage_area}.properties"
             if not exists(sa_properties_path):
                 with open(
