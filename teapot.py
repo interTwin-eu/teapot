@@ -7,7 +7,6 @@ import errno
 import json
 import logging
 import os
-import os.path
 import socket
 import ssl
 import subprocess
