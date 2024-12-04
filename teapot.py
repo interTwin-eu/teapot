@@ -245,7 +245,7 @@ async def _create_user_dirs(username):
     with open(f"{config_dir}/storage-areas", "r", encoding="utf-8") as storage_areas:
         for line in storage_areas:
             line = line.strip()
-            storage_area, path = line.split(" ")
+            storage_area, path = line.split(sep=" ", maxsplit=1)
             logger.error("Storage area: %s, path, %s", storage_area, path)
             path = os.path.expandvars(path)
             sa_properties_path = f"{user_sa_d_dir}/{storage_area}.properties"
