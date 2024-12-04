@@ -12,10 +12,11 @@ import ssl
 import subprocess
 from configparser import ExtendedInterpolation
 from contextlib import asynccontextmanager
+import os.path
 from os.path import exists
 from pathlib import Path
 from pwd import getpwnam
-from stat import S_IRGRP, S_IRWXO, S_IRWXU, S_IXGRP
+from stat import S_IROTH, S_IRWXG, S_IRWXU
 
 import anyio
 import httpx
@@ -122,7 +123,7 @@ STARTUP_TIMEOUT = os.environ.get("TEAPOT_STARTUP_TIMEOUT", 30)
 # those are using the bit patterns provided with the "stat" module as below,
 # combining them happens via bitwise OR
 # TO DO: find a way to not have to use rwx for others!
-STANDARD_MODE = S_IRWXU | S_IRGRP | S_IXGRP | S_IRWXO
+STANDARD_MODE = S_IRWXU | S_IRWXG | S_IROTH
 # session state is kept in this global dict for each username as primary key
 # data stored within each subdict is
 # pid, port, created_at, last_accessed
