@@ -244,10 +244,15 @@ async def _create_user_dirs(username):
         second_part = prop.readlines()
     with open(f"{config_dir}/storage-areas", "r", encoding="utf-8") as storage_areas:
         for line in storage_areas:
-            storage_area, path = line.split(" ")
-            logger.error("Storage area: %s, path, %s", storage_area, path)
-            path = os.path.expandvars(path)
-            print(path)
+            storage_area, path = line.split(maxsplit=1)
+            if len(parts) == 2:
+                storage_area, path = parts
+                logger.error("Storage area: %s, path, %s", storage_area, path)
+                path = os.path.expandvars(path)
+            else:
+                logger.warning("Line does not have exactly two parts: %s", line)
+            print("path is ", path)
+            print("storage area is ", storage_area)
             sa_properties_path = f"{user_sa_d_dir}/{storage_area}.properties"
             if not exists(sa_properties_path):
                 with open(
