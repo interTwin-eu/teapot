@@ -246,7 +246,7 @@ async def _create_user_dirs(username):
         for line in storage_areas:
             storage_area, path = line.split(" ")
             logger.error("Storage area: %s, path, %s", storage_area, path)
-            path = os.path.expandvars(path).strip()
+            path = os.path.expandvars(path)
             print(path)
             sa_properties_path = f"{user_sa_d_dir}/{storage_area}.properties"
             if not exists(sa_properties_path):
