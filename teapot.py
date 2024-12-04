@@ -248,6 +248,7 @@ async def _create_user_dirs(username):
             # corrected.
             if path_components[0] == "$HOME":
                 path_components[0] = f"/home/{username}"
+            path = os.path.join(*path_components)
             sa_properties_path = f"{user_sa_d_dir}/{storage_area}.properties"
             if not exists(sa_properties_path):
                 with open(
