@@ -115,7 +115,7 @@ INSTANCE_TIMEOUT_SEC = config.getint("Teapot", "INSTANCE_TIMEOUT_SEC")
 # default: 3 minutes
 CHECK_INTERVAL_SEC = config.getint("Teapot", "CHECK_INTERVAL_SEC")
 
-STARTUP_TIMEOUT = os.environ.get("TEAPOT_STARTUP_TIMEOUT", 30)
+STARTUP_TIMEOUT = os.environ.get("TEAPOT_STARTUP_TIMEOUT", 60)
 # standard mode for file creation, currently rwxr-x---
 # directories and files are created with the corresponding os.mkdir, os.chmod,
 # os.chown commands.
@@ -542,7 +542,7 @@ async def stop_expired_instances():
     """
     while True:
         await asyncio.sleep(CHECK_INTERVAL_SEC)
-        logger.info("checking for expired instances")
+        logger.debug("checking for expired instances")
         logger.debug(
             "stop_expired_instances: trying to acquire 'users' lock at %s",
             {datetime.datetime.now().isoformat()},
@@ -805,7 +805,7 @@ async def _return_or_create_storm_instance(sub):
         while not running:
             await anyio.sleep(1)
             if loops >= STARTUP_TIMEOUT:
-                logger.info(
+                logger.debug(
                     "instance for user %s not reachable after %d tries... \
                         stop trying.",
                     local_user,
