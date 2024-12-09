@@ -117,7 +117,7 @@ INSTANCE_TIMEOUT_SEC = config.getint("Teapot", "INSTANCE_TIMEOUT_SEC")
 # default: 3 minutes
 CHECK_INTERVAL_SEC = config.getint("Teapot", "CHECK_INTERVAL_SEC")
 
-STARTUP_TIMEOUT = os.environ.get("TEAPOT_STARTUP_TIMEOUT", 30)
+STARTUP_TIMEOUT = os.environ.get("TEAPOT_STARTUP_TIMEOUT", 60)
 # standard mode for file creation, currently rwxr-x---
 # directories and files are created with the corresponding os.mkdir, os.chmod,
 # os.chown commands.
@@ -244,9 +244,7 @@ async def _create_user_dirs(username):
         second_part = prop.readlines()
     with open(f"{config_dir}/storage-areas", "r", encoding="utf-8") as storage_areas:
         for line in storage_areas:
-            parts = line.split(sep=" ", maxsplit=1)
-            storage_area = parts[0]
-            path = parts[1]
+            storage_area, path = line.split(" ")
             logger.error("Storage area: %s, path, %s", storage_area, path)
             path = os.path.expandvars(path)
             sa_properties_path = f"{user_sa_d_dir}/{storage_area}.properties"
@@ -544,7 +542,7 @@ async def stop_expired_instances():
     """
     while True:
         await asyncio.sleep(CHECK_INTERVAL_SEC)
-        logger.info("checking for expired instances")
+        logger.debug("checking for expired instances")
         logger.debug(
             "stop_expired_instances: trying to acquire 'users' lock at %s",
             {datetime.datetime.now().isoformat()},
@@ -807,7 +805,7 @@ async def _return_or_create_storm_instance(sub):
         while not running:
             await anyio.sleep(1)
             if loops >= STARTUP_TIMEOUT:
-                logger.info(
+                logger.warning(
                     "instance for user %s not reachable after %d tries... \
                         stop trying.",
                     local_user,
