@@ -121,6 +121,9 @@ jobs:
         credentials:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.TOKEN }}
+        volumes:
+          - ./logs:/var/log/teapot'
+
     steps:
       - uses: actions/checkout@v4
         with:

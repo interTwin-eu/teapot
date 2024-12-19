@@ -90,9 +90,9 @@ flaat.set_access_levels([AccessLevel("user", HasSubIss())])
 flaat.set_trusted_OP_list(config["Teapot"]["trusted_OP"].split(", "))
 
 # logging is important
-LOGFILE = os.environ.get("TEAPOT_LOGFILE", config["Teapot"]["log_location"])
-LOGLEVEL = os.environ.get("TEAPOT_LOGLEVEL", "INFO").upper()
-logging.basicConfig(filename=LOGFILE, level=logging.getLevelName(LOGLEVEL))
+LOGFILE = config["Teapot"]["log_location"]
+LOGLEVEL = config["Teapot"]["log_level"]
+logging.basicConfig(format='%(asctime)s %(message)s', filename=LOGFILE, level=logging.getLevelName(LOGLEVEL))
 logger = logging.getLogger(__name__)
 
 SESSION_STORE_PATH = os.environ.get(
