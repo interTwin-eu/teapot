@@ -749,7 +749,9 @@ async def storm_webdav_state(state, condition, user):
     different states is triggered by an incomming request or by storm-webdav instance
     reaching the inactivity treshold.
     """
+
     should_start_sw = False
+    logger.info("Assesing the state of the storm webdav instance for user", user)
     async with condition:
         if user not in state:
             state[user] = "NOT_RUNNING"
