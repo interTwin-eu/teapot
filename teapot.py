@@ -10,7 +10,6 @@ import os
 import socket
 import ssl
 import subprocess
-import threading
 from configparser import ExtendedInterpolation
 from contextlib import asynccontextmanager
 from os.path import exists
@@ -73,7 +72,7 @@ async def lifespan(app: FastAPI):
     # everything after the yield should be executed after shutdown
     handles = app.state.session_state.keys()
     for k in list(handles):
-        await _stop_webdav_instance(k, sw_state, sw_state_lock)
+        await _stop_webdav_instance(k, sw_state, sw_condition)
     session_store_path = Path(SESSION_STORE_PATH)
     if session_store_path.exists():
         session_store_path.unlink()
@@ -139,7 +138,7 @@ app.state.state_lock = anyio.Lock()
 # state of the storm webdav servers
 sw_state: dict[str, str] = {}
 # lock for the state of the storm webdav servers
-sw_state_lock = threading.Lock()
+sw_condition = anyio.Condition()
 
 context = ssl.create_default_context()
 context.load_verify_locations(cafile=config["Teapot"]["Teapot_CA"])
@@ -471,11 +470,11 @@ async def _get_proc(cmd):
     raise RuntimeError("process with full command ", +cmd + "does not exist.")
 
 
-async def _stop_webdav_instance(username, state, state_lock):
+async def _stop_webdav_instance(username, state, sw_condition):
     logger.info("Stopping webdav instance for user %s.", username)
-    async with state_lock:
+    async with sw_condition:
         state[username] = "STOPPING"
-        state_lock.notify()
+        sw_condition.notify()
 
     logger.debug(
         "_stop_webdav_instance: trying to acquire lock at %s",
@@ -523,10 +522,10 @@ async def _stop_webdav_instance(username, state, state_lock):
             else:
                 logger.info("Successfully killed process with PID %d.", pid)
                 exit_code = 0
-                async with state_lock:
+                async with sw_condition:
                     if state[username] == "STOPPING":
                         state[username] = "NOT RUNNING"
-                        state_lock.notify()
+                        sw_condition.notify()
 
         except subprocess.CalledProcessError as e:
             logger.error(
@@ -742,7 +741,7 @@ async def _map_fed_to_local(sub):
     return None
 
 
-async def storm_webdav_state(state, state_lock, user):
+async def storm_webdav_state(state, sw_condition, user):
     """
     This function manages the state of the storm-webdav instance for a particular user.
     There are four possible states for a storm-webdav instance: STARTING, RUNNING,
@@ -751,17 +750,16 @@ async def storm_webdav_state(state, state_lock, user):
     reaching the inactivity treshold.
     """
     should_start_sw = False
-    async with state_lock:
+    async with sw_condition:
         if user not in state:
             state[user] = "NOT_RUNNING"
         while not (state[user] == "NOT RUNNING" or state[user] == "RUNNING"):
-            state_lock.wait()
+            await sw_condition.wait()
 
             if state[user] == "NOT_RUNNING":
                 state[user] = "STARTING"
-                state_lock.notify()
-                logger.info(
-                    "No instance running for user %s yet, starting now.", user)
+                sw_condition.notify()
+                logger.info("No instance running for user %s yet, starting now.", user)
                 should_start_sw = True
 
             if state[user] == "RUNNING":
@@ -776,10 +774,10 @@ async def storm_webdav_state(state, state_lock, user):
         pid = await _start_webdav_instance(user, port)
 
         if not pid:
-            async with state_lock:
+            async with sw_condition:
                 if state[user] == "STARTING":
                     state[user] = "NOT RUNNING"
-                    state_lock.notify()
+                    sw_condition.notify()
                 async with app.state.state_lock:
                     app.state.session_state[user] = {
                         "pid": None,
@@ -793,10 +791,10 @@ async def storm_webdav_state(state, state_lock, user):
             )
             return -1
 
-        async with state_lock:
+        async with sw_condition:
             if state[user] == "STARTING":
                 state[user] = "RUNNING"
-                state_lock.notify()
+                sw_condition.notify()
             async with app.state.state_lock:
                 app.state.session_state[user] = {
                     "pid": pid,
@@ -809,8 +807,7 @@ async def storm_webdav_state(state, state_lock, user):
     else:
         async with app.state.state_lock:
             port = app.state.session_state[user].get("port", None)
-        logger.info(
-            "StoRM-WebDAV instance for %s is running on port %d", user, port)
+        logger.info("StoRM-WebDAV instance for %s is running on port %d", user, port)
         return port
 
 
