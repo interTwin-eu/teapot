@@ -820,7 +820,7 @@ async def _return_or_create_storm_instance(sub):
         # local user is unknown, we cannot start or check anything.
         return None, None, None
 
-    port = await storm_webdav_state(sw_state, sw_state_lock, local_user)
+    port = await storm_webdav_state(sw_state, sw_condition, local_user)
 
     running = False
     loops = 0
