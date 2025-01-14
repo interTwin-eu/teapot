@@ -10,6 +10,7 @@ import os
 import socket
 import ssl
 import subprocess
+import threading
 from configparser import ExtendedInterpolation
 from contextlib import asynccontextmanager
 from os.path import exists
@@ -138,7 +139,7 @@ app.state.state_lock = anyio.Lock()
 # state of the storm webdav servers
 sw_state: dict[str, str] = {}
 # lock for the state of the storm webdav servers
-sw_state_lock = anyio.Lock()
+sw_state_lock = threading.Lock()
 
 context = ssl.create_default_context()
 context.load_verify_locations(cafile=config["Teapot"]["Teapot_CA"])
