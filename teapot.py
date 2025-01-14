@@ -580,7 +580,7 @@ async def stop_expired_instances():
                 if last_accessed is not None:
                     diff = now - datetime.datetime.fromisoformat(last_accessed)
                     if diff.seconds >= INSTANCE_TIMEOUT_SEC:
-                        res = await _stop_webdav_instance(user, sw_state, sw_state_lock)
+                        res = await _stop_webdav_instance(user, sw_state, sw_condition)
                         # TO DO: remove instance from session_state
                         if res != 0:
                             logger.error(
