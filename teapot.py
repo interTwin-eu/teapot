@@ -756,18 +756,21 @@ async def storm_webdav_state(state, condition, user):
 
     should_start_sw = False
     logger.info("Assesing the state of the storm webdav instance for user %s", user)
-    async with condition:
-        while not (state[user] == "NOT RUNNING" or state[user] == "RUNNING"):
-            if user not in state:
-                state[user] = "NOT_RUNNING"
-                logger.info(
-                    "Currently, there is no storm webdav instance running for user %s", user
-                )
 
+    async with condition:
+        if user not in state:
+            state[user] = "NOT_RUNNING"
+            logger.info(
+                "Currently, there is no storm webdav instance running for user %s",
+                user,
+            )
+
+        while True:
             if state[user] == "NOT_RUNNING":
                 state[user] = "STARTING"
                 condition.notify()
                 should_start_sw = True
+                break
 
             elif state[user] == "RUNNING":
                 async with app.state.state_lock:
@@ -775,6 +778,8 @@ async def storm_webdav_state(state, condition, user):
                         datetime.datetime.now()
                     )
                 should_start_sw = False
+                break
+
             else:
                 await condition.wait()
 
