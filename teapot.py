@@ -517,10 +517,14 @@ async def _stop_webdav_instance(username, state, condition):
             )  # GitHub Issue #30
             kill_exit_code = kill_proc.wait()
             if kill_exit_code != 0:
-                logger.info("could not kill process with PID %d.", pid)
+                logger.warning("could not kill process with PID %d.", pid)
                 exit_code = kill_exit_code
+                async with condition:
+                    if state[username] == "STOPPING":
+                        state[username] = "RUNNING"
+                        condition.notify()
             else:
-                logger.info("Successfully killed process with PID %d.", pid)
+                logger.debug("Successfully killed process with PID %d.", pid)
                 exit_code = 0
                 async with condition:
                     if state[username] == "STOPPING":
@@ -758,13 +762,12 @@ async def storm_webdav_state(state, condition, user):
             logger.info(
                 "Currently, there is no storm webdav instance running for user %s", user
             )
-        while True:
+        while not (state[user] == "NOT RUNNING" or state[user] == "RUNNING"):
             if state[user] == "NOT_RUNNING":
                 state[user] = "STARTING"
                 condition.notify()
                 logger.info("Storm webdav instance for user %s is starting now.", user)
                 should_start_sw = True
-                break
 
             elif state[user] == "RUNNING":
                 async with app.state.state_lock:
@@ -772,7 +775,6 @@ async def storm_webdav_state(state, condition, user):
                         datetime.datetime.now()
                     )
                 should_start_sw = False
-                break
             else:
                 await condition.wait()
 
@@ -793,7 +795,7 @@ async def storm_webdav_state(state, condition, user):
                         "last_accessed": str(datetime.datetime.now()),
                     }
             logger.error(
-                "something went wrong while starting instance for user %s.",
+                "Something went wrong while starting instance for user %s.",
                 user,
             )
             return -1
@@ -809,6 +811,7 @@ async def storm_webdav_state(state, condition, user):
                     "created_at": datetime.datetime.now(),
                     "last_accessed": str(datetime.datetime.now()),
                 }
+            logger.info("StoRM-WebDAV instance for user %s is now running on port %d", user, port)
         return port
 
     else:
