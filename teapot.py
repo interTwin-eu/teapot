@@ -765,12 +765,11 @@ async def storm_webdav_state(state, condition, user):
                 user,
             )
 
-        while True:
+        while not (state[user] == "STARTING" or state[user] == "RUNNING"):
             if state[user] == "NOT_RUNNING":
                 state[user] = "STARTING"
                 condition.notify()
                 should_start_sw = True
-                break
 
             elif state[user] == "RUNNING":
                 async with app.state.state_lock:
@@ -778,7 +777,6 @@ async def storm_webdav_state(state, condition, user):
                         datetime.datetime.now()
                     )
                 should_start_sw = False
-                break
 
             else:
                 await condition.wait()

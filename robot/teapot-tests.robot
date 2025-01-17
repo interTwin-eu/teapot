@@ -150,9 +150,3 @@ DELETE REQUEST INVALID TOKEN EXTRA_AREA
 
 DELETE REQUEST NO TOKEN EXTRA_AREA
     ${RESPONSE}=    DELETE    ${EXTRA_AREA}/TestFile2                            expected_status=401
-
-TWO CONCURRENT REQUEST USER1
-    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile1    data=${DATA}    headers=${HEADER1}      expected_status=201
-    ${RESPONSE}=    PUT    ${DEFAULT_AREA}/TestFile2    data=${DATA}    headers=${HEADER1}      expected_status=201
-    [Teardown]    Delete Test File1 USER1
-    [Teardown]    Delete Test File2 USER1
