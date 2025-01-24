@@ -471,7 +471,7 @@ async def _stop_webdav_instance(username, state, condition):
         if state[username] == "RUNNING":
             state[username] = "STOPPING"
             condition.notify()
-        logger.debug("Stopping storm-webdav server for user %s", user)
+        logger.debug("Stopping storm-webdav server for user %s", username)
         async with app.state.state_lock:
             try:
                 session = app.state.session_state.pop(username)
