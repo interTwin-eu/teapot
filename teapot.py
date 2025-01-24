@@ -393,7 +393,7 @@ async def _start_webdav_instance(username, port):
     # the process in it's own process group
     # such that it can be managed on its own.
 
-    logger.info("trying to start process for user %s", username)
+    logger.debug("trying to start process for user %s", username)
     loc = f"/var/lib/{APP_NAME}/user-{username}/config/application.yml"
     # trunk-ignore(bandit/B108)
     cmd = f"sudo --preserve-env={','.join(env_pass)} -u {username} \
@@ -403,15 +403,10 @@ async def _start_webdav_instance(username, port):
     --spring.config.additional-location=optional:file:{loc} \
      1>$STORM_WEBDAV_OUT 2>$STORM_WEBDAV_ERR &"
 
-    # try:
-    logger.info("cmd=%s", cmd)
+    logger.debug("cmd=%s", cmd)
     p = subprocess.Popen(
         cmd, shell=True, preexec_fn=os.setsid  # trunk-ignore(bandit/B602)
     )  # GitHub Issue #30
-    # except subprocess.CalledProcessError as e:
-    #     logger.error("Failed to start subprocess for user %s: %s", username,
-    #                  str(e))
-    #     return False
 
     # wait for it...
     await anyio.sleep(1)
@@ -476,6 +471,7 @@ async def _stop_webdav_instance(username, state, condition):
         if state[username] == "RUNNING":
             state[username] = "STOPPING"
             condition.notify()
+        logger.debug("Stopping storm-webdav server for user %s", user)
         async with app.state.state_lock:
             try:
                 session = app.state.session_state.pop(username)
@@ -505,6 +501,8 @@ async def _stop_webdav_instance(username, state, condition):
                     if state[username] == "STOPPING":
                         state[username] = "NOT RUNNING"
                         condition.notify()
+                    condition.release()
+
         except subprocess.CalledProcessError as e:
             logger.error(
                 "Exception occurred while trying to kill process \
@@ -537,20 +535,10 @@ async def stop_expired_instances():
     """
     while True:
         await asyncio.sleep(CHECK_INTERVAL_SEC)
-        logger.debug("checking for expired instances")
         async with app.state.state_lock:
-            logger.debug(
-                "stop_expired_instances: acquired 'users' lock at %s",
-                {datetime.datetime.now().isoformat()},
-            )
             users = list(app.state.session_state.keys())
         now = datetime.datetime.now()
         for user in users:
-            logger.debug(
-                "stop_expired_instances: trying to acquire 'user_dict' \
-                lock at %s",
-                {datetime.datetime.now().isoformat()},
-            )
             async with app.state.state_lock:
                 user_dict = app.state.session_state.get(user, None)
             if user_dict is not None:
@@ -744,6 +732,7 @@ async def storm_webdav_state(state, condition, user):
                 state[user] = "STARTING"
                 condition.notify()
                 should_start_sw = True
+                logger.debug("Storm-webdav instance for user %s is starting", user)
 
             elif state[user] == "RUNNING":
                 async with app.state.state_lock:
@@ -751,6 +740,9 @@ async def storm_webdav_state(state, condition, user):
                         datetime.datetime.now()
                     )
                 should_start_sw = False
+                logger.debug(
+                    "Storm webdav instance for user %s is already running", user
+                )
 
             else:
                 await condition.wait()
@@ -780,7 +772,6 @@ async def storm_webdav_state(state, condition, user):
         async with condition:
             if state[user] == "STARTING":
                 state[user] = "RUNNING"
-                condition.notify()
             async with app.state.state_lock:
                 app.state.session_state[user] = {
                     "pid": pid,
@@ -788,6 +779,7 @@ async def storm_webdav_state(state, condition, user):
                     "created_at": datetime.datetime.now(),
                     "last_accessed": str(datetime.datetime.now()),
                 }
+            condition.notify()
             logger.info(
                 "StoRM-WebDAV instance for user %s is now starting on port %d",
                 user,
@@ -801,7 +793,7 @@ async def storm_webdav_state(state, condition, user):
                 port = app.state.session_state[user].get("port", None)
             logger.info(
                 "StoRM-WebDAV instance for %s is running on port %d", user, port
-                )
+            )
         return port
 
 
