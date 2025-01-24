@@ -731,7 +731,7 @@ async def storm_webdav_state(state, condition, user):
 
     async with condition:
         if user not in state:
-            state[user] = "NOT_RUNNING"
+            state[user] = "NOT RUNNING"
             logger.info(
                 "Currently, there is no storm webdav instance running for user %s",
                 user,
@@ -742,7 +742,7 @@ async def storm_webdav_state(state, condition, user):
         )
 
         while not (state[user] == "STARTING" or state[user] == "RUNNING"):
-            if state[user] == "NOT_RUNNING":
+            if state[user] == "NOT RUNNING":
                 state[user] = "STARTING"
                 condition.notify()
                 should_start_sw = True
