@@ -473,42 +473,21 @@ async def _get_proc(cmd):
 async def _stop_webdav_instance(username, state, condition):
     logger.info("Stopping webdav instance for user %s.", username)
     async with condition:
-        state[username] = "STOPPING"
-        condition.notify()
-
-    logger.debug(
-        "_stop_webdav_instance: trying to acquire lock at %s",
-        {datetime.datetime.now().isoformat()},
-    )
-    async with app.state.state_lock:
-        logger.debug(
-            "_stop_webdav_instance: acquired lock at %s",
-            {datetime.datetime.now().isoformat()},
-        )
-        try:
-            session = app.state.session_state.pop(username)
-        except KeyError:
-            logger.error(
-                "_stop_webdav_instance: session state for user %s \
-                  doesn't exist.",
-                username,
-            )
-            return -1
-
-    # first naive workaround will be to just give sudo rights to teapot for
-    # /usr/bin/kill
-    # TO DO: find a safer way to accomplish this!
-    # originally wanted to kill the process via os.killpg but the storm
-    # process is running under the user's uid, so that is not possible
-    # os.killpg(os.getpgid(p.pid), signal.SIGTERM)
-    # now we run subprocess.Popen in the user context to let it terminate
-    # the process in that user's context.
-    # but as we don't want to let teapot be able to just kill any process
-    # (by sudoers mechanism), we need to find a way around this,
-    # maybe with a dedicated script that can only kill certain processes?
+        if state[username] == "RUNNING":
+            state[username] = "STOPPING"
+            condition.notify()
+        async with app.state.state_lock:
+            try:
+                session = app.state.session_state.pop(username)
+            except KeyError:
+                logger.error(
+                    "_stop_webdav_instance: session state for user %s \
+                    doesn't exist.",
+                    username,
+                )
+                return -1
 
     pid = session.get("pid")
-
     if pid:
         logger.info("Stopping webdav instance with PID %d.", pid)
         try:
@@ -519,10 +498,6 @@ async def _stop_webdav_instance(username, state, condition):
             if kill_exit_code != 0:
                 logger.warning("could not kill process with PID %d.", pid)
                 exit_code = kill_exit_code
-                async with condition:
-                    if state[username] == "STOPPING":
-                        state[username] = "RUNNING"
-                        condition.notify()
             else:
                 logger.debug("Successfully killed process with PID %d.", pid)
                 exit_code = 0
@@ -530,7 +505,6 @@ async def _stop_webdav_instance(username, state, condition):
                     if state[username] == "STOPPING":
                         state[username] = "NOT RUNNING"
                         condition.notify()
-
         except subprocess.CalledProcessError as e:
             logger.error(
                 "Exception occurred while trying to kill process \
@@ -822,9 +796,10 @@ async def storm_webdav_state(state, condition, user):
         return port
 
     else:
-        async with app.state.state_lock:
-            port = app.state.session_state[user].get("port", None)
-        logger.info("StoRM-WebDAV instance for %s is running on port %d", user, port)
+        async with condition:
+            async with app.state.state_lock:
+                port = app.state.session_state[user].get("port", None)
+            logger.info("StoRM-WebDAV instance for %s is running on port %d", user, port)
         return port
 
 
