@@ -472,6 +472,12 @@ async def _stop_webdav_instance(username, state, condition):
             state[username] = "STOPPING"
             condition.notify()
         logger.debug("Stopping storm-webdav server for user %s", username)
+        logger.debug(
+            "The state of the storm-webdav server for user %s is %s",
+            username,
+            state[username],
+        )
+
         async with app.state.state_lock:
             try:
                 session = app.state.session_state.pop(username)
@@ -501,7 +507,11 @@ async def _stop_webdav_instance(username, state, condition):
                     if state[username] == "STOPPING":
                         state[username] = "NOT RUNNING"
                         condition.notify()
-                    condition.release()
+            logger.debug(
+                "The state of the storm-webdav server for user %s is %s",
+                username,
+                state[username],
+            )
 
         except subprocess.CalledProcessError as e:
             logger.error(
@@ -727,13 +737,21 @@ async def storm_webdav_state(state, condition, user):
                 user,
             )
 
+        logger.debug(
+            "The state of the storm-webdav server for user %s is %s", user, state[user]
+        )
+
         while not (state[user] == "STARTING" or state[user] == "RUNNING"):
             if state[user] == "NOT_RUNNING":
                 state[user] = "STARTING"
                 condition.notify()
                 should_start_sw = True
                 logger.debug("Storm-webdav instance for user %s is starting", user)
-
+                logger.debug(
+                    "The state of the storm-webdav server for user %s is %s",
+                    user,
+                    state[user],
+                )
             elif state[user] == "RUNNING":
                 async with app.state.state_lock:
                     app.state.session_state[user]["last_accessed"] = str(
@@ -743,7 +761,11 @@ async def storm_webdav_state(state, condition, user):
                 logger.debug(
                     "Storm webdav instance for user %s is already running", user
                 )
-
+                logger.debug(
+                    "The state of the storm-webdav server for user %s is %s",
+                    user,
+                    state[user],
+                )
             else:
                 await condition.wait()
 
@@ -767,6 +789,11 @@ async def storm_webdav_state(state, condition, user):
                 "Something went wrong while starting instance for user %s.",
                 user,
             )
+            logger.debug(
+                "The state of the storm-webdav server for user %s is %s",
+                user,
+                state[user],
+            )
             return -1
 
         async with condition:
@@ -785,6 +812,12 @@ async def storm_webdav_state(state, condition, user):
                 user,
                 port,
             )
+            logger.debug(
+                "The state of the storm-webdav server for user %s is %s",
+                user,
+                state[user],
+            )
+
         return port
 
     else:
