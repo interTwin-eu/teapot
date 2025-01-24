@@ -799,7 +799,9 @@ async def storm_webdav_state(state, condition, user):
         async with condition:
             async with app.state.state_lock:
                 port = app.state.session_state[user].get("port", None)
-            logger.info("StoRM-WebDAV instance for %s is running on port %d", user, port)
+            logger.info(
+                "StoRM-WebDAV instance for %s is running on port %d", user, port
+            )
         return port
 
 
@@ -825,19 +827,11 @@ async def _return_or_create_storm_instance(sub):
                 local_user,
                 STARTUP_TIMEOUT,
             )
-            logger.debug(
-                "_return_or_create_storm_instance: trying to acquire \
-                'pop' lock at %s",
-                datetime.datetime.now().isoformat(),
-            )
-            async with app.state.state_lock:
-                logger.debug(
-                    "_return_or_create_storm_instance: acquired 'pop'\
-                     lock at %s",
-                    datetime.datetime.now().isoformat(),
-                )
-                app.state.session_state.pop(local_user)
-            return None, -1, local_user
+            async with condition:
+                if state[user] == "NOT_RUNNING":
+                    async with app.state.state_lock:
+                        app.state.session_state.pop(local_user)
+                    return None, -1, local_user
         try:
             logger.debug(
                 "checking if instance for user {local_user} is listening \
