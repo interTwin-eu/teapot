@@ -720,13 +720,12 @@ async def _map_fed_to_local(sub):
 
 async def storm_webdav_state(state, condition, sub):
     """
-    This function gets the mapping for the federated user from the sub-claim to the user's
-    local identity.
-    With this local identity, it manages the state of the storm-webdav instance for that user.
-    There are four possible states for a storm-webdav instance: STARTING, RUNNING, STOPPING,
-    NOT_RUNNING. The default state is NOT_RUNNING. Transition between different states is
-    triggered by an incomming request or by storm-webdav instance reaching the inactivity
-    treshold.
+    This function gets the mapping for the federated user from the sub-claim to the
+    user's local identity. With this local identity, it manages the state of the
+    storm-webdav instance for that user. There are four possible states for a
+    storm-webdav instance: STARTING, RUNNING, STOPPING, NOT_RUNNING. The default
+    state is NOT_RUNNING. Transition between different states is triggered by an
+    incomming request or by storm-webdav instance reaching the inactivity treshold.
 
     """
     user = await _map_fed_to_local(sub)
@@ -920,9 +919,7 @@ async def root(request: Request):
         raise HTTPException(status_code=403)
     # user is valid, so check if a storm instance is running for this sub
     redirect_host, redirect_port, local_user = await storm_webdav_state(
-        sw_state,
-        sw_condition,
-        sub
+        sw_state, sw_condition, sub
     )
 
     # REVISIT: should these errors be thrown from
