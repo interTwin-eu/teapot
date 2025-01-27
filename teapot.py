@@ -110,17 +110,15 @@ APP_NAME = config["Teapot"]["APP_NAME"]
 STARTING_PORT = config.getint("Teapot", "STARTING_PORT")
 # toggle restarting teapot without deleting saved state and without
 # terminating running webdav instances.
-# N.B. will only consider the value set at startup of this app.
-RESTART = os.environ.get("TEAPOT_RESTART", "False") == "True"
-# instance timeout, instances are deleted after this time without being
-# accessed.
+RESTART = config.getboolean("Teapot", "TEAPOT_RESTART")
+# instance timeout, instances are deleted after this time without being accessed.
 # default: 10 minutes
 INSTANCE_TIMEOUT_SEC = config.getint("Teapot", "INSTANCE_TIMEOUT_SEC")
 # interval between instance timeout checks in stop_expired_instances
 # default: 3 minutes
 CHECK_INTERVAL_SEC = config.getint("Teapot", "CHECK_INTERVAL_SEC")
-
-STARTUP_TIMEOUT = os.environ.get("TEAPOT_STARTUP_TIMEOUT", 60)
+# Max amount of attempts for Teapot to reach a particular Storm-webdav server
+STARTUP_TIMEOUT = config.getint("Teapot", "STORM_WEBDAV_STARTUP_TIMEOUT")
 # standard mode for file creation, currently rwxr-x---
 # directories and files are created with the corresponding os.mkdir, os.chmod,
 # os.chown commands.
@@ -717,16 +715,21 @@ async def _map_fed_to_local(sub):
                 logger.info("found local user %s", row[0])
                 return row[0]
     return None
+    # Here should be an error message for when it can't find a local user!!!!!!!
 
 
-async def storm_webdav_state(state, condition, user):
+async def storm_webdav_state(state, condition, sub):
     """
-    This function manages the state of the storm-webdav instance for a particular user.
-    There are four possible states for a storm-webdav instance: STARTING, RUNNING,
-    STOPPING, NOT_RUNNING. The default state is NOT_RUNNING. Transition between
-    different states is triggered by an incomming request or by storm-webdav instance
-    reaching the inactivity treshold.
+    This function gets the mapping for the federated user from the sub-claim to the user's
+    local identity.
+    With this local identity, it manages the state of the storm-webdav instance for that user.
+    There are four possible states for a storm-webdav instance: STARTING, RUNNING, STOPPING,
+    NOT_RUNNING. The default state is NOT_RUNNING. Transition between different states is
+    triggered by an incomming request or by storm-webdav instance reaching the inactivity
+    treshold.
+
     """
+    user = await _map_fed_to_local(sub)
 
     should_start_sw = False
     logger.info("Assesing the state of the storm webdav instance for user %s", user)
@@ -798,6 +801,50 @@ async def storm_webdav_state(state, condition, user):
             )
             return -1
 
+        running = False
+        loops = 0
+        while not running:
+            await anyio.sleep(1)
+            if loops >= STARTUP_TIMEOUT:
+                logger.debug(
+                    "instance for user %s not reachable after %d tries... stop trying.",
+                    user,
+                    STARTUP_TIMEOUT,
+                )
+                async with condition:
+                    if state[user] == "STARTING":
+                        state[user] = "NOT RUNNING"
+                    async with app.state.state_lock:
+                        app.state.session_state.pop(user)
+                    return None, -1, user
+            try:
+                logger.debug(
+                    "Healthcheck for storm-webdav instance for user %s on port %d.",
+                    user,
+                    port,
+                )
+                context1 = ssl.create_default_context()
+                context1.load_verify_locations(
+                    cafile=config["Storm-webdav"]["Storm-webdav_CA"]
+                )
+                resp = httpx.get(
+                    "https://"
+                    + config["Storm-webdav"]["SERVER_ADDRESS"]
+                    + ":"
+                    + str(port)
+                    + "/",
+                    verify=context1,
+                )
+                if resp.status_code >= 200:
+                    running = True
+            except httpx.ConnectError:
+                loops += 1
+                logger.debug(
+                    "Waiting for storm-webdav instance to start. Check %d/%d...",
+                    loops,
+                    STARTUP_TIMEOUT,
+                )
+
         async with condition:
             if state[user] == "STARTING":
                 state[user] = "RUNNING"
@@ -810,7 +857,7 @@ async def storm_webdav_state(state, condition, user):
                 }
             condition.notify()
             logger.info(
-                "StoRM-WebDAV instance for user %s is now starting on port %d",
+                "StoRM-WebDAV instance for user %s is now running on port %d",
                 user,
                 port,
             )
@@ -820,7 +867,7 @@ async def storm_webdav_state(state, condition, user):
                 state[user],
             )
 
-        return port
+        return None, port, user
 
     else:
         async with condition:
@@ -829,75 +876,7 @@ async def storm_webdav_state(state, condition, user):
             logger.info(
                 "StoRM-WebDAV instance for %s is running on port %d", user, port
             )
-        return port
-
-
-async def _return_or_create_storm_instance(sub):
-    # returns redirect_host and redirect port for sub.
-
-    # get the mapping for the federated user from the sub-claim
-    local_user = await _map_fed_to_local(sub)
-    if not local_user:
-        # local user is unknown, we cannot start or check anything.
-        return None, None, None
-
-    port = await storm_webdav_state(sw_state, sw_condition, local_user)
-
-    running = False
-    loops = 0
-    while not running:
-        await anyio.sleep(1)
-        if loops >= STARTUP_TIMEOUT:
-            logger.debug(
-                "instance for user {local_user} not reachable after "
-                + "%d tries... stop trying.",
-                local_user,
-                STARTUP_TIMEOUT,
-            )
-            logger.debug(
-                "_return_or_create_storm_instance: trying to acquire 'pop' lock at %s",
-                datetime.datetime.now().isoformat(),
-            )
-            async with app.state.state_lock:
-                logger.debug(
-                    "_return_or_create_storm_instance: acquired 'pop' lock at %s",
-                    datetime.datetime.now().isoformat(),
-                )
-                app.state.session_state.pop(local_user)
-            return None, -1, local_user
-        try:
-            logger.debug(
-                "checking if instance for user {local_user} is listening on port %d.",
-                port,
-            )
-            context1 = ssl.create_default_context()
-            context1.load_verify_locations(
-                cafile=config["Storm-webdav"]["Storm-webdav_CA"]
-            )
-            resp = httpx.get(
-                "https://"
-                + config["Storm-webdav"]["SERVER_ADDRESS"]
-                + ":"
-                + str(port)
-                + "/",
-                verify=context1,
-            )
-            if resp.status_code >= 200:
-                running = True
-        except httpx.ConnectError:
-            loops += 1
-            logger.debug(
-                "_return_or_create: trying to reach instance, try %d/%d...",
-                loops,
-                STARTUP_TIMEOUT,
-            )
-
-        logger.debug(
-            "Storm-WebDAV instance for %s started on port %d.",
-            local_user,
-            port,
-        )
-    return None, port, local_user
+        return None, port, user
 
 
 @app.api_route(
@@ -940,7 +919,9 @@ async def root(request: Request):
         # if there is no sub, user can not be authenticated
         raise HTTPException(status_code=403)
     # user is valid, so check if a storm instance is running for this sub
-    redirect_host, redirect_port, local_user = await _return_or_create_storm_instance(
+    redirect_host, redirect_port, local_user = await storm_webdav_state(
+        sw_state,
+        sw_condition,
         sub
     )
 
