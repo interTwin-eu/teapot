@@ -180,7 +180,9 @@ async def makedir_chown_chmod(dir, mode=STANDARD_MODE):
         try:
             os.chmod(dir, mode)
         except OSError:
-            logger.error("Could not chmod directory %s to %s.", dir, mode, exc_info=True)
+            logger.error(
+                "Could not chmod directory %s to %s.", dir, mode, exc_info=True
+            )
 
 
 async def _create_user_dirs(username):
@@ -853,22 +855,19 @@ async def _return_or_create_storm_instance(sub):
                 STARTUP_TIMEOUT,
             )
             logger.debug(
-                "_return_or_create_storm_instance: trying to acquire "
-                + "'pop' lock at %s",
+                "_return_or_create_storm_instance: trying to acquire 'pop' lock at %s",
                 datetime.datetime.now().isoformat(),
             )
             async with app.state.state_lock:
                 logger.debug(
-                    "_return_or_create_storm_instance: acquired 'pop' "
-                    + "lock at %s",
+                    "_return_or_create_storm_instance: acquired 'pop' lock at %s",
                     datetime.datetime.now().isoformat(),
                 )
                 app.state.session_state.pop(local_user)
             return None, -1, local_user
         try:
             logger.debug(
-                "checking if instance for user {local_user} is listening "
-                + "on port %d.",
+                "checking if instance for user {local_user} is listening on port %d.",
                 port,
             )
             context1 = ssl.create_default_context()
@@ -888,8 +887,7 @@ async def _return_or_create_storm_instance(sub):
         except httpx.ConnectError:
             loops += 1
             logger.debug(
-                "_return_or_create: trying to reach instance, try "
-                + "%d/%d...",
+                "_return_or_create: trying to reach instance, try %d/%d...",
                 loops,
                 STARTUP_TIMEOUT,
             )
