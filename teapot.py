@@ -688,6 +688,7 @@ async def storm_webdav_state(state, condition, sub):
     async with condition:
         if user not in state:
             state[user] = "NOT RUNNING"
+        if state[user] == "NOT RUNNING":
             logger.info(
                 "Currently, there is no storm webdav instance running for user %s",
                 user,
@@ -702,7 +703,7 @@ async def storm_webdav_state(state, condition, sub):
                 state[user] = "STARTING"
                 condition.notify()
                 should_start_sw = True
-                logger.debug("Storm-webdav instance for user %s is starting", user)
+                logger.info("Storm-webdav instance for user %s is starting", user)
                 logger.debug(
                     "The state of the storm-webdav server for user %s is %s",
                     user,
@@ -805,7 +806,7 @@ async def storm_webdav_state(state, condition, sub):
                 }
             condition.notify()
             logger.info(
-                "StoRM-WebDAV instance for user %s is now running on port %d",
+                "Storm-webdav instance for user %s is now running on port %d",
                 user,
                 port,
             )
@@ -822,7 +823,9 @@ async def storm_webdav_state(state, condition, sub):
             async with app.state.state_lock:
                 port = app.state.session_state[user].get("port")
             logger.info(
-                "StoRM-WebDAV instance for %s is running on port %d", user, port
+                "Storm-webdav instance for user %s is already running on port %d",
+                user,
+                port,
             )
         return None, port, user
 
