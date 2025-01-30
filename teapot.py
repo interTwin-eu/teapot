@@ -175,7 +175,7 @@ async def makedir_chown_chmod(dir, mode=STANDARD_MODE):
                 "Could not change access permissions of a directory %s to %s.",
                 dir,
                 mode,
-                exc_info=True
+                exc_info=True,
             )
 
 
@@ -536,7 +536,6 @@ async def stop_expired_instances():
                     diff = now - datetime.datetime.fromisoformat(last_accessed)
                     if diff.seconds >= INSTANCE_TIMEOUT_SEC:
                         res = await _stop_webdav_instance(user, sw_state, sw_condition)
-                        # TO DO: remove instance from session_state
                         if res != 0:
                             logger.error(
                                 "Instance for user %s exited with code %s.",
@@ -545,12 +544,12 @@ async def stop_expired_instances():
                             )
                         else:
                             logger.info(
-                                "Instance for user %s has been terminated after timeout",
+                                "Inactive instance for user %s has been terminated",
                                 user,
                             )
                 else:
                     logger.error(
-                        "Session for user %s does not have the property 'last_accessed'",
+                        "Session for user %s does not have the property last_accessed",
                         user,
                     )
             else:
