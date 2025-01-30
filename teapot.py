@@ -449,7 +449,6 @@ async def _get_proc(cmd):
 
 
 async def _stop_webdav_instance(username, state, condition):
-    logger.info("Stopping webdav instance for user %s.", username)
     async with condition:
         if state[username] == "RUNNING":
             state[username] = "STOPPING"
@@ -473,7 +472,6 @@ async def _stop_webdav_instance(username, state, condition):
 
     pid = session.get("pid")
     if pid:
-        logger.debug("Stopping webdav instance with PID %d", pid)
         try:
             kill_proc = subprocess.Popen(
                 f"sudo kill {pid}", shell=True  # trunk-ignore(bandit)
@@ -819,6 +817,45 @@ async def storm_webdav_state(state, condition, sub):
         return None, port, user
 
     else:
+        running = False
+        loops = 0
+        while not running:
+            await anyio.sleep(1)
+            if loops >= STARTUP_TIMEOUT:
+                logger.debug(
+                    "The webdav instance for user %s is not reachable after %d tries.",
+                    user,
+                    STARTUP_TIMEOUT,
+                )
+                async with condition:
+                    if state[user] == "STARTING" or state[user] == "RUNNING":
+                        state[user] = "NOT RUNNING"
+                    async with app.state.state_lock:
+                        app.state.session_state.pop(user)
+                    logger.debug("The unresponsive webdav instance is removed.")
+                    return None, -1, user
+            try:
+                context1 = ssl.create_default_context()
+                context1.load_verify_locations(
+                    cafile=config["Storm-webdav"]["Storm-webdav_CA"]
+                )
+                resp = httpx.get(
+                    "https://"
+                    + config["Storm-webdav"]["SERVER_ADDRESS"]
+                    + ":"
+                    + str(port)
+                    + "/",
+                    verify=context1,
+                )
+                if resp.status_code >= 200:
+                    running = True
+            except httpx.ConnectError:
+                loops += 1
+                logger.debug(
+                    "Waiting for the webdav instance to start. This is check %d/%d.",
+                    loops,
+                    STARTUP_TIMEOUT,
+                )
         async with condition:
             async with app.state.state_lock:
                 port = app.state.session_state[user].get("port", None)
