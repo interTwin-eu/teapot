@@ -57,10 +57,7 @@ async def lifespan(app: FastAPI):
     Note: This function is typically used as a lifespan event handler for the
     FastAPI application.
     """
-
-    # everything before the "yield" should be executed at startup.
     await load_session_state()
-    # function runs an async while True loop and checks for expired instances.
     try:
         loop = asyncio.get_event_loop()
     except RuntimeError:
@@ -161,25 +158,23 @@ async def makedir_chown_chmod(dir, mode=STANDARD_MODE):
 
     Returns:
     - None
-
-    Note: It's assumed that the `STANDARD_MODE` constant is defined elsewhere
-    in the code.
     """
+
     if not exists(dir):
         try:
             os.mkdir(dir)
         except FileExistsError:
-            # this info msg should never be triggered, right?
             logger.error(
-                "Directory %s already exists, therefore this message \
-                should not exist. Something is wrong...",
-                dir,
+                "Creation of a directory %s is not possible.",
+                dir, exc_info=True
             )
+            logger.error("This directory already exists.")
         try:
             os.chmod(dir, mode)
         except OSError:
             logger.error(
-                "Could not chmod directory %s to %s.", dir, mode, exc_info=True
+                "Could not change access permissions of a directory %s to %s.",
+                dir, mode, exc_info=True
             )
 
 
@@ -194,14 +189,13 @@ async def _create_user_dirs(username):
     # - /etc/APP_NAME/storage-areas
     # - /etc/APP_NAME/user-mapping.csv
 
-    logger.debug("creating user dirs...")
+    logger.debug("creating user configuration directories")
     config_dir = f"/etc/{APP_NAME}"
     if not exists(f"{config_dir}/storage-areas"):
         logger.error(
-            "%s/storage-areas is missing. It should consist of two \
-            variables per storage area: name of the storage area and root \
-            path to the storage area's directory separated by a single \
-            space.",
+            "%s/storage-areas is missing. It should consist of two variables "
+            + "per storage area: name of the storage area and root path to the "
+            + "storage area's directory separated by a single space.",
             config_dir,
         )
         return False
@@ -209,22 +203,16 @@ async def _create_user_dirs(username):
     mapping_file = f"{config_dir}/user-mapping.csv"
     if not exists(mapping_file):
         logger.error(
-            "%s does not exist. It should consist of two \
-            variables per user: username and subject claim separated \
-            by a single space.",
+            "%s does not exist. It should consist of two variables per user: "
+            + "username and subject claim separated by a single space.",
             mapping_file,
         )
         return False
 
     app_dir = f"/var/lib/{APP_NAME}"
     if not exists(app_dir):
-        logger.error("Parent %s directory does not exist.", APP_NAME)
+        logger.error("Parent %s configuration directory does not exist.", APP_NAME)
         return False
-
-    # creating user directories,
-    # resort to explicit usage of chown and chmod
-    # because the mask options might be ignored
-    # on certain operating systems as per docs.
 
     uid = getpwnam(username).pw_uid
     gid = getpwnam(username).pw_gid
@@ -302,8 +290,6 @@ async def _create_user_dirs(username):
 
 
 async def _create_user_env(username, port):
-    # make sure that .storm_profile is imported in the users shell init
-    # by e.g. adding ". ~/.storm_profile" to the user's .bash_profile
     config_update = configparser.ConfigParser()
     config_update.add_section("Current-user")
     config_update.set("Current-user", "username", str(username))
@@ -380,7 +366,7 @@ async def _start_webdav_instance(username, port):
         logger.error("could not create user dirs for %s", username)
         return False
 
-    logger.debug("creating user env...")
+    logger.debug("creating user env variables to pass to storm-webdav")
     res = await _create_user_env(username, port)
     if not res:
         logger.error("could not create user env for %s", username)
@@ -390,8 +376,7 @@ async def _start_webdav_instance(username, port):
 
     # starting subprocess with all necessary options now.
     # using os.setsid() as a function handle before execution should execute
-    # the process in it's own process group
-    # such that it can be managed on its own.
+    # the process in it's own process group such that it can be managed on its own.
 
     logger.debug("trying to start process for user %s", username)
     loc = f"/var/lib/{APP_NAME}/user-{username}/config/application.yml"
@@ -410,8 +395,7 @@ async def _start_webdav_instance(username, port):
 
     # wait for it...
     await anyio.sleep(1)
-    # poll the process to get rid of the zombiefied subprocess attached to
-    # teapot
+    # poll the process to get rid of the zombiefied subprocess attached to teapot
     p.poll()
 
     # get rid of additional whitespace, trailing "&" and output redirects from
@@ -430,16 +414,14 @@ async def _start_webdav_instance(username, port):
     # check process status and store the handle.
     if kill_proc.status() in [psutil.STATUS_RUNNING, psutil.STATUS_SLEEPING]:
         logger.debug(
-            "start_webdav_instance: instance for user %s is running \
-            under PID %d",
+            "Instance for user %s is running under PID %d",
             username,
             kill_proc.pid,
         )
         return kill_proc.pid
     else:
         logger.error(
-            "_start_webdav_instance: instance for user %s could not \
-            be started. pid was %d.",
+            "Instance for user %s under PID %d could not be started",
             username,
             kill_proc.pid,
         )
@@ -453,14 +435,14 @@ async def _get_proc(cmd):
     # match for the full command that was issued to start the instance in
     # question. then return the process handle. it should contain the process
     # that is running as root and forked the storm instance for the user
-    # themselves. looking through all processes seems a bit overkill but at
-    # the moment this is the only halfway surefire method I could find to
-    # accomplish this task. shamelessly stolen from
+    # themselves. looking through all processes seems a bit of an overkill but
+    # at the moment this is the only halfway surefire method to accomplish this
+    #  task. shamelessly stolen from
     # https://codereview.stackexchange.com/questions/183091/start-a-sub-process-with-sudo-as-head-of-new-process-group-kill-it-after-time
     for pid in psutil.pids():
         proc = psutil.Process(pid)
         if cmd == " ".join(proc.cmdline()):
-            logger.info("PID found: %d", pid)
+            logger.debug("PID for the started storm-webdav server found: %d", pid)
             return proc
     raise RuntimeError("process with full command ", +cmd + "does not exist.")
 
@@ -471,7 +453,7 @@ async def _stop_webdav_instance(username, state, condition):
         if state[username] == "RUNNING":
             state[username] = "STOPPING"
             condition.notify()
-        logger.debug("Stopping storm-webdav server for user %s", username)
+        logger.info("Stopping storm-webdav server for user %s", username)
         logger.debug(
             "The state of the storm-webdav server for user %s is %s",
             username,
@@ -483,22 +465,21 @@ async def _stop_webdav_instance(username, state, condition):
                 session = app.state.session_state.pop(username)
             except KeyError:
                 logger.error(
-                    "_stop_webdav_instance: session state for user %s \
-                    doesn't exist.",
+                    "Can't delete the session state for user %s, it doesn't exist",
                     username,
                 )
                 return -1
 
     pid = session.get("pid")
     if pid:
-        logger.info("Stopping webdav instance with PID %d.", pid)
+        logger.debug("Stopping webdav instance with PID %d", pid)
         try:
             kill_proc = subprocess.Popen(
                 f"sudo kill {pid}", shell=True  # trunk-ignore(bandit)
             )  # GitHub Issue #30
             kill_exit_code = kill_proc.wait()
             if kill_exit_code != 0:
-                logger.warning("could not kill process with PID %d.", pid)
+                logger.warning("Could not kill process with PID %d.", pid)
                 exit_code = kill_exit_code
             else:
                 logger.debug("Successfully killed process with PID %d.", pid)
@@ -515,14 +496,13 @@ async def _stop_webdav_instance(username, state, condition):
 
         except subprocess.CalledProcessError as e:
             logger.error(
-                "Exception occurred while trying to kill process \
-                          with PID %d: %s.",
+                "Exception occurred while trying to kill process with PID %d: %s.",
                 pid,
                 e,
             )
             exit_code = -1
     else:
-        logger.info("No PID found.")
+        logger.info("Webdav instance for user %s was terminated.", username)
         exit_code = -1
 
     return exit_code
@@ -531,8 +511,6 @@ async def _stop_webdav_instance(username, state, condition):
 async def stop_expired_instances():
     """
     Checks for expired instances still running.
-
-    TO DO: Incorporate config reload once implemented.
 
     While running, this function continuously checks for expired instances
     every `CHECK_INTERVAL_SEC` seconds. It acquires the lock for both
@@ -566,42 +544,30 @@ async def stop_expired_instances():
                             )
                         else:
                             logger.info(
-                                "Instance for user %s has been terminated \
-                                 after timeout.",
+                                "Instance for user %s has been terminated after timeout",
                                 user,
                             )
                 else:
                     logger.error(
-                        "_stop_expired_instances: Session for user %s \
-                         does not have the property 'last_accessed'.",
+                        "Session for user %s does not have the property 'last_accessed'",
                         user,
                     )
             else:
                 logger.error(
-                    "_stop_expired_instances: No session object for user \
-                     %s in session_state.",
+                    "No session object for user %s in session_state.",
                     user,
                 )
 
 
 async def _find_usable_port_no():
     used_ports = []
-    logger.debug(
-        "_find_usable_port_no: trying to acquire lock at %s",
-        datetime.datetime.now().isoformat(),
-    )
     async with app.state.state_lock:
-        logger.debug(
-            "_find_usable_port_no: acquired lock at %s",
-            datetime.datetime.now().isoformat(),
-        )
         users = app.state.session_state.keys()
         if users:
             for user in users:
                 tmp_port = app.state.session_state[user].get("port", None)
                 logger.debug(
-                    "find_usable_port_no: use %s has an instance running \
-                     on port %d.",
+                    "user %s has an instance running on port %d",
                     user,
                     tmp_port,
                 )
@@ -618,19 +584,20 @@ async def _find_usable_port_no():
             port = await _test_port(max_used)
         else:
             logger.error(
-                "Missing port number for running instances, can not determine \
-                    fitting port number."
+                "Missing port number for running instances. "
+                + "Can not determine fitting port number."
             )
             port = None
         return port
 
 
 async def _test_port(port):
-    # function to recursively find an open port recursively.
-    # TO DO: enhance by adding a list of reserved ports that will be skipped
+    """
+    This function is recursively searching for an open port.
+    """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        logger.debug("_test_port: binding to port %d for testing", port)
+        logger.debug("binding to port %d for testing", port)
         s.bind(("127.0.0.1", port))
     except socket.error as e:
         if e.errno == errno.EADDRINUSE:
@@ -652,10 +619,6 @@ async def save_session_state():
     file write operation. It opens the session store file located at
     `SESSION_STORE_PATH` in append mode and writes the current session state
     as a JSON object. The encoding used for writing is UTF-8.
-
-    Note:
-    Ensure that the application's state lock is acquired before calling this
-    function to prevent concurrent writes to the session store.
     """
     async with app.state.state_lock:
         with open(SESSION_STORE_PATH, "a", encoding="utf-8") as f:
@@ -672,15 +635,6 @@ async def load_session_state():
     JSON data from the file and assign it to `app.state.session_state`. If the
     file does not exist or encounters a decoding error, it initializes
     `app.state.session_state` as an empty dictionary.
-
-    Note:
-    Ensure that the application's state lock is acquired before calling this
-    function to prevent concurrent reads from the session store.
-
-    Raises:
-        Any error raised by `open()` when attempting to open the file for
-        reading, or when `json.load()` encounters an error while deserializing
-        the JSON data from the session store.
     """
     async with app.state.state_lock:
         if not exists(SESSION_STORE_PATH):
@@ -696,26 +650,27 @@ async def load_session_state():
 
 
 async def _map_fed_to_local(sub):
-    # this func returns the local username for a federated user or None
-    # for this prototype it could just be read from a mapping file on the
-    # local file system. in this naive implementation, it is expected that
-    # the mapping file has the format
-    #
-    #   federated-sub-claim,local-username
-    #
-    # without headers and only the first hit for a federated sub claim is
-    # returned. like this, it is possible to match different subs to a
-    # local username but not the other way around.
+    """
+    This function returns the local username for a federated user or None.
+    For this prototype, the local username is read from a mapping file on
+    the local file system. It is expected that the mapping file has the format:
+    local-username federated-sub-claim
+
+    The file should be without headers. Only the first hit for a federated sub
+    claim is returned. Thus, it is possible to match multiple subs to a single
+    local username but not the other way around.
+    """
 
     with open("/etc/teapot/user-mapping.csv", "r", encoding="utf-8") as mapping_file:
         mappingreader = csv.reader(mapping_file, delimiter=" ")
         for row in mappingreader:
-            logger.info("from mapping file: %s", row)
             if row[1] == sub:
-                logger.info("found local user %s", row[0])
+                if not row[0]:
+                    logger.error("local user identity is unknown")
+                    return None
+                logger.info("local user identity is %s", row[0])
                 return row[0]
     return None
-    # Here should be an error message for when it can't find a local user!!!!!!!
 
 
 async def storm_webdav_state(state, condition, sub):
@@ -726,7 +681,6 @@ async def storm_webdav_state(state, condition, sub):
     storm-webdav instance: STARTING, RUNNING, STOPPING, NOT_RUNNING. The default
     state is NOT_RUNNING. Transition between different states is triggered by an
     incomming request or by storm-webdav instance reaching the inactivity treshold.
-
     """
     user = await _map_fed_to_local(sub)
 
@@ -806,7 +760,7 @@ async def storm_webdav_state(state, condition, sub):
             await anyio.sleep(1)
             if loops >= STARTUP_TIMEOUT:
                 logger.debug(
-                    "instance for user %s not reachable after %d tries... stop trying.",
+                    "The webdav instance for user %s is not reachable after %d tries.",
                     user,
                     STARTUP_TIMEOUT,
                 )
@@ -815,13 +769,9 @@ async def storm_webdav_state(state, condition, sub):
                         state[user] = "NOT RUNNING"
                     async with app.state.state_lock:
                         app.state.session_state.pop(user)
+                    logger.debug("The unresponsive webdav instance is removed.")
                     return None, -1, user
             try:
-                logger.debug(
-                    "Healthcheck for storm-webdav instance for user %s on port %d.",
-                    user,
-                    port,
-                )
                 context1 = ssl.create_default_context()
                 context1.load_verify_locations(
                     cafile=config["Storm-webdav"]["Storm-webdav_CA"]
@@ -839,7 +789,7 @@ async def storm_webdav_state(state, condition, sub):
             except httpx.ConnectError:
                 loops += 1
                 logger.debug(
-                    "Waiting for storm-webdav instance to start. Check %d/%d...",
+                    "Waiting for the webdav instance to start. This is check %d/%d.",
                     loops,
                     STARTUP_TIMEOUT,
                 )
@@ -912,7 +862,7 @@ async def root(request: Request):
     if not user_infos:
         raise HTTPException(status_code=403)
 
-    logger.info("user_info is: %s", user_infos["sub"])
+    logger.info("user's sub is: %s", user_infos["sub"])
     sub = user_infos.get("sub", None)
     if not sub:
         # if there is no sub, user can not be authenticated
@@ -922,8 +872,6 @@ async def root(request: Request):
         sw_state, sw_condition, sub
     )
 
-    # REVISIT: should these errors be thrown from
-    # _return_or_create_storm_instance?
     if not redirect_host and not redirect_port:
         # no mapping between federated and local user identity found
         raise HTTPException(status_code=403)
@@ -937,15 +885,15 @@ async def root(request: Request):
         )
     if not redirect_host:
         redirect_host = "localhost"
-    logger.info(
+    logger.debug(
         "redirect_host: %s, redirect_port: %d",
         redirect_host,
         redirect_port,
     )
-    logger.info("request path: %s", request.url.path)
+    logger.debug("request path: %s", request.url.path)
 
     redirect_url = f"https://{redirect_host}:{redirect_port}{request.url.path}"
-    logger.info("redirect_url is formed as %s.", redirect_url)
+    logger.debug("redirect url is %s.", redirect_url)
 
     forward_req = client.build_request(
         request.method,
