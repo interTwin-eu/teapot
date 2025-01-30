@@ -165,8 +165,7 @@ async def makedir_chown_chmod(dir, mode=STANDARD_MODE):
             os.mkdir(dir)
         except FileExistsError:
             logger.error(
-                "Creation of a directory %s is not possible.",
-                dir, exc_info=True
+                "Creation of a directory %s is not possible.", dir, exc_info=True
             )
             logger.error("This directory already exists.")
         try:
@@ -174,7 +173,9 @@ async def makedir_chown_chmod(dir, mode=STANDARD_MODE):
         except OSError:
             logger.error(
                 "Could not change access permissions of a directory %s to %s.",
-                dir, mode, exc_info=True
+                dir,
+                mode,
+                exc_info=True
             )
 
 
