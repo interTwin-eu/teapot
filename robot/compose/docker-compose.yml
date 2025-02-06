@@ -1,14 +1,12 @@
 services:
   keycloak:
-    image: dvrbanec/keycloak-dev:latest
+    image: dvrbanec/keycloak-dev:1
     ports:
       - 8443:8443
     networks:
       - test
   teapot:
     image: ghcr.io/intertwin-eu/teapot:latest
-    environment:
-      - TEAPOT_LOGLEVEL=DEBUG
     networks:
       - test
     volumes:
