@@ -734,12 +734,13 @@ async def storm_webdav_state(state, condition, sub):
                     state[user] = "NOT RUNNING"
                     condition.notify()
                 async with app.state.state_lock:
-
                     app.state.session_state[user] = {
                         "pid": None,
                         "port": -1,
                         "created_at": None,
-                        "last_accessed": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "last_accessed": datetime.datetime.now().strftime(
+                            "%Y-%m-%d %H:%M:%S"
+                        ),
                     }
                     save_session_state()
             logger.error(
@@ -802,7 +803,9 @@ async def storm_webdav_state(state, condition, sub):
                     "pid": pid,
                     "port": port,
                     "created_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "last_accessed": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "last_accessed": datetime.datetime.now().strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
                 }
                 save_session_state()
             condition.notify()
