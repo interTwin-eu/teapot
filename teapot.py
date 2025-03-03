@@ -615,11 +615,11 @@ async def save_session_state():
 
     Acquires the application's state lock to ensure thread safety during the
     file write operation. It opens the session store file located at
-    `SESSION_STORE_PATH` in append mode and writes the current session state
-    as a JSON object. The encoding used for writing is UTF-8.
+    `SESSION_STORE_PATH` and writes the current session staten as a JSON object.
+    The encoding used for writing is UTF-8.
     """
     async with app.state.state_lock:
-        with open(SESSION_STORE_PATH, "a", encoding="utf-8") as f:
+        with open(SESSION_STORE_PATH, "w", encoding="utf-8") as f:
             json.dump(app.state.session_state, f)
 
 
@@ -638,13 +638,10 @@ async def load_session_state():
         if not exists(SESSION_STORE_PATH):
             app.state.session_state = {}
             with open(SESSION_STORE_PATH, "w", encoding="utf-8") as f:
-                pass
+                json.dump(app.state.session_state, f)
         else:
             with open(SESSION_STORE_PATH, "r", encoding="utf-8") as f:
-                try:
-                    app.state.session_state = json.load(f)
-                except json.decoder.JSONDecodeError:
-                    app.state.session_state = {}
+                app.state.session_state = json.load(f)
 
 
 async def _map_fed_to_local(sub):
