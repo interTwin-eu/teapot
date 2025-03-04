@@ -463,6 +463,7 @@ async def _stop_webdav_instance(username, state, condition):
         async with app.state.state_lock:
             try:
                 session = app.state.session_state.pop(username)
+                save_session_state()
             except KeyError:
                 logger.error(
                     "Can't delete the session state for user %s, it doesn't exist",
@@ -615,11 +616,11 @@ async def save_session_state():
 
     Acquires the application's state lock to ensure thread safety during the
     file write operation. It opens the session store file located at
-    `SESSION_STORE_PATH` in append mode and writes the current session state
-    as a JSON object. The encoding used for writing is UTF-8.
+    `SESSION_STORE_PATH` and writes the current session staten as a JSON object.
+    The encoding used for writing is UTF-8.
     """
     async with app.state.state_lock:
-        with open(SESSION_STORE_PATH, "a", encoding="utf-8") as f:
+        with open(SESSION_STORE_PATH, "w", encoding="utf-8") as f:
             json.dump(app.state.session_state, f)
 
 
@@ -637,14 +638,10 @@ async def load_session_state():
     async with app.state.state_lock:
         if not exists(SESSION_STORE_PATH):
             app.state.session_state = {}
-            with open(SESSION_STORE_PATH, "w", encoding="utf-8") as f:
-                pass
+            save_session_state()
         else:
             with open(SESSION_STORE_PATH, "r", encoding="utf-8") as f:
-                try:
-                    app.state.session_state = json.load(f)
-                except json.decoder.JSONDecodeError:
-                    app.state.session_state = {}
+                app.state.session_state = json.load(f)
 
 
 async def _map_fed_to_local(sub):
@@ -712,9 +709,10 @@ async def storm_webdav_state(state, condition, sub):
                 break
             elif state[user] == "RUNNING":
                 async with app.state.state_lock:
-                    app.state.session_state[user]["last_accessed"] = str(
-                        datetime.datetime.now()
-                    )
+                    app.state.session_state[user][
+                        "last_accessed"
+                    ] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    save_session_state()
                 should_start_sw = False
                 logger.debug(
                     "Storm webdav instance for user %s is already running", user
@@ -741,8 +739,11 @@ async def storm_webdav_state(state, condition, sub):
                         "pid": None,
                         "port": -1,
                         "created_at": None,
-                        "last_accessed": str(datetime.datetime.now()),
+                        "last_accessed": datetime.datetime.now().strftime(
+                            "%Y-%m-%d %H:%M:%S"
+                        ),
                     }
+                    save_session_state()
             logger.error(
                 "Something went wrong while starting instance for user %s.",
                 user,
@@ -769,6 +770,7 @@ async def storm_webdav_state(state, condition, sub):
                         state[user] = "NOT RUNNING"
                     async with app.state.state_lock:
                         app.state.session_state.pop(user)
+                        save_session_state()
                     logger.debug("The unresponsive webdav instance is removed.")
                     return None, -1, user
             try:
@@ -801,9 +803,12 @@ async def storm_webdav_state(state, condition, sub):
                 app.state.session_state[user] = {
                     "pid": pid,
                     "port": port,
-                    "created_at": datetime.datetime.now(),
-                    "last_accessed": str(datetime.datetime.now()),
+                    "created_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "last_accessed": datetime.datetime.now().strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
                 }
+                save_session_state()
             condition.notify()
             logger.info(
                 "Storm-webdav instance for user %s is now running on port %d",
