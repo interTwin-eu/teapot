@@ -610,7 +610,7 @@ async def _test_port(port):
     return port
 
 
-def save_session_state():
+async def save_session_state():
     """
     Saves the current session state to a JSON file.
 
@@ -619,8 +619,9 @@ def save_session_state():
     `SESSION_STORE_PATH` and writes the current session staten as a JSON object.
     The encoding used for writing is UTF-8.
     """
-    with open(SESSION_STORE_PATH, "w", encoding="utf-8") as f:
-        json.dump(app.state.session_state, f)
+    async with app.state.state_lock:
+        with open(SESSION_STORE_PATH, "w", encoding="utf-8") as f:
+            json.dump(app.state.session_state, f)
 
 
 async def load_session_state():
