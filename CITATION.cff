@@ -1,0 +1,20 @@
+cff-version: 1.0.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Millar
+    given-names: Paul
+    orcid: https://orcid.org/0000-0002-3957-1279
+  - family-names: Vrbanec
+    given-names: Dijana
+    orcid: https://orcid.org/0009-0000-8124-3650
+  - family-names: Wetzel
+    given-names: Tim
+    orcid: https://orcid.org/0000-0002-9131-0906
+title: "Teapot"
+version: 0.8.0
+identifiers:
+  - type: 
+    value: 
+date-released: 
+licence: Apache-2.0
+repository-code: https://github.com/interTwin-eu/teapot
