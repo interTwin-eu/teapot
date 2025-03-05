@@ -619,9 +619,8 @@ async def save_session_state():
     `SESSION_STORE_PATH` and writes the current session staten as a JSON object.
     The encoding used for writing is UTF-8.
     """
-    async with app.state.state_lock:
-        with open(SESSION_STORE_PATH, "w", encoding="utf-8") as f:
-            json.dump(app.state.session_state, f)
+    with open(SESSION_STORE_PATH, "w", encoding="utf-8") as f:
+        json.dump(app.state.session_state, f)
 
 
 async def load_session_state():
