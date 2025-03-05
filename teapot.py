@@ -463,7 +463,7 @@ async def _stop_webdav_instance(username, state, condition):
         async with app.state.state_lock:
             try:
                 session = app.state.session_state.pop(username)
-                save_session_state()
+                await save_session_state()
             except KeyError:
                 logger.error(
                     "Can't delete the session state for user %s, it doesn't exist",
@@ -638,7 +638,7 @@ async def load_session_state():
     async with app.state.state_lock:
         if not exists(SESSION_STORE_PATH):
             app.state.session_state = {}
-            save_session_state()
+            await save_session_state()
         else:
             with open(SESSION_STORE_PATH, "r", encoding="utf-8") as f:
                 app.state.session_state = json.load(f)
@@ -712,7 +712,7 @@ async def storm_webdav_state(state, condition, sub):
                     app.state.session_state[user][
                         "last_accessed"
                     ] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    save_session_state()
+                    await save_session_state()
                 should_start_sw = False
                 logger.debug(
                     "Storm webdav instance for user %s is already running", user
@@ -743,7 +743,7 @@ async def storm_webdav_state(state, condition, sub):
                             "%Y-%m-%d %H:%M:%S"
                         ),
                     }
-                    save_session_state()
+                    await save_session_state()
             logger.error(
                 "Something went wrong while starting instance for user %s.",
                 user,
@@ -770,7 +770,7 @@ async def storm_webdav_state(state, condition, sub):
                         state[user] = "NOT RUNNING"
                     async with app.state.state_lock:
                         app.state.session_state.pop(user)
-                        save_session_state()
+                        await save_session_state()
                     logger.debug("The unresponsive webdav instance is removed.")
                     return None, -1, user
             try:
@@ -808,7 +808,7 @@ async def storm_webdav_state(state, condition, sub):
                         "%Y-%m-%d %H:%M:%S"
                     ),
                 }
-                save_session_state()
+                await save_session_state()
             condition.notify()
             logger.info(
                 "Storm-webdav instance for user %s is now running on port %d",
