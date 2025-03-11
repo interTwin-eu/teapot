@@ -21,6 +21,7 @@ import anyio
 import httpx
 import psutil
 import uvicorn
+from alise import Alise
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.security import HTTPBearer
 from flaat.config import AccessLevel
@@ -654,17 +655,22 @@ async def _map_fed_to_local(sub):
     claim is returned. Thus, it is possible to match multiple subs to a single
     local username but not the other way around.
     """
-
-    with open("/etc/teapot/user-mapping.csv", "r", encoding="utf-8") as mapping_file:
-        mappingreader = csv.reader(mapping_file, delimiter=" ")
-        for row in mappingreader:
-            if row[1] == sub:
-                if not row[0]:
-                    logger.error("local user identity is unknown")
-                    return None
-                logger.info("local user identity is %s", row[0])
-                return row[0]
-    return None
+    mapping = config["Teapot"]["mapping"]
+    if mapping =="FILE":
+        with open(config["Teapot"]["mapping_file"], "r", encoding="utf-8") as mapping_file:
+            mappingreader = csv.reader(mapping_file, delimiter=" ")
+            for row in mappingreader:
+                if row[1] == sub:
+                    if not row[0]:
+                        logger.error("local user identity is unknown")
+                        return None
+                    logger.info("local user identity is %s", row[0])
+                    return row[0]
+        return None
+    elif mapping == "ALISE":
+        print("ALISE")
+    else:
+        return None
 
 
 async def storm_webdav_state(state, condition, sub):
