@@ -10,7 +10,6 @@ import os
 import socket
 import ssl
 import subprocess
-from configparser import ExtendedInterpolation
 from contextlib import asynccontextmanager
 from os.path import exists
 from pathlib import Path
@@ -30,7 +29,7 @@ from flaat.requirements import HasSubIss
 from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
 
-config = configparser.ConfigParser(interpolation=ExtendedInterpolation())
+config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
 config.read("/etc/teapot/config.ini")
 
 
@@ -668,7 +667,8 @@ async def _map_fed_to_local(sub):
                     return row[0]
         return None
     elif mapping == "ALISE":
-        print("ALISE")
+        alise_instance = Alise()
+        return alise_instance.get_local_username(sub)
     else:
         return None
 
