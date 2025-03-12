@@ -655,8 +655,11 @@ async def _map_fed_to_local(sub):
     local username but not the other way around.
     """
     mapping = config["Teapot"]["mapping"]
-    if mapping =="FILE":
-        with open(config["Teapot"]["mapping_file"], "r", encoding="utf-8") as mapping_file:
+    logger.debug("For the user's identity mapping, method %s is used", mapping)
+    if mapping == "FILE":
+        with open(
+            config["Teapot"]["mapping_file"], "r", encoding="utf-8"
+        ) as mapping_file:
             mappingreader = csv.reader(mapping_file, delimiter=" ")
             for row in mappingreader:
                 if row[1] == sub:

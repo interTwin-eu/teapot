@@ -1,10 +1,9 @@
 import configparser
 import hashlib
+
 import requests
 
-
 class Alise:
-
     def __init__(self):
         config = configparser.ConfigParser(
             interpolation=configparser.ExtendedInterpolation()
@@ -15,8 +14,7 @@ class Alise:
         self.alise_url = config["Teapot"]["ALISE_URL"]
         self.issuer = config["Teapot"]["ALISE_ISSUER"]
 
-
-    def hashencode(iss):
+    def hashencode(self, iss):
         hash_method = "sha1"
         hash_function = getattr(hashlib, hash_method)()
 
@@ -29,7 +27,7 @@ class Alise:
                 hash = hash_function.hexdigest()
             return hash
 
-    def urlencode(sub):
+    def urlencode(self, sub):
         try:
             from urllib.parse import quote_plus
         except ImportError:
@@ -48,7 +46,7 @@ class Alise:
         hash1 = Alise.hashencode(self.issuer)
         hash2 = Alise.urlencode(subject_claim)
         link = self.alise_url + hash1 + "/user/" + hash2 + "?apikey=" + self.apikey
-        print("link is ", link) ## change to logging
+        print("link is ", link)  # change to logging
         response = requests.get(link, timeout=20)
         response_json = response.json()
         return response_json["internal"]["username"]
