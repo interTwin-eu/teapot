@@ -3,6 +3,7 @@ import hashlib
 
 import requests
 
+
 class Alise:
     def __init__(self):
         config = configparser.ConfigParser(
