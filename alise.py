@@ -15,7 +15,8 @@ class Alise:
         self.alise_url = config["Teapot"]["ALISE_URL"]
         self.issuer = config["Teapot"]["ALISE_ISSUER"]
 
-    def hashencode(self, iss):
+    @staticmethod
+    def hashencode(iss):
         hash_method = "sha1"
         hash_function = getattr(hashlib, hash_method)()
 
@@ -28,7 +29,8 @@ class Alise:
                 hash = hash_function.hexdigest()
             return hash
 
-    def urlencode(self, sub):
+    @staticmethod
+    def urlencode(sub):
         try:
             from urllib.parse import quote_plus
         except ImportError:
