@@ -3,7 +3,7 @@ FROM fedora:39
 USER root
 
 RUN \
-    dnf -y install initscripts java-11-openjdk perl-IPC-Cmd perl-Test-Simple && \
+    dnf -y install initscripts java-17-openjdk perl-IPC-Cmd perl-Test-Simple && \
     dnf -y group install "Development Tools" && \
     dnf -y install libffi libffi-devel cronie openssl python3-pip && \
     dnf -y install python3-fastapi python3-httpx python3-pydantic && \
