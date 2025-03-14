@@ -4,14 +4,14 @@
 rpmdev-setuptree
 
 #adding a spec file
-cp rpm/teapot-fedora.spec "$HOME"/rpmbuild/SPECS/
+cp rpm/teapot-fedora.spec "${HOME}"/rpmbuild/SPECS/
 
 #getting the teapot scripts
-mkdir teapot-"$version_rpm"
-rsync -av --progress * teapot-"$version_rpm"/ --exclude teapot-"$version_rpm"
-tar cfz teapot-"$version_rpm".tar.gz teapot-"$version_rpm"
-rm -r teapot-"$version_rpm"
-mv teapot-"$version_rpm".tar.gz "$HOME"/rpmbuild/SOURCES/
+mkdir teapot-"${version_rpm}"
+rsync -av --progress * teapot-"${version_rpm}"/ --exclude teapot-"${version_rpm}"
+tar cfz teapot-"${version_rpm}".tar.gz teapot-"${version_rpm}"
+rm -r teapot-"${version_rpm}"
+mv teapot-"${version_rpm}".tar.gz "${HOME}"/rpmbuild/SOURCES/
 
 #getting the storm-webdav.jar file
 curl -O https://repo.cloud.cnaf.infn.it/repository/storm-rpm-stable/redhat9/storm-webdav-1.7.1-1.el9.noarch.rpm
@@ -21,12 +21,12 @@ mv usr/share/java/storm-webdav/storm-webdav-server.jar ./
 rm -r usr
 tar cf storm-webdav-server.tar.gz storm-webdav-server.jar
 rm storm-webdav-server.jar
-mv storm-webdav-server.tar.gz "$HOME"/rpmbuild/SOURCES/
+mv storm-webdav-server.tar.gz "${HOME}"/rpmbuild/SOURCES/
 
-cd /tmp
+cd /tmp || exit
 curl -O https://syncandshare.desy.de/index.php/s/oSjdrPwCd6KkfJm/download/python-lib64-fedora.tar.gz .
 curl -O https://syncandshare.desy.de/index.php/s/PqN432X83764Lm4/download/python-lib-fedora.tar.gz .
-mv /tmp/python-lib*.tar.gz "$HOME"/rpmbuild/SOURCES/
+mv /tmp/python-lib*.tar.gz "${HOME}"/rpmbuild/SOURCES/
 
 #building the RPM package
-rpmbuild -ba --define "version_ $version_rpm" ~/rpmbuild/SPECS/teapot-fedora.spec
+rpmbuild -ba --define "version_ ${version_rpm}" ~/rpmbuild/SPECS/teapot-fedora.spec
