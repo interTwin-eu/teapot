@@ -11,9 +11,10 @@ class Alise:
         )
         config.read("/etc/teapot/config.ini")
 
-        self.apikey = config["Teapot"]["ALISE_APIKEY"]
-        self.alise_url = config["Teapot"]["ALISE_URL"]
-        self.issuer = config["Teapot"]["ALISE_ISSUER"]
+        self.apikey = config["ALISE"]["APIKEY"]
+        self.alise_url = config["ALISE"]["INSTANCE"]
+        self.issuer = config["ALISE"]["ISSUER"]
+        self.site = config["ALISE"]["COMPUTING_CENTRE"]
 
     @staticmethod
     def hashencode(iss):
@@ -48,7 +49,16 @@ class Alise:
     def get_local_username(self, subject_claim):
         hash1 = Alise.hashencode(self.issuer)
         hash2 = Alise.urlencode(subject_claim)
-        link = self.alise_url + hash1 + "/user/" + hash2 + "?apikey=" + self.apikey
+        link = {self.alise_url
+            + "/api/v1/target/"
+            + self.site
+            + "/mapping/issuer/"
+            + hash1
+            + "/user/"
+            + hash2
+            + "?apikey="
+            + self.apikey
+        }
         print("link is ", link)  # change to logging
         response = requests.get(link, timeout=20)
         response_json = response.json()

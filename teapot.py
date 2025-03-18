@@ -445,7 +445,7 @@ async def _get_proc(cmd):
         if cmd == " ".join(proc.cmdline()):
             logger.debug("PID for the started storm-webdav server found: %d", pid)
             return proc
-    raise RuntimeError("process with full command ", +cmd + "does not exist.")
+    raise RuntimeError("process with full command " + cmd + "does not exist.")
 
 
 async def _stop_webdav_instance(username, state, condition):
