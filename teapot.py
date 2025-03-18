@@ -360,7 +360,7 @@ async def _remove_user_env():
 
 
 async def _start_webdav_instance(username, port, sub):
-    res = await _create_user_dirs(username,sub)
+    res = await _create_user_dirs(username, sub)
     if not res:
         logger.error("could not create user dirs for %s", username)
         return False
@@ -644,16 +644,22 @@ async def load_session_state():
 async def _map_fed_to_local(sub):
     """
     This function returns the local username for a federated user or None.
-    For this prototype, the local username is read from a mapping file on
-    the local file system. It is expected that the mapping file has the format:
+    The local username can be retrieved from a mapping file on the local file
+    system or through ALISE (Account Linking Service).
+
+    If using a mapping file, it should have a format:
     local-username federated-sub-claim
 
     The file should be without headers. Only the first hit for a federated sub
     claim is returned. Thus, it is possible to match multiple subs to a single
     local username but not the other way around.
+
+    ALISE implements the concept of site-local account linking. For this a user
+    can log in with one local account and with any number of supported external
+    accounts. For more information on ALISE check https://github.com/m-team-kit/alise
     """
     mapping = config["Teapot"]["mapping"]
-    logger.debug("For the user's identity mapping, method %s is used", mapping)
+    logger.debug("For the user's identity mapping, %s method is used", mapping)
     if mapping == "FILE":
         with open(
             config["Teapot"]["mapping_file"], "r", encoding="utf-8"
@@ -669,12 +675,17 @@ async def _map_fed_to_local(sub):
         return None
     elif mapping == "ALISE":
         alise_instance = Alise()
-        return alise_instance.get_local_username(sub)
+        local_username = alise_instance.get_local_username(sub)
+        if not local_username:
+            logger.error(
+                "Could not determine user's local identity."
+                + "Mapping for subject claim %s does not exist", sub)
+            return None
+        else:
+            logger.info("local user identity is %s", local_username)
+        return local_username
     else:
-        logger.error(
-            "User mapping information is missing or incorrect."
-            + "Please check your input and try again."
-        )
+        logger.error("The identity mapping method information is missing or incorrect.")
         return None
 
 
