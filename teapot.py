@@ -179,7 +179,7 @@ async def makedir_chown_chmod(dir, mode=STANDARD_MODE):
             )
 
 
-async def _create_user_dirs(username):
+async def _create_user_dirs(username, sub):
     # need to create
     # - /var/lib/APP_NAME/user-username
     # - /var/lib/APP_NAME/user-username/log
@@ -192,6 +192,8 @@ async def _create_user_dirs(username):
 
     logger.debug("creating user configuration directories")
     config_dir = f"/etc/{APP_NAME}"
+    mapping = config["Teapot"]["mapping"]
+
     if not exists(f"{config_dir}/storage-areas"):
         logger.error(
             "%s/storage-areas is missing. It should consist of two variables "
@@ -201,14 +203,15 @@ async def _create_user_dirs(username):
         )
         return False
 
-    mapping_file = f"{config_dir}/user-mapping.csv"
-    if not exists(mapping_file):
-        logger.error(
-            "%s does not exist. It should consist of two variables per user: "
-            + "username and subject claim separated by a single space.",
-            mapping_file,
-        )
-        return False
+    if mapping == "FILE":
+        mapping_file = f"{config_dir}/user-mapping.csv"
+        if not exists(mapping_file):
+            logger.error(
+                "%s does not exist. It should consist of two variables per user: "
+                + "username and subject claim separated by a single space.",
+                mapping_file,
+            )
+            return False
 
     app_dir = f"/var/lib/{APP_NAME}"
     if not exists(app_dir):
@@ -260,11 +263,6 @@ async def _create_user_dirs(username):
                 os.chmod(sa_properties_path, STANDARD_MODE)
 
     if not exists(f"{user_config_dir}/application.yml"):
-        with open(f"{config_dir}/user-mapping.csv", encoding="utf-8") as mapping:
-            for line in mapping:
-                if line.startswith(username):
-                    sub = line.split(" ")[1]
-                    break
         with open(f"{config_dir}/issuers", "r", encoding="utf-8") as issuers:
             issuers_part = issuers.readlines()
         with open(
@@ -673,6 +671,8 @@ async def _map_fed_to_local(sub):
         alise_instance = Alise()
         return alise_instance.get_local_username(sub)
     else:
+        logger.error("User mapping information is missing or incorrect."
+                     + "Please check your input and try again.")
         return None
 
 
