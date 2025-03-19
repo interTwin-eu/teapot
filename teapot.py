@@ -672,7 +672,9 @@ async def _map_fed_to_local(sub):
                         return None
                     logger.info("local user identity is %s", row[0])
                     return row[0]
-        return None
+                else:
+                    logger.error("The local user for sub claim %s does not exist", sub)
+                    return None
     elif mapping == "ALISE":
         alise_instance = Alise()
         local_username = alise_instance.get_local_username(sub)
@@ -680,7 +682,7 @@ async def _map_fed_to_local(sub):
             logger.error(
                 "Could not determine user's local identity."
                 + "Mapping for subject claim %s does not exist",
-                sub
+                sub,
             )
             return None
         else:
