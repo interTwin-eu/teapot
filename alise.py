@@ -7,7 +7,6 @@ import requests
 config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
 config.read("/etc/teapot/config.ini")
 
-# logging
 logging.basicConfig(
     filename=config["Teapot"]["log_location"],
     encoding="utf-8",
@@ -81,9 +80,9 @@ class Alise:
             )
         except requests.Timeout as e:
             logger.error("Can't connect to ALISE API. Request timed out: %s", e)
-        except requests.RequestException as e:  # Catches all requests-related exceptions
+        except requests.RequestException as e:
             logger.error("An error occured during request to ALISE API: %s", e)
-        except Exception as e:  # Catches other unexpected exceptions (like socket.gaierror)
+        except Exception as e:
             logger.error("Request to ALISE API raised an unexpected error: %s", e)
 
         response_json = response.json()
