@@ -74,12 +74,14 @@ class Alise:
         except ConnectionError as e:
             logger.error("Link to the ALISE instance is incorrect, %s", e)
 
-        logger.debug("Assembled ALISE API URL is ", link)
+        logger.debug("Assembled ALISE API URL is %s", link)
         response = requests.get(link, timeout=20)
         response_json = response.json()
         if response_json["internal"]["username"]:
             return response_json["internal"]["username"]
         else:
-            logger.error("The username could not be retrieved."
-                         "The give error message is %s", response_json["detail"]["message"])
+            logger.error(
+                "The username could not be retrieved. The give error message is %s",
+                response_json["detail"]["message"]
+            )
             return None
