@@ -74,14 +74,17 @@ class Alise:
         logger.debug("Assembled ALISE API URL is %s", link)
         try:
             response = requests.get(link, timeout=20)
-        except ConnectionError as e:
-            logger.error("Link to the ALISE instance is incorrect, %s", e)
-        response_json = response.json()
-        if response_json["internal"]["username"]:
-            return response_json["internal"]["username"]
-        else:
+            response.raise_for_status()  # Raise an HTTPError for 4xx/5xx responses
+        except requests.ConnectionError as e:
             logger.error(
-                "The username could not be retrieved. The give error message is %s",
-                response_json["detail"]["message"],
+                "Can't connect to ALISE API. Network-related error was raised: %s", e
             )
-            return None
+        except requests.Timeout as e:
+            logger.error("Can't connect to ALISE API. Request timed out: %s", e)
+        except requests.RequestException as e:  # Catches all requests-related exceptions
+            logger.error("An error occured during request to ALISE API: %s", e)
+        except Exception as e:  # Catches other unexpected exceptions (like socket.gaierror)
+            logger.error("Request to ALISE API raised an unexpected error: %s", e)
+
+        response_json = response.json()
+        return response_json["internal"]["username"]
