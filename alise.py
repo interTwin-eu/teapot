@@ -59,23 +59,23 @@ class Alise:
     def get_local_username(self, subject_claim):
         hash1 = Alise.hashencode(self.issuer)
         hash2 = Alise.urlencode(subject_claim)
-        try:
-            link = (
-                self.alise_url
-                + "/api/v1/target/"
-                + self.site
-                + "/mapping/issuer/"
-                + hash1
-                + "/user/"
-                + hash2
-                + "?apikey="
-                + self.apikey
-            )
-        except ConnectionError as e:
-            logger.error("Link to the ALISE instance is incorrect, %s", e)
+        link = (
+            self.alise_url
+            + "/api/v1/target/"
+            + self.site
+            + "/mapping/issuer/"
+            + hash1
+            + "/user/"
+            + hash2
+            + "?apikey="
+            + self.apikey
+        )
 
         logger.debug("Assembled ALISE API URL is %s", link)
-        response = requests.get(link, timeout=20)
+        try:
+            response = requests.get(link, timeout=20)
+        except ConnectionError as e:
+            logger.error("Link to the ALISE instance is incorrect, %s", e)
         response_json = response.json()
         if response_json["internal"]["username"]:
             return response_json["internal"]["username"]
