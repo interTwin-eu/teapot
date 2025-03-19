@@ -679,7 +679,9 @@ async def _map_fed_to_local(sub):
         if not local_username:
             logger.error(
                 "Could not determine user's local identity."
-                + "Mapping for subject claim %s does not exist", sub)
+                + "Mapping for subject claim %s does not exist",
+                sub
+            )
             return None
         else:
             logger.info("local user identity is %s", local_username)
