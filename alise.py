@@ -82,6 +82,6 @@ class Alise:
         else:
             logger.error(
                 "The username could not be retrieved. The give error message is %s",
-                response_json["detail"]["message"]
+                response_json["detail"]["message"],
             )
             return None
