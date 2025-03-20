@@ -63,15 +63,15 @@ All users must be added to the `teapot` group. This can be done by running
 
 ## Mapping user’s global and local identities
 
-### The FILE method
+### File-based Mapping Method
 
 Teapot provides two methods for mapping a user’s global and local identities.
-The first method is **the FILE method**. Teapot allows manual storage of user
-mappings in a file named `user-mapping.csv`, which must be placed in `/etc/teapot`.
-This file should contain the following information: for each user, the local
-username and the user's OIDC subject claim (sub), as provided by the Identity
-Provider (IdP). These values must be listed on a single line, separated by a
-single space.
+The first method is the **File-based Mapping Method**. Teapot allows manual
+storage of user mappings in a file named `user-mapping.csv`, which must be
+placed in `/etc/teapot`. This file should contain the following information:
+for each user, the local username and the user's OIDC subject claim (sub),
+as provided by the Identity Provider (IdP). These values must be listed on a
+single line, separated by a single space.
 
 Example:
 
@@ -82,8 +82,10 @@ user2 a12b3c4d5e6f
 
 ### ALISE - Account Linking Serice
 
-The second method uses the  **[ALISE - Account Linking Service](https://github.com/m-team-kit/alise/tree/master/alise)**. ALISE allows users to log in with a single local account per site while
-linking multiple global accounts.
+The second method uses the **ALISE - Account Linking Service**
+([ALISE documentation](https://github.com/m-team-kit/alise/tree/master/alise)).
+ALISE allows users to log in with a single local account per site while linking
+multiple global accounts.
 
 To configure ALISE you must specify:
 
