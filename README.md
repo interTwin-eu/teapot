@@ -32,8 +32,9 @@ for information on how to configure Teapot and Storm-Webdav.
 
 ### Starting
 
-Teapot is automatically started with a systemd unit file upon installation. After it has been properly
-configured you can restart the service with `sudo systemctl restart teapot.service`.
+Teapot starts automatically upon installation using a systemd unit file. Once configured, you can
+restart the service with `sudo systemctl restart teapot.service`. To ensure Teapot launches automatically
+after each reboot, enable it with `sudo systemctl enable teapot.service`.
 
 ## Automated testing
 

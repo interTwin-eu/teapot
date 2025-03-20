@@ -1,15 +1,14 @@
 # Configuration
 
-All configuration information for both Teapot and StoRM WebDAV is contained in
-the `config.ini` file. Please update this file as needed to meet your requirements.
+All configuration settings are stored in the `config.ini` file, located at
+`/etc/teapot/`. Update this file as needed to align with your requirements.
 
 ## Certificates
 
-Both Teapot and StoRM WebDAV servers require `SSL` certificates. Teapot requires
-an appropriate server certificate/key pair for the machine to be added to
-`/var/lib/teapot/webdav`. The certificate should also be added to the system's
-trust store. To generate self-signed certificates for StoRM WebDAV and add them
-to the trust store, run `sudo /usr/share/teapot/self-signed-cert-gen.sh`.
+Both Teapot and StoRM WebDAV servers require `SSL` certificates. The certificate
+must also be added to the system’s trust store to ensure secure communication.
+To generate self-signed certificates for StoRM WebDAV and add them to the trust
+store, run `sudo /usr/share/teapot/self-signed-cert-gen.sh`.
 
 ## Additional Storm-webdav configuration
 
@@ -59,21 +58,47 @@ To configure the OIDC provider information, make the following changes:
 3. Modify the OIDC providers that have access to the storage area by modifying
    the `org` information in `/usr/share/teapot/storage_element.properties`.
 
-If no other way for mapping user's local and global identities is provided, the
-rudementary way is defined as explained next. The `user-mapping.csv` file is to
-be manually added to `/etc/teapot`. It should contain information for mapping
-local users' identities to their global identities as provided by the OIDC
-provider in form of the subject (`sub`) claim. For each user, the local username
-and the user's sub claim from the OIDC provider should be on a single line,
-separated by a single space. E.g.:
-
-```text
-user1 subclaim1
-user2 subclaim2
-```
-
 All users must be added to the `teapot` group. This can be done by running
 `usermod -a -G teapot $USERNAME`.
+
+## Mapping user’s global and local identities
+
+### The FILE method
+
+Teapot provides two methods for mapping a user’s global and local identities.
+The first method is **the FILE method**. Teapot allows manual storage of user
+mappings in a file named `user-mapping.csv`, which must be placed in `/etc/teapot`.
+This file should contain the following information: for each user, the local
+username and the user's OIDC subject claim (sub), as provided by the Identity
+Provider (IdP). These values must be listed on a single line, separated by a
+single space.
+
+Example:
+
+```text
+user1 248289761001
+user2 a12b3c4d5e6f
+```
+
+### ALISE - Account Linking Serice
+
+The second method uses the  **[ALISE - Account Linking Service](https://github.com/m-team-kit/alise/tree/master/alise)**. ALISE allows users to log in with a single local account per site while
+linking multiple global accounts.
+
+To configure ALISE you must specify:
+
+- The ALISE instance that manages the required mappings.
+- The computing center where local identities should be mapped.
+
+To access ALISE's API, you first need to obtain an API key. This can be done
+via the following endpoint: `ALISE_INSTANCE + /api/v1/target/{site}/get_apikey`.
+The API key is associated with a specific user and is obtained using an Access
+Token. You can retrieve the API key via a `curl` request by including the Access
+Token in the request header:
+
+```bash
+curl -H "Authorization: Bearer ${ACCESS_TOKEN}" <API_ENDPOINT>
+```
 
 ## System certificates
 
