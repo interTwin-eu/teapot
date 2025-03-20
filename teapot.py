@@ -98,7 +98,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 SESSION_STORE_PATH = os.environ.get(
-    "TEAPOT_SESSIONS", "/var/lib/teapot/webdav/teapot_sessions.json"
+    "TEAPOT_SESSIONS", config["Teapot"]["sessions_path"]
 )
 APP_NAME = config["Teapot"]["APP_NAME"]
 # one less than the first port that is going to be used by any storm webdav
