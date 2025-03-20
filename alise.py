@@ -22,7 +22,6 @@ class Alise:
     def __init__(self):
         self.apikey = config["ALISE"]["APIKEY"]
         self.alise_url = config["ALISE"]["INSTANCE"]
-        self.issuer = config["ALISE"]["ISSUER"]
         self.site = config["ALISE"]["COMPUTING_CENTRE"]
 
     @staticmethod
@@ -55,8 +54,8 @@ class Alise:
                 result += quote_plus(letter)
             return result
 
-    def get_local_username(self, subject_claim):
-        hash1 = Alise.hashencode(self.issuer)
+    def get_local_username(self, subject_claim, issuer):
+        hash1 = Alise.hashencode(issuer)
         hash2 = Alise.urlencode(subject_claim)
         link = (
             self.alise_url

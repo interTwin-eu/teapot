@@ -641,7 +641,7 @@ async def load_session_state():
                 app.state.session_state = json.load(f)
 
 
-async def _map_fed_to_local(sub):
+async def _map_fed_to_local(sub, iss):
     """
     This function returns the local username for a federated user or None.
     The local username can be retrieved from a mapping file on the local file
@@ -678,7 +678,7 @@ async def _map_fed_to_local(sub):
         return None
     elif mapping == "ALISE":
         alise_instance = Alise()
-        local_username = alise_instance.get_local_username(sub)
+        local_username = alise_instance.get_local_username(sub, iss)
         if not local_username:
             logger.error(
                 "Could not determine user's local identity."
@@ -694,7 +694,7 @@ async def _map_fed_to_local(sub):
         return None
 
 
-async def storm_webdav_state(state, condition, sub):
+async def storm_webdav_state(state, condition, sub, iss):
     """
     This function gets the mapping for the federated user from the sub-claim to the
     user's local identity. With this local identity, it manages the state of the
@@ -703,7 +703,7 @@ async def storm_webdav_state(state, condition, sub):
     state is NOT_RUNNING. Transition between different states is triggered by an
     incomming request or by storm-webdav instance reaching the inactivity treshold.
     """
-    user = await _map_fed_to_local(sub)
+    user = await _map_fed_to_local(sub, iss)
 
     should_start_sw = False
     logger.info("Assesing the state of the storm webdav instance for user %s", user)
@@ -897,12 +897,14 @@ async def root(request: Request):
 
     logger.info("user's sub is: %s", user_infos["sub"])
     sub = user_infos.get("sub", None)
+    logger.debug("user's issuer is: %s", user_infos["iss"])
+    iss = user_infos.get("iss", None)
     if not sub:
         # if there is no sub, user can not be authenticated
         raise HTTPException(status_code=403)
     # user is valid, so check if a storm instance is running for this sub
     redirect_host, redirect_port, local_user = await storm_webdav_state(
-        sw_state, sw_condition, sub
+        sw_state, sw_condition, sub, iss
     )
 
     if not redirect_host and not redirect_port:
