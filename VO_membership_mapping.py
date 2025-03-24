@@ -1,5 +1,6 @@
 import configparser
 import logging
+
 from fastapi import HTTPException
 
 config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
@@ -15,29 +16,32 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 class VO_mapping:
+    @staticmethod
     def get_vo_info(sub: str, user_info: dict):
         logger.info("Checking VO info for user with sub: %s", sub)
         edu_entitlement = user_info.get("edu_entitlement")
-        
+
         valid_vo_groups = config["VO_enforcement"]["group_membership"].split(", ")
-        
+
         if edu_entitlement in valid_vo_groups:
             logger.info("User with sub: %s is a valid member of a VO group", sub)
             return True
         else:
-            logger.warning("User with sub: %s does not belong to any valid VO group", sub)
+            logger.warning(
+                "User with sub: %s does not belong to any valid VO group",sub
+            )
             return False
+
+    @staticmethod
     def get_local_username(VO_member):
         if VO_member is True:
             local_username = config["VO_enforcement"]["username"]
             return local_username
         else:
-            # If the user does not satisfy the VO requirement, raise an exception
-            logger.error("User with sub: %s does not meet VO membership requirements")
-            raise HTTPException(status_code=403, detail="User does not meet VO membership requirements.")
- 
-
-
-
-
+            logger.error("User does not meet VO membership requirements")
+            raise HTTPException(
+                status_code=403,
+                detail="User does not meet VO membership requirements."
+            )

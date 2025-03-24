@@ -692,7 +692,8 @@ async def _map_fed_to_local(sub, iss, VO_member):
         return local_username
     elif mapping == "VO":
         VO_membership = VO_mapping()
-        return VO_membership.get_local_username(VO_member)
+        username = VO_membership.get_local_username(VO_member)
+        return username
     else:
         logger.error("The identity mapping method information is missing or incorrect.")
         return None
