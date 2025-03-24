@@ -28,7 +28,7 @@ from flaat.fastapi import Flaat
 from flaat.requirements import HasSubIss
 from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
-from VO_membership_mapping import VO_mapping
+from vo_mapping import VO_mapping
 
 config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
 config.read("/etc/teapot/config.ini")
