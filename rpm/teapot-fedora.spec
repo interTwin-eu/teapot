@@ -39,6 +39,7 @@ cp %{_builddir}/%name-%version/storm-webdav-server.jar %{buildroot}/%{_datadir}/
 mkdir -p %{buildroot}/%{_datadir}/%name
 cp %{_builddir}/%name-%version/teapot.py %{buildroot}/%{_datadir}/%name/
 cp %{_builddir}/%name-%version/alise.py %{buildroot}/%{_datadir}/%name/
+cp %{_builddir}/%name-%version/vo_mapping.py %{buildroot}/%{_datadir}/%name/
 cp %{_builddir}/%name-%version/self-signed-cert-gen.sh %{buildroot}/%{_datadir}/%name/
 mkdir -p %{buildroot}/%{_sysconfdir}/%name
 cp %{_builddir}/%name-%version/templates/issuers %{buildroot}/%{_sysconfdir}/%name/
@@ -85,6 +86,7 @@ fi
 %attr(644, root, root) %{_datadir}/java/storm-webdav/storm-webdav-server.jar
 %attr(744, teapot, teapot) %{_datadir}/%name/teapot.py
 %attr(744, teapot, teapot) %{_datadir}/%name/alise.py
+%attr(774, teapot, teapot) %{_datadir}/%name/vo_mapping.py
 %attr(774, root, root) %{_datadir}/%name/self-signed-cert-gen.sh
 %attr(644, root, root) %{_sysconfdir}/%name/issuers
 %attr(744, teapot, teapot) %{_sysconfdir}/%name/logback.xml

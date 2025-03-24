@@ -30,7 +30,7 @@ class VO_mapping:
             return True
         else:
             logger.warning(
-                "User with sub: %s does not belong to any valid VO group",sub
+                "User with sub: %s does not belong to any valid VO group", sub
             )
             return False
 
@@ -42,6 +42,5 @@ class VO_mapping:
         else:
             logger.error("User does not meet VO membership requirements")
             raise HTTPException(
-                status_code=403,
-                detail="User does not meet VO membership requirements."
+                status_code=403, detail="User does not meet VO membership requirements."
             )
