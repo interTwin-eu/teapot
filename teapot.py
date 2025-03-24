@@ -28,6 +28,7 @@ from flaat.fastapi import Flaat
 from flaat.requirements import HasSubIss
 from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
+from VO_membership_mapping import VO_mapping
 
 config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
 config.read("/etc/teapot/config.ini")
@@ -134,6 +135,8 @@ app.state.state_lock = anyio.Lock()
 sw_state: dict[str, str] = {}
 # lock for the state of the storm webdav servers
 sw_condition = anyio.Condition()
+# user_mapping method
+mapping = config["Teapot"]["mapping"]
 
 context = ssl.create_default_context()
 context.load_verify_locations(cafile=config["Teapot"]["Teapot_CA"])
@@ -192,7 +195,6 @@ async def _create_user_dirs(username, sub):
 
     logger.debug("creating user configuration directories")
     config_dir = f"/etc/{APP_NAME}"
-    mapping = config["Teapot"]["mapping"]
 
     if not exists(f"{config_dir}/storage-areas"):
         logger.error(
@@ -641,7 +643,7 @@ async def load_session_state():
                 app.state.session_state = json.load(f)
 
 
-async def _map_fed_to_local(sub, iss):
+async def _map_fed_to_local(sub, iss, VO_member):
     """
     This function returns the local username for a federated user or None.
     The local username can be retrieved from a mapping file on the local file
@@ -658,7 +660,6 @@ async def _map_fed_to_local(sub, iss):
     can log in with one local account and with any number of supported external
     accounts. For more information on ALISE check https://github.com/m-team-kit/alise
     """
-    mapping = config["Teapot"]["mapping"]
     logger.debug("For the user's identity mapping, %s method is used", mapping)
     if mapping == "FILE":
         with open(
@@ -689,12 +690,15 @@ async def _map_fed_to_local(sub, iss):
         else:
             logger.info("local user identity is %s", local_username)
         return local_username
+    elif mapping == "VO":
+        VO_membership = VO_mapping()
+        return VO_membership.get_local_username(VO_member)
     else:
         logger.error("The identity mapping method information is missing or incorrect.")
         return None
 
 
-async def storm_webdav_state(state, condition, sub, iss):
+async def storm_webdav_state(state, condition, sub, iss, VO_member):
     """
     This function gets the mapping for the federated user from the sub-claim to the
     user's local identity. With this local identity, it manages the state of the
@@ -703,7 +707,7 @@ async def storm_webdav_state(state, condition, sub, iss):
     state is NOT_RUNNING. Transition between different states is triggered by an
     incomming request or by storm-webdav instance reaching the inactivity treshold.
     """
-    user = await _map_fed_to_local(sub, iss)
+    user = await _map_fed_to_local(sub, iss, VO_member)
 
     should_start_sw = False
     logger.info("Assesing the state of the storm webdav instance for user %s", user)
@@ -902,9 +906,16 @@ async def root(request: Request):
     if not sub:
         # if there is no sub, user can not be authenticated
         raise HTTPException(status_code=403)
+
+    # Mapping user by its VO membership
+    if mapping == "VO":
+        VO_member = VO_mapping.get_vo_info(sub, user_infos)
+    else:
+        VO_member = False
+
     # user is valid, so check if a storm instance is running for this sub
     redirect_host, redirect_port, local_user = await storm_webdav_state(
-        sw_state, sw_condition, sub, iss
+        sw_state, sw_condition, sub, iss, VO_member
     )
 
     if not redirect_host and not redirect_port:
