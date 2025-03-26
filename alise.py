@@ -4,6 +4,8 @@ import logging
 
 import requests
 
+from urllib.parse import quote_plus
+
 config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
 config.read("/etc/teapot/config.ini")
 
@@ -26,35 +28,51 @@ class Alise:
 
     @staticmethod
     def hashencode(iss):
+        """
+        Generate a SHA-1 hash by iteratively updating the hash with each character
+        of the given issuer string.
+
+        This function takes an input string iss, hashes each character individually
+        using SHA-1, and returns the final hexadecimal hash value. If the input string
+        is empty, it logs an error and returns None.
+        """
         hash_method = "sha1"
         hash_function = getattr(hashlib, hash_method)()
 
         if not iss:
             logger.error("Error: input string for issuer is empty.")
             return None
-        else:
-            for letter in iss[0:]:
-                hash_function.update(letter.encode())
-                hash = hash_function.hexdigest()
-            return hash
+
+        for letter in iss:
+            hash_function.update(letter.encode())
+
+        hash = hash_function.hexdigest()
+        return hash
 
     @staticmethod
     def urlencode(sub):
-        try:
-            from urllib.parse import quote_plus
-        except ImportError:
-            from urllib import quote_plus
+        """
+        URL-encode the given subject claim string.
 
+        This function takes an input string sub, encodes it using quote_plus,
+        and returns the encoded result. If the input is empty, it logs an error
+        and returns None.
+        """
         if not sub:
             logger.error("Error: input string for subject claim is empty.")
             return None
         else:
-            result = ""
-            for letter in sub[0:]:
-                result += quote_plus(letter)
-            return result
+            return quote_plus(sub)
 
     def get_local_username(self, subject_claim, issuer):
+        """
+        Retrieve the local username from the ALISE API.
+
+        This function constructs a request to the ALISE API by hashing the issuer
+        and URL-encoding the subject_claim. It then sends a GET request to retrieve
+        the corresponding local username. If the request fails or the response is invalid,
+        it logs an error and returns None.
+        """
         hash1 = Alise.hashencode(issuer)
         hash2 = Alise.urlencode(subject_claim)
         link = (

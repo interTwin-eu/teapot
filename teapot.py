@@ -688,7 +688,7 @@ async def _map_fed_to_local(sub, iss):
             return None
         else:
             logger.info("local user identity is %s", local_username)
-        return local_username
+            return local_username
     else:
         logger.error("The identity mapping method information is missing or incorrect.")
         return None
