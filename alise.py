@@ -77,12 +77,25 @@ class Alise:
             logger.error(
                 "Can't connect to ALISE API. Network-related error was raised: %s", e
             )
+            return None
         except requests.Timeout as e:
             logger.error("Can't connect to ALISE API. Request timed out: %s", e)
+            return None
         except requests.RequestException as e:
             logger.error("An error occured during request to ALISE API: %s", e)
+            return None
         except Exception as e:
             logger.error("Request to ALISE API raised an unexpected error: %s", e)
+            return None
 
-        response_json = response.json()
-        return response_json["internal"]["username"]
+        try:
+            response_json = response.json()
+            local_username = response_json["internal"]["username"]
+        except ValueError as e:
+            logger.error("Decoding JSON has failed: %s", e)
+            return None
+        except Exception as e:
+            logger.error("Local username not found in the json response: %s", e)
+            return None
+
+        return local_username

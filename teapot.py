@@ -134,6 +134,8 @@ app.state.state_lock = anyio.Lock()
 sw_state: dict[str, str] = {}
 # lock for the state of the storm webdav servers
 sw_condition = anyio.Condition()
+# user identity mapping method
+mapping = config["Teapot"]["mapping"]
 
 context = ssl.create_default_context()
 context.load_verify_locations(cafile=config["Teapot"]["Teapot_CA"])
@@ -192,7 +194,6 @@ async def _create_user_dirs(username, sub):
 
     logger.debug("creating user configuration directories")
     config_dir = f"/etc/{APP_NAME}"
-    mapping = config["Teapot"]["mapping"]
 
     if not exists(f"{config_dir}/storage-areas"):
         logger.error(
@@ -658,7 +659,6 @@ async def _map_fed_to_local(sub, iss):
     can log in with one local account and with any number of supported external
     accounts. For more information on ALISE check https://github.com/m-team-kit/alise
     """
-    mapping = config["Teapot"]["mapping"]
     logger.debug("For the user's identity mapping, %s method is used", mapping)
     if mapping == "FILE":
         with open(
