@@ -1,10 +1,9 @@
 import configparser
 import hashlib
 import logging
+from urllib.parse import quote_plus
 
 import requests
-
-from urllib.parse import quote_plus
 
 config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
 config.read("/etc/teapot/config.ini")
