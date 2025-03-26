@@ -69,8 +69,8 @@ class Alise:
 
         This function constructs a request to the ALISE API by hashing the issuer
         and URL-encoding the subject_claim. It then sends a GET request to retrieve
-        the corresponding local username. If the request fails or the response is invalid,
-        it logs an error and returns None.
+        the corresponding local username. If the request fails or the response is
+        invalid, it logs an error and returns None.
         """
         hash1 = Alise.hashencode(issuer)
         hash2 = Alise.urlencode(subject_claim)
