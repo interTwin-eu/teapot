@@ -42,10 +42,9 @@ class Alise:
             logger.error("Error: input string for issuer is empty.")
             return None
 
-        for letter in iss:
-            hash_function.update(letter.encode())
-
+        hash_function.update(iss.encode())
         hash = hash_function.hexdigest()
+
         return hash
 
     @staticmethod
