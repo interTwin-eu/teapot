@@ -18,16 +18,19 @@ logger = logging.getLogger(__name__)
 class VO_mapping:
     def __init__(self, user_info: dict):
         edu_entitlement = user_info.get("edu_entitlement")
-        self.edu_entitlement = edu_entitlement.split("#")[0] if edu_entitlement else None
+        self.edu_entitlement = (
+            edu_entitlement.split("#")[0] if edu_entitlement else None
+        )
 
     def get_local_username(self, sub: str):
         logger.info("Checking VO membership information for user with sub: %s", sub)
 
         for group in config["VO_enforcement"]:
-            valid_group = (config["VO_enforcement"]["group_" + group].split("#")[0])
+            valid_group = config["VO_enforcement"][group].split("#")[0]
             if self.edu_entitlement == valid_group:
                 logger.info("User with sub: %s is a valid member of a VO group", sub)
-                local_username = config["VO_enforcement"]["username_" + group]
+                group_tag = group.split("_")[1]
+                local_username = config["VO_enforcement"]["username_" + group_tag]
                 return local_username
 
         logger.error("User does not meet VO membership requirements")
