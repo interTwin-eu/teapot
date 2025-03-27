@@ -137,8 +137,6 @@ sw_state: dict[str, str] = {}
 sw_condition = anyio.Condition()
 # user_mapping method
 mapping = config["Teapot"]["mapping"]
-# Default value for VO_membership
-VO_member = None
 
 context = ssl.create_default_context()
 context.load_verify_locations(cafile=config["Teapot"]["Teapot_CA"])
@@ -924,6 +922,8 @@ async def root(request: Request):
     # Mapping user by its VO membership
     if mapping == "VO":
         VO_member = VO_mapping(user_infos)
+    else:
+        VO_member = None
 
     # user is valid, so check if a storm instance is running for this sub
     redirect_host, redirect_port, local_user = await storm_webdav_state(
