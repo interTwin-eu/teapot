@@ -137,6 +137,8 @@ sw_state: dict[str, str] = {}
 sw_condition = anyio.Condition()
 # user_mapping method
 mapping = config["Teapot"]["mapping"]
+# Default value for VO_membership
+VO_member = None
 
 context = ssl.create_default_context()
 context.load_verify_locations(cafile=config["Teapot"]["Teapot_CA"])
