@@ -1,8 +1,6 @@
 import configparser
 import logging
 
-from fastapi import HTTPException
-
 config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
 config.read("/etc/teapot/config.ini")
 
@@ -18,29 +16,19 @@ logger = logging.getLogger(__name__)
 
 
 class VO_mapping:
-    @staticmethod
-    def get_vo_info(sub: str, user_info: dict):
-        logger.info("Checking VO info for user with sub: %s", sub)
+    def __init__(self, user_info: dict):
         edu_entitlement = user_info.get("edu_entitlement")
+        self.edu_entitlement = edu_entitlement.split("#")[0] if edu_entitlement else None
 
-        valid_vo_groups = config["VO_enforcement"]["group_membership"].split(", ")
+    def get_local_username(self, sub: str):
+        logger.info("Checking VO membership information for user with sub: %s", sub)
 
-        if edu_entitlement in valid_vo_groups:
-            logger.info("User with sub: %s is a valid member of a VO group", sub)
-            return True
-        else:
-            logger.warning(
-                "User with sub: %s does not belong to any valid VO group", sub
-            )
-            return False
+        for group in config["VO_enforcement"]:
+            valid_group = (config["VO_enforcement"]["group_" + group].split("#")[0])
+            if self.edu_entitlement == valid_group:
+                logger.info("User with sub: %s is a valid member of a VO group", sub)
+                local_username = config["VO_enforcement"]["username_" + group]
+                return local_username
 
-    @staticmethod
-    def get_local_username(VO_member):
-        if VO_member is True:
-            local_username = config["VO_enforcement"]["username"]
-            return local_username
-        else:
-            logger.error("User does not meet VO membership requirements")
-            raise HTTPException(
-                status_code=403, detail="User does not meet VO membership requirements."
-            )
+        logger.error("User does not meet VO membership requirements")
+        return None

@@ -647,7 +647,8 @@ async def _map_fed_to_local(sub, iss, VO_member):
     """
     This function returns the local username for a federated user or None.
     The local username can be retrieved from a mapping file on the local file
-    system or through ALISE (Account Linking Service).
+    system or through ALISE (Account Linking Service). Alternatively, mapping
+    can be done based on the user's VO membership to a local group account.
 
     If using a mapping file, it should have a format:
     local-username federated-sub-claim
@@ -659,6 +660,10 @@ async def _map_fed_to_local(sub, iss, VO_member):
     ALISE implements the concept of site-local account linking. For this a user
     can log in with one local account and with any number of supported external
     accounts. For more information on ALISE check https://github.com/m-team-kit/alise
+
+    VO membership based mapping should be defined in the configi.ini file, where
+    group_membership information and username of the local group account should
+    be provided.
     """
     logger.debug("For the user's identity mapping, %s method is used", mapping)
     if mapping == "FILE":
@@ -691,8 +696,14 @@ async def _map_fed_to_local(sub, iss, VO_member):
             logger.info("local user identity is %s", local_username)
         return local_username
     elif mapping == "VO":
-        VO_membership = VO_mapping()
-        username = VO_membership.get_local_username(VO_member)
+        username = VO_member.get_local_username(sub)
+        if not username:
+            logger.error(
+                "Could not determine user's local group identity."
+                + "Mapping for subject claim %s does not exist",
+                sub,
+            )
+            return None
         return username
     else:
         logger.error("The identity mapping method information is missing or incorrect.")
@@ -910,9 +921,7 @@ async def root(request: Request):
 
     # Mapping user by its VO membership
     if mapping == "VO":
-        VO_member = VO_mapping.get_vo_info(sub, user_infos)
-    else:
-        VO_member = False
+        VO_member = VO_mapping(user_infos)
 
     # user is valid, so check if a storm instance is running for this sub
     redirect_host, redirect_port, local_user = await storm_webdav_state(
