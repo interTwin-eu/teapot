@@ -19,7 +19,7 @@ class VO_mapping:
     def __init__(self, eduperson_entitlement):
         self.eduperson_entitlement = []
         for entitlement in eduperson_entitlement:
-            self.edu_entitlement.append(
+            self.eduperson_entitlement.append(
             entitlement.split("#")[0] if entitlement else None
         )
         logger.debug(
