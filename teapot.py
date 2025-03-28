@@ -912,7 +912,10 @@ async def root(request: Request):
     sub = user_infos.get("sub", None)
     logger.debug("user's issuer is: %s", user_infos["iss"])
     iss = user_infos.get("iss", None)
-    logger.debug("User's eduperson entitlement is %s", eduperson_entitlement)
+    logger.debug(
+        "User's eduperson entitlement is %s",
+        user_infos["eduperson_entitlement"]
+    )
     eduperson_entitlement = user_infos.get("eduperson_entitlement", None)
 
     if not sub:
