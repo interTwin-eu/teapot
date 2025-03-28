@@ -20,11 +20,11 @@ class VO_mapping:
         self.eduperson_entitlement = []
         for entitlement in eduperson_entitlement:
             self.eduperson_entitlement.append(
-            entitlement.split("#")[0] if entitlement else None
-        )
+                entitlement.split("#")[0] if entitlement else None
+            )
         logger.debug(
-            "User's edu_entitlements after the hash has been removed %s",
-            self.eduperson_entitlement
+            "User's eduperson entitlements after the hash has been removed %s",
+            self.eduperson_entitlement,
         )
 
     def get_local_username(self, sub: str):
@@ -38,7 +38,8 @@ class VO_mapping:
                 local_username = config["VO_enforcement"]["username_" + group_tag]
                 logger.info(
                     "The local group account for the VO %s is %s ",
-                    self.eduperson_entitlement, local_username
+                    self.eduperson_entitlement,
+                    local_username,
                 )
                 return local_username
 

@@ -699,8 +699,7 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement):
         VO_membership = VO_mapping(eduperson_entitlement)
         username = VO_membership.get_local_username(sub)
         if not username:
-            logger.error(
-                "Could not determine user's local group identity.")
+            logger.error("Could not determine user's local group identity.")
             return None
         return username
     else:
