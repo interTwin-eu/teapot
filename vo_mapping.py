@@ -29,17 +29,17 @@ class VO_mapping:
 
     def get_local_username(self, sub: str):
         logger.info("Checking VO membership information for user with sub: %s", sub)
-
-        for group in config["VO_enforcement"]:
-            valid_group = config["VO_enforcement"][group].split("#")[0]
-            if self.eduperson_entitlement == valid_group:
-                logger.info("User with sub: %s is a valid member of a VO group", sub)
-                group_tag = group.split("_")[1]
-                local_username = config["VO_enforcement"]["username_" + group_tag]
-                logger.info(
-                    "The local group account for the VO %s is %s ",
-                    self.eduperson_entitlement,
-                    local_username,
+        for entitlement in self.eduperson_entitlement:
+            for group in config["VO_enforcement"]:
+                valid_group = config["VO_enforcement"][group].split("#")[0]
+                if entitlement == valid_group:
+                    logger.info("User with sub: %s is a valid member of a VO group", sub)
+                    group_tag = group.split("_")[1]
+                    local_username = config["VO_enforcement"]["username_" + group_tag]
+                    logger.info(
+                        "The local group account for the VO %s is %s ",
+                        entitlement,
+                        local_username,
                 )
                 return local_username
 
