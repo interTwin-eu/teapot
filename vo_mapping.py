@@ -35,10 +35,13 @@ class VO_mapping:
                 if entitlement == valid_group:
                     logger.info(
                         "User with sub %s is a member of a VO group %s",
-                        sub, valid_group
+                        sub,
+                        valid_group,
                     )
                     group_tag = group.split("_")[1]
-                    local_username = config["VO_enforcement"]["username_" + group_tag] or None
+                    local_username = (
+                        config["VO_enforcement"]["username_" + group_tag] or None
+                    )
                     logger.info(
                         "The local group account for the VO group %s is %s ",
                         entitlement,
