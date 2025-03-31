@@ -914,7 +914,7 @@ async def root(request: Request):
     iss = user_infos.get("iss", None)
     if mapping == "VO":
         logger.debug(
-        "User's eduperson entitlement is %s", user_infos["eduperson_entitlement"]
+            "User's eduperson entitlement is %s", user_infos["eduperson_entitlement"]
         )
         eduperson_entitlement = user_infos.get("eduperson_entitlement", None)
     else:
