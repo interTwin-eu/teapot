@@ -766,6 +766,12 @@ async def storm_webdav_state(state, condition, sub, iss, eduperson_entitlement):
 
     if should_start_sw:
         port = await _find_usable_port_no()
+        if user is None:
+            async with condition:
+                state[user] = "NOT RUNNING"
+            raise ValueError(
+                "No valid user provided. The storm-webdav will NOT be started."
+            )
         pid = await _start_webdav_instance(user, port, sub)
 
         if not pid:

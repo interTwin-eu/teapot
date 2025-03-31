@@ -23,7 +23,7 @@ class VO_mapping:
                 entitlement.split("#")[0] if entitlement else None
             )
         logger.debug(
-            "User's eduperson entitlements after the hash has been removed %s",
+            "User's eduperson entitlements after the hash has been removed is %s",
             self.eduperson_entitlement,
         )
 
@@ -34,12 +34,13 @@ class VO_mapping:
                 valid_group = config["VO_enforcement"][group].split("#")[0]
                 if entitlement == valid_group:
                     logger.info(
-                        "User with sub: %s is a valid member of a VO group", sub
+                        "User with sub %s is a member of a VO group %s",
+                        sub, valid_group
                     )
                     group_tag = group.split("_")[1]
-                    local_username = config["VO_enforcement"]["username_" + group_tag]
+                    local_username = config["VO_enforcement"]["username_" + group_tag] or None
                     logger.info(
-                        "The local group account for the VO %s is %s ",
+                        "The local group account for the VO group %s is %s ",
                         entitlement,
                         local_username,
                     )
