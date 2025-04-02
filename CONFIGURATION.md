@@ -3,6 +3,9 @@
 All configuration settings are stored in the `config.ini` file, located at
 `/etc/teapot/`. Update this file as needed to align with your requirements.
 
+All users must be added to the `teapot` group. This can be done by running
+`usermod -a -G teapot $USERNAME`.
+
 ## Certificates
 
 Both Teapot and StoRM WebDAV servers require `SSL` certificates. The certificate
@@ -12,9 +15,7 @@ store, run `sudo /usr/share/teapot/self-signed-cert-gen.sh`.
 
 ## Additional Storm-webdav configuration
 
-A main piece of additional information are required to configure StoRM-WebDAV:
-
-- OIDC provider and identity mapping information
+### Storage areas
 
 For user-specific storage areas, configuration files must be created manually
 and added to `/var/lib/teapot/user-$USER/sa/$SA_NAME.properties`. Template for
@@ -39,9 +40,6 @@ To configure the OIDC provider information, make the following changes:
    modifying the `iss` information which stands for issuer.
 3. Modify the OIDC providers that have access to the storage area by modifying
    the `org` information in `/usr/share/teapot/storage_element.properties`.
-
-All users must be added to the `teapot` group. This can be done by running
-`usermod -a -G teapot $USERNAME`.
 
 ## Mapping user’s global and local identities
 

@@ -62,6 +62,8 @@ mkdir -p %{buildroot}/%{_exec_prefix}/local/lib64/python3.12/site-packages/
 cp -r %{_builddir}/%name-%version//%{_exec_prefix}/local/lib64/python3.12/site-packages/* %{buildroot}/%{_exec_prefix}/local/lib64/python3.12/site-packages/
 mkdir -p %{buildroot}/%{_exec_prefix}/local/lib/python3.12/site-packages/
 cp -r %{_builddir}/%name-%version//%{_exec_prefix}/local/lib/python3.12/site-packages/* %{buildroot}/%{_exec_prefix}/local/lib/python3.12/site-packages/
+cp %{_builddir}/%name-%version/templates/issuers %{buildroot}/%{_sysconfdir}/%name/
+cp %{_builddir}/%name-%version/templates/storage_authorizations %{buildroot}/%{_datadir}/%name
 
 %clean
 rm -rf %{buildroot}
@@ -102,7 +104,9 @@ fi
 %attr(774, root, root) %{_unitdir}/teapot.service
 %attr(755, root, root) %{_exec_prefix}/local/lib64/python3.12/site-packages/*
 %attr(755, root, root) %{_exec_prefix}/local/lib/python3.12/site-packages/*
+%attr(644, root, root) %{_sysconfdir}/%name/issuers
+%attr(644, root, root) %{_datadir}/%name/storage_authorizations
 
 %changelog
-* Fri Sep 20 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Wed Apr 02 2025 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}
