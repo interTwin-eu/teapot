@@ -1,0 +1,4 @@
+oauth:
+  issuers:
+  - name: testing
+    issuer: https://keycloak:8443/realms/test-realm

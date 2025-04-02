@@ -12,32 +12,14 @@ store, run `sudo /usr/share/teapot/self-signed-cert-gen.sh`.
 
 ## Additional Storm-webdav configuration
 
-Two main pieces of additional information are required to configure StoRM-WebDAV:
+A main piece of additional information are required to configure StoRM-WebDAV:
 
-- Storage Areas (SA), which are folders assigned to each user
 - OIDC provider and identity mapping information
-
-### Storage areas (SA)
-
-Storage areas that are automatically assigned to each user should be defined in
-the `storage-areas` file. `storage-areas` file should be manually added to
-`/etc/teapot/`. It should contain a list of storage areas and their root paths.
-The information for each storage area should be on a single line, separated by a
-single space. It is used to automatically create configuration files for users.
-Here is an example of `storage-areas` file content:
-
-```text
-default $HOME/interTwin
-extra $HOME/interTwin_extra
-```
 
 For user-specific storage areas, configuration files must be created manually
 and added to `/var/lib/teapot/user-$USER/sa/$SA_NAME.properties`. Template for
-this can be found under `/templates/storage_element.properties` in the
-repository or `/usr/share/teapot/storage_element.properties` upon installation,
-where the information defined in `storage-areas` must be added manually, or you
-can follow the principles of the .properties files that are automatically
-generated for SA in the `storage-areas` file.
+this can be found under `/templates/storage_area.properties.template` in the
+repository or `/etc/teapot/storage_area.properties.template` upon installation.
 
 For information on how to configure storage-areas, please refer to the
 [StoRM WebDAV Guidelines](https://github.com/italiangrid/storm-webdav/blob/master/doc/storage-area-configuration.md).

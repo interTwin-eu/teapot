@@ -9,7 +9,7 @@ accessPoints=
 #vos=test.vo
 
 # Comma-separated list of OAuth/OpenID Connect token issuers trusted in this storage area
-orgs=https://aai-demo.egi.eu/auth/realms/egi, https://keycloak:8443/realms/test-realm
+orgs=
 
 # Enables read access to users authenticated with an X.509 certificate issued by
 # a trusted CA (users without VOMS credentials).

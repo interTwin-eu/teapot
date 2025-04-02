@@ -1,0 +1,21 @@
+    - sa: $storage_area
+      actions:
+      - all
+      effect: permit
+      description: Grant complete access to the user in the $storage_area area
+      paths:
+      - /**
+      principals:
+      - type: jwt-subject
+        params:
+          iss: https://keycloak:8443/realms/test-realm
+          sub: $sub
+    - sa: $storage_area
+      actions:
+      - all
+      effect: deny
+      description: Deny access to all users (except ones mentioned above) in the $storage_area area
+      path:
+      - /**
+      principals:
+      - type: anyone

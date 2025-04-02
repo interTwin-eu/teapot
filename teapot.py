@@ -239,30 +239,41 @@ async def _create_user_dirs(username, sub):
     for dir in dirs_to_create:
         await makedir_chown_chmod(dir)
 
-    with open(
-        f"/usr/share/{APP_NAME}/storage_element.properties", "r", encoding="utf-8"
-    ) as prop:
-        second_part = prop.readlines()
-    with open(f"{config_dir}/storage-areas", "r", encoding="utf-8") as storage_areas:
-        for line in storage_areas:
-            storage_area, path = line.split(" ")
-            if "$HOME" in path:
-                path_components = path.split("/")
-                path_components[0] = f"/home/{username}"
-                path = os.path.join(*path_components)
-            sa_properties_path = f"{user_sa_d_dir}/{storage_area}.properties"
-            if not exists(sa_properties_path):
-                with open(
-                    sa_properties_path, "w", encoding="utf-8"
-                ) as storage_area_properties:
-                    first_part = (
-                        f"name={storage_area}\nrootPath={path}\n"
-                        f"accessPoints=/{storage_area}_area\n\n"
-                    )
-                    storage_area_properties.write(first_part)
-                    for line in second_part:
-                        storage_area_properties.write(line)
-                os.chmod(sa_properties_path, STANDARD_MODE)
+    i=1
+    while config.has_section(f"STORAGE_AREA_{i}"):
+        try:
+            SA_name = config[f"STORAGE_AREA_{i}"]["name"]
+            SA_rootPath = config[f"STORAGE_AREA_{i}"]["rootPath"]
+            SA_access_point = config[f"STORAGE_AREA_{i}"]["accessPoint"]
+            SA_orgs = config["Teapot"]["trusted_OP"]
+        except KeyError as e:
+            logger.error(
+                "Missing key for the STORAGE_AREA_%d in configuration: %s", i, e
+            )
+            break
+
+        with open(
+            f"/etc/{APP_NAME}/storage_area.properties.template",
+            "r",
+            encoding="utf-8",
+        ) as prop:
+            template = prop.read()
+
+        replacements = {
+            "name=": f"name={SA_name}",
+            "rootPath=": f"rootPath={SA_rootPath}",
+            "accessPoints=": f"accessPoints={SA_access_point}",
+            "orgs=": f"orgs={SA_orgs}",
+        }
+        for old, new in replacements.items():
+            template = template.replace(old, new)
+
+        SA_properties_path = f"{user_sa_d_dir}/{SA_name}.properties"
+        with open(SA_properties_path, "w", encoding="utf-8") as properties:
+            properties.write(template)
+        i += 1
+        os.chmod(SA_properties_path, STANDARD_MODE)
+        logger.debug("Created properties file for storage area: %s", SA_name)
 
     if not exists(f"{user_config_dir}/application.yml"):
         with open(f"{config_dir}/issuers", "r", encoding="utf-8") as issuers:
