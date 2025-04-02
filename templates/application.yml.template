@@ -1,4 +1,12 @@
-    - sa: $storage_area
+oauth:
+  issuers:
+  - name:
+    issuer:
+
+storm:
+  authy:
+    policies:
+    - sa:
       actions:
       - all
       effect: permit
@@ -8,9 +16,9 @@
       principals:
       - type: jwt-subject
         params:
-          iss: https://keycloak:8443/realms/test-realm
-          sub: $sub
-    - sa: $storage_area
+          iss:
+          sub:
+    - sa:
       actions:
       - all
       effect: deny

@@ -1,3 +1,10 @@
+# The name of the storage-area
+name=
+# Root path for the storage area. Files will be served from this path.
+rootPath=
+# Comma separated list of storage area access points.
+accessPoints=
+
 # Comma-separated list of VOMS VOs supported in this storage area
 #vos=test.vo
 
