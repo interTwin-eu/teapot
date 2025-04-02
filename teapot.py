@@ -239,7 +239,7 @@ async def _create_user_dirs(username, sub):
     for dir in dirs_to_create:
         await makedir_chown_chmod(dir)
 
-    i=1
+    i = 1
     while config.has_section(f"STORAGE_AREA_{i}"):
         try:
             SA_name = config[f"STORAGE_AREA_{i}"]["name"]
