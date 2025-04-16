@@ -26,7 +26,9 @@ class VOMapping:
         )
 
     def get_local_username(self, sub: str):
-        logger.info("Checking if the user with sub %s is a member of a specified VO", sub)
+        logger.info(
+            "Checking if the user with sub %s is a member of a specified VO", sub
+        )
         for entitlement in self.eduperson_entitlement:
             for group in config["VO_enforcement"]:
                 if group.startswith("group_"):
@@ -43,9 +45,9 @@ class VOMapping:
                             continue
                         group_tag = parts[1]
                         try:
-                            local_username = (
-                                config["VO_enforcement"]["username_" + group_tag]
-                            )
+                            local_username = config["VO_enforcement"][
+                                "username_" + group_tag
+                            ]
                             logger.info(
                                 "The local group account mapped to VO group %s is %s ",
                                 entitlement,
@@ -55,7 +57,7 @@ class VOMapping:
                         except KeyError:
                             logger.error(
                                 "No local username mapping found for VO group %s."
-                                 + "Username_%s not defined in config.",
+                                + "Username_%s not defined in config.",
                                 entitlement,
                                 group_tag,
                             )
