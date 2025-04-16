@@ -3,7 +3,7 @@
 # trunk-ignore-all(trivy/DS002)
 # trunk-ignore-all(trivy/DS026)
 # trunk-ignore-all(hadolint/DL3007)
-FROM dvrbanec/teapot-requirements:2.1
+FROM dvrbanec/teapot-requirements:2.0
 
 # installing Teapot
 WORKDIR /tmp

@@ -6,7 +6,7 @@ RUN \
     dnf -y install initscripts java-17-openjdk perl-IPC-Cmd perl-Test-Simple && \
     dnf -y group install "Development Tools" && \
     dnf -y install libffi libffi-devel cronie openssl python3-pip && \
-    dnf -y install python3-fastapi python3-httpx python3-pydantic && \
+    dnf -y install python3-fastapi python3-httpx python3-pydantic python3-requests && \
     dnf -y install python3-uvicorn python3-anyio python3-psutil python3-dotenv && \
     dnf clean all
 
