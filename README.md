@@ -42,7 +42,7 @@ Functional tests can be found in `/robot`. To execute them, run `robot teapot-te
 
 ## Version
 
-The current version of Teapot is 0.8.6.
+The current version of Teapot is 0.12.0.
 
 ## Authors
 
