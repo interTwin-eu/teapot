@@ -15,39 +15,50 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class VO_mapping:
+class VOMapping:
     def __init__(self, eduperson_entitlement):
-        self.eduperson_entitlement = []
-        for entitlement in eduperson_entitlement:
-            self.eduperson_entitlement.append(
-                entitlement.split("#")[0] if entitlement else None
-            )
+        self.eduperson_entitlement = [
+            ent.split("#")[0] for ent in eduperson_entitlement if ent
+        ]
         logger.debug(
-            "User's eduperson entitlements after the hash has been removed is %s",
+            "User's eduperson entitlements after the hash has been removed are %s",
             self.eduperson_entitlement,
         )
 
     def get_local_username(self, sub: str):
-        logger.info("Checking VO membership information for user with sub: %s", sub)
+        logger.info("Checking if the user with sub %s is a member of a specified VO", sub)
         for entitlement in self.eduperson_entitlement:
             for group in config["VO_enforcement"]:
-                valid_group = config["VO_enforcement"][group].split("#")[0]
-                if entitlement == valid_group:
-                    logger.info(
-                        "User with sub %s is a member of a VO group %s",
-                        sub,
-                        valid_group,
-                    )
-                    group_tag = group.split("_")[1]
-                    local_username = (
-                        config["VO_enforcement"]["username_" + group_tag] or None
-                    )
-                    logger.info(
-                        "The local group account for the VO group %s is %s ",
-                        entitlement,
-                        local_username,
-                    )
-                return local_username
+                if group.startswith("group_"):
+                    group_requirement = config["VO_enforcement"][group].split("#")[0]
+                    if entitlement == group_requirement:
+                        logger.info(
+                            "User with sub %s is a member of the specified VO %s",
+                            sub,
+                            group_requirement,
+                        )
+                        parts = group.split("_", 1)
+                        if len(parts) != 2:
+                            logger.warning("Group %s is not named correctly", group)
+                            continue
+                        group_tag = parts[1]
+                        try:
+                            local_username = (
+                                config["VO_enforcement"]["username_" + group_tag]
+                            )
+                            logger.info(
+                                "The local group account mapped to VO group %s is %s ",
+                                entitlement,
+                                local_username,
+                            )
+                            return local_username
+                        except KeyError:
+                            logger.error(
+                                "No local username mapping found for VO group %s."
+                                 + "Username_%s not defined in config.",
+                                entitlement,
+                                group_tag,
+                            )
 
         logger.error("User does not meet VO membership requirements")
         return None
