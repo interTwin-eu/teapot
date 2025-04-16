@@ -107,5 +107,5 @@ fi
 %attr(755, root, root) %{_exec_prefix}/local/lib/python3.9/site-packages/*
 
 %changelog
-* Thu Sep 19 2024 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Wed Apr 16 2025 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}
