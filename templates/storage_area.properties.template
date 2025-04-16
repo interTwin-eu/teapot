@@ -1,14 +1,14 @@
-# The name of the storage-area
+# This variable will be automatically updated by Teapot.
 name=
-# Root path for the storage area. Files will be served from this path.
+# This variable will be automatically updated by Teapot.
 rootPath=
-# Comma separated list of storage area access points.
+# This variable will be automatically updated by Teapot.
 accessPoints=
 
 # Comma-separated list of VOMS VOs supported in this storage area
 #vos=test.vo
 
-# Comma-separated list of OAuth/OpenID Connect token issuers trusted in this storage area
+# This variable will be automatically updated by Teapot.
 orgs=
 
 # Enables read access to users authenticated with an X.509 certificate issued by
