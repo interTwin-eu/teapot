@@ -10,7 +10,6 @@ import os
 import socket
 import ssl
 import subprocess
-from configparser import ExtendedInterpolation
 from contextlib import asynccontextmanager
 from os.path import exists
 from pathlib import Path
@@ -21,6 +20,7 @@ import anyio
 import httpx
 import psutil
 import uvicorn
+from alise import Alise
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.security import HTTPBearer
 from flaat.config import AccessLevel
@@ -29,7 +29,7 @@ from flaat.requirements import HasSubIss
 from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
 
-config = configparser.ConfigParser(interpolation=ExtendedInterpolation())
+config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
 config.read("/etc/teapot/config.ini")
 
 
@@ -98,7 +98,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 SESSION_STORE_PATH = os.environ.get(
-    "TEAPOT_SESSIONS", "/var/lib/teapot/webdav/teapot_sessions.json"
+    "TEAPOT_SESSIONS", config["Teapot"]["sessions_path"]
 )
 APP_NAME = config["Teapot"]["APP_NAME"]
 # one less than the first port that is going to be used by any storm webdav
@@ -134,6 +134,8 @@ app.state.state_lock = anyio.Lock()
 sw_state: dict[str, str] = {}
 # lock for the state of the storm webdav servers
 sw_condition = anyio.Condition()
+# user identity mapping method
+mapping = config["Teapot"]["mapping"]
 
 context = ssl.create_default_context()
 context.load_verify_locations(cafile=config["Teapot"]["Teapot_CA"])
@@ -179,7 +181,7 @@ async def makedir_chown_chmod(dir, mode=STANDARD_MODE):
             )
 
 
-async def _create_user_dirs(username):
+async def _create_user_dirs(username, sub):
     # need to create
     # - /var/lib/APP_NAME/user-username
     # - /var/lib/APP_NAME/user-username/log
@@ -192,6 +194,7 @@ async def _create_user_dirs(username):
 
     logger.debug("creating user configuration directories")
     config_dir = f"/etc/{APP_NAME}"
+
     if not exists(f"{config_dir}/storage-areas"):
         logger.error(
             "%s/storage-areas is missing. It should consist of two variables "
@@ -201,14 +204,15 @@ async def _create_user_dirs(username):
         )
         return False
 
-    mapping_file = f"{config_dir}/user-mapping.csv"
-    if not exists(mapping_file):
-        logger.error(
-            "%s does not exist. It should consist of two variables per user: "
-            + "username and subject claim separated by a single space.",
-            mapping_file,
-        )
-        return False
+    if mapping == "FILE":
+        mapping_file = f"{config_dir}/user-mapping.csv"
+        if not exists(mapping_file):
+            logger.error(
+                "%s does not exist. It should consist of two variables per user: "
+                + "username and subject claim separated by a single space.",
+                mapping_file,
+            )
+            return False
 
     app_dir = f"/var/lib/{APP_NAME}"
     if not exists(app_dir):
@@ -260,11 +264,6 @@ async def _create_user_dirs(username):
                 os.chmod(sa_properties_path, STANDARD_MODE)
 
     if not exists(f"{user_config_dir}/application.yml"):
-        with open(f"{config_dir}/user-mapping.csv", encoding="utf-8") as mapping:
-            for line in mapping:
-                if line.startswith(username):
-                    sub = line.split(" ")[1]
-                    break
         with open(f"{config_dir}/issuers", "r", encoding="utf-8") as issuers:
             issuers_part = issuers.readlines()
         with open(
@@ -361,8 +360,8 @@ async def _remove_user_env():
         del os.environ[key]
 
 
-async def _start_webdav_instance(username, port):
-    res = await _create_user_dirs(username)
+async def _start_webdav_instance(username, port, sub):
+    res = await _create_user_dirs(username, sub)
     if not res:
         logger.error("could not create user dirs for %s", username)
         return False
@@ -445,7 +444,7 @@ async def _get_proc(cmd):
         if cmd == " ".join(proc.cmdline()):
             logger.debug("PID for the started storm-webdav server found: %d", pid)
             return proc
-    raise RuntimeError("process with full command ", +cmd + "does not exist.")
+    raise RuntimeError("process with full command " + cmd + "does not exist.")
 
 
 async def _stop_webdav_instance(username, state, condition):
@@ -643,31 +642,59 @@ async def load_session_state():
                 app.state.session_state = json.load(f)
 
 
-async def _map_fed_to_local(sub):
+async def _map_fed_to_local(sub, iss):
     """
     This function returns the local username for a federated user or None.
-    For this prototype, the local username is read from a mapping file on
-    the local file system. It is expected that the mapping file has the format:
+    The local username can be retrieved from a mapping file on the local file
+    system or through ALISE (Account Linking Service).
+
+    If using a mapping file, it should have a format:
     local-username federated-sub-claim
 
     The file should be without headers. Only the first hit for a federated sub
     claim is returned. Thus, it is possible to match multiple subs to a single
     local username but not the other way around.
+
+    ALISE implements the concept of site-local account linking. For this a user
+    can log in with one local account and with any number of supported external
+    accounts. For more information on ALISE check https://github.com/m-team-kit/alise
     """
+    logger.debug("For the user's identity mapping, %s method is used", mapping)
+    if mapping == "FILE":
+        with open(
+            config["Teapot"]["mapping_file"], "r", encoding="utf-8"
+        ) as mapping_file:
+            mappingreader = csv.reader(mapping_file, delimiter=" ")
+            for row in mappingreader:
+                if row[1] == sub:
+                    if not row[0]:
+                        logger.error("local user identity is unknown")
+                        return None
+                    logger.info("local user identity is %s", row[0])
+                    return row[0]
+            else:
+                logger.error("The local user for sub claim %s does not exist", sub)
+                return None
+        return None
+    elif mapping == "ALISE":
+        alise_instance = Alise()
+        local_username = alise_instance.get_local_username(sub, iss)
+        if not local_username:
+            logger.error(
+                "Could not determine user's local identity."
+                + "Mapping for subject claim %s does not exist",
+                sub,
+            )
+            return None
+        else:
+            logger.info("local user identity is %s", local_username)
+            return local_username
+    else:
+        logger.error("The identity mapping method information is missing or incorrect.")
+        return None
 
-    with open("/etc/teapot/user-mapping.csv", "r", encoding="utf-8") as mapping_file:
-        mappingreader = csv.reader(mapping_file, delimiter=" ")
-        for row in mappingreader:
-            if row[1] == sub:
-                if not row[0]:
-                    logger.error("local user identity is unknown")
-                    return None
-                logger.info("local user identity is %s", row[0])
-                return row[0]
-    return None
 
-
-async def storm_webdav_state(state, condition, sub):
+async def storm_webdav_state(state, condition, sub, iss):
     """
     This function gets the mapping for the federated user from the sub-claim to the
     user's local identity. With this local identity, it manages the state of the
@@ -676,7 +703,7 @@ async def storm_webdav_state(state, condition, sub):
     state is NOT_RUNNING. Transition between different states is triggered by an
     incomming request or by storm-webdav instance reaching the inactivity treshold.
     """
-    user = await _map_fed_to_local(sub)
+    user = await _map_fed_to_local(sub, iss)
 
     should_start_sw = False
     logger.info("Assesing the state of the storm webdav instance for user %s", user)
@@ -726,7 +753,7 @@ async def storm_webdav_state(state, condition, sub):
 
     if should_start_sw:
         port = await _find_usable_port_no()
-        pid = await _start_webdav_instance(user, port)
+        pid = await _start_webdav_instance(user, port, sub)
 
         if not pid:
             async with condition:
@@ -870,12 +897,14 @@ async def root(request: Request):
 
     logger.info("user's sub is: %s", user_infos["sub"])
     sub = user_infos.get("sub", None)
+    logger.debug("user's issuer is: %s", user_infos["iss"])
+    iss = user_infos.get("iss", None)
     if not sub:
         # if there is no sub, user can not be authenticated
         raise HTTPException(status_code=403)
     # user is valid, so check if a storm instance is running for this sub
     redirect_host, redirect_port, local_user = await storm_webdav_state(
-        sw_state, sw_condition, sub
+        sw_state, sw_condition, sub, iss
     )
 
     if not redirect_host and not redirect_port:
