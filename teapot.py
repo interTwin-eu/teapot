@@ -660,7 +660,7 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement):
     ALISE implements the concept of site-local account linking. For this a user
     can log in with one local account and with any number of supported external
     accounts. For more information on ALISE check https://github.com/m-team-kit/alise
-    
+
     VO membership based mapping should be defined in the configi.ini file, where
     group_membership information and username of the local group account should
     be provided.
