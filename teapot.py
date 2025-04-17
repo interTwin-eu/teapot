@@ -28,6 +28,7 @@ from flaat.fastapi import Flaat
 from flaat.requirements import HasSubIss
 from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
+from vo_mapping import VOMapping
 
 config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
 config.read("/etc/teapot/config.ini")
@@ -642,11 +643,12 @@ async def load_session_state():
                 app.state.session_state = json.load(f)
 
 
-async def _map_fed_to_local(sub, iss):
+async def _map_fed_to_local(sub, iss, eduperson_entitlement):
     """
     This function returns the local username for a federated user or None.
     The local username can be retrieved from a mapping file on the local file
-    system or through ALISE (Account Linking Service).
+    system or through ALISE (Account Linking Service). Alternatively, mapping
+    can be done based on the user's VO membership to a local group account.
 
     If using a mapping file, it should have a format:
     local-username federated-sub-claim
@@ -658,6 +660,10 @@ async def _map_fed_to_local(sub, iss):
     ALISE implements the concept of site-local account linking. For this a user
     can log in with one local account and with any number of supported external
     accounts. For more information on ALISE check https://github.com/m-team-kit/alise
+    
+    VO membership based mapping should be defined in the configi.ini file, where
+    group_membership information and username of the local group account should
+    be provided.
     """
     logger.debug("For the user's identity mapping, %s method is used", mapping)
     if mapping == "FILE":
@@ -673,28 +679,35 @@ async def _map_fed_to_local(sub, iss):
                     logger.info("local user identity is %s", row[0])
                     return row[0]
             else:
-                logger.error("The local user for sub claim %s does not exist", sub)
-                return None
+                RuntimeError("The local user for sub claim %s does not exist", sub)
         return None
     elif mapping == "ALISE":
         alise_instance = Alise()
         local_username = alise_instance.get_local_username(sub, iss)
         if not local_username:
-            logger.error(
+            raise RuntimeError(
                 "Could not determine user's local identity."
                 + "Mapping for subject claim %s does not exist",
                 sub,
             )
-            return None
         else:
             logger.info("local user identity is %s", local_username)
-            return local_username
+        return local_username
+    elif mapping == "VO":
+        VO_membership = VOMapping(eduperson_entitlement)
+        username = VO_membership.get_local_username(sub)
+        if not username:
+            raise RuntimeError(
+                "User with sub %s has no matching VO membership; "
+                "cannot determine local username." % sub
+            )
+        return username
     else:
         logger.error("The identity mapping method information is missing or incorrect.")
         return None
 
 
-async def storm_webdav_state(state, condition, sub, iss):
+async def storm_webdav_state(state, condition, sub, iss, eduperson_entitlement):
     """
     This function gets the mapping for the federated user from the sub-claim to the
     user's local identity. With this local identity, it manages the state of the
@@ -703,7 +716,7 @@ async def storm_webdav_state(state, condition, sub, iss):
     state is NOT_RUNNING. Transition between different states is triggered by an
     incomming request or by storm-webdav instance reaching the inactivity treshold.
     """
-    user = await _map_fed_to_local(sub, iss)
+    user = await _map_fed_to_local(sub, iss, eduperson_entitlement)
 
     should_start_sw = False
     logger.info("Assesing the state of the storm webdav instance for user %s", user)
@@ -753,6 +766,12 @@ async def storm_webdav_state(state, condition, sub, iss):
 
     if should_start_sw:
         port = await _find_usable_port_no()
+        if user is None:
+            async with condition:
+                state[user] = "NOT RUNNING"
+            raise ValueError(
+                "No valid user provided. The storm-webdav will NOT be started."
+            )
         pid = await _start_webdav_instance(user, port, sub)
 
         if not pid:
@@ -899,12 +918,21 @@ async def root(request: Request):
     sub = user_infos.get("sub", None)
     logger.debug("user's issuer is: %s", user_infos["iss"])
     iss = user_infos.get("iss", None)
+    if mapping == "VO":
+        logger.debug(
+            "User's eduperson entitlements are %s", user_infos["eduperson_entitlement"]
+        )
+        eduperson_entitlement = user_infos.get("eduperson_entitlement", None)
+    else:
+        eduperson_entitlement = None
+
     if not sub:
         # if there is no sub, user can not be authenticated
         raise HTTPException(status_code=403)
+
     # user is valid, so check if a storm instance is running for this sub
     redirect_host, redirect_port, local_user = await storm_webdav_state(
-        sw_state, sw_condition, sub, iss
+        sw_state, sw_condition, sub, iss, eduperson_entitlement
     )
 
     if not redirect_host and not redirect_port:
