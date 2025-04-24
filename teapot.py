@@ -348,34 +348,11 @@ async def _create_user_dirs(username, port, sub):
     else:
         logger.debug("application.yml already exists; skipping initial creation.")
 
-    # if not exists(f"{user_config_dir}/application.yml"):
-    #     with open(f"{config_dir}/issuers", "r", encoding="utf-8") as issuers:
-    #         issuers_part = issuers.readlines()
-    #     with open(
-    #         "/usr/share/teapot/storage_authorizations", "r", encoding="utf-8"
-    #     ) as auths:
-    #         authorization_part = "".join(auths.readlines())
-    #     with open(
-    #         f"{user_config_dir}/application.yml", "a", encoding="utf-8"
-    #     ) as application_yml:
-    #         for line in issuers_part:
-    #             application_yml.write(line)
-    #         application_yml.write("storm:\n  authz:\n    policies:\n")
-    #         with open(
-    #             f"{config_dir}/storage-areas", "r", encoding="utf-8"
-    #         ) as storage_areas:
-    #             for line in storage_areas:
-    #                 storage_area = line.split(" ")[0]
-    #                 application_yml.write(
-    #                     authorization_part.replace("$sub", sub).replace(
-    #                         "$storage_area", storage_area
-    #                     )
-    #                 )
-
     return True
 
 
 async def _create_user_env(username, port):
+    config.read(["/etc/teapot/config.ini", "/etc/teapot/user_config.ini"])
     os.environ["STORM_WEBDAV_JVM_OPTS"] = config["Storm-webdav"]["JVM_OPTS"]
     os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = config["Storm-webdav"]["SERVER_ADDRESS"]
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = config["Storm-webdav"]["HTTPS_PORT"]
