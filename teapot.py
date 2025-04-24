@@ -319,7 +319,7 @@ async def _create_user_dirs(username, port, sub):
                 "type:": (
                     "type: jwt-issuer" if mapping == "VO" else "type: jwt-subject"
                 ),
-                "sub:": ("" if mapping == "VO" else f"sub: {sub}")
+                "sub:": ("" if mapping == "VO" else f"sub: {sub}"),
             }
             for old, new in replacements.items():
                 template = template.replace(old, new)
