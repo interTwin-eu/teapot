@@ -182,7 +182,15 @@ async def makedir_chown_chmod(dir, mode=STANDARD_MODE):
             )
 
 
-async def _create_user_dirs(username, sub):
+async def _create_user_dirs(username, port, sub):
+    config_update = configparser.ConfigParser()
+    config_update.add_section("Current-user")
+    config_update.set("Current-user", "username", str(username))
+    config_update.set("Current-user", "port", str(port))
+    config_update.set("Current-user", "port1", str(port + 1))
+    with open("/etc/teapot/user_config.ini", "w", encoding="utf-8") as configfile:
+        config_update.write(configfile)
+    config.read(["/etc/teapot/config.ini", "/etc/teapot/user_config.ini"])
     # need to create
     # - /var/lib/APP_NAME/user-username
     # - /var/lib/APP_NAME/user-username/log
@@ -268,7 +276,8 @@ async def _create_user_dirs(username, sub):
             logger.debug("Created properties file for storage area: %s", SA_name)
         else:
             logger.debug(
-                "Skipped creation: properties file already exists for storage area %s (%s)",
+                "Skipped creation:"
+                + "properties file already exists for storage area %s (%s)",
                 SA_name,
                 SA_properties_path,
             )
@@ -280,8 +289,7 @@ async def _create_user_dirs(username, sub):
 
     if not os.path.exists(app_ym_path):
         with open(
-            f"/etc/{APP_NAME}/application.yml.template",
-            "r", encoding="utf-8"
+            f"/etc/{APP_NAME}/application.yml.template", "r", encoding="utf-8"
         ) as prop:
             raw_template = prop.read()
 
@@ -290,14 +298,12 @@ async def _create_user_dirs(username, sub):
 
         while config.has_section(f"STORAGE_AREA_{i}"):
             try:
-                SA_name  = config[f"STORAGE_AREA_{i}"]["name"]
+                SA_name = config[f"STORAGE_AREA_{i}"]["name"]
                 IdP_name = config[f"STORAGE_AREA_{i}"]["IdP_name"]
-                IdP_URL  = config[f"STORAGE_AREA_{i}"]["IdP_URL"]
+                IdP_URL = config[f"STORAGE_AREA_{i}"]["IdP_URL"]
             except KeyError as e:
                 logger.error(
-                    "Missing key for STORAGE_AREA_%d in configuration: %s",
-                    i,
-                    e
+                    "Missing key for STORAGE_AREA_%d in configuration: %s", i, e
                 )
                 break
 
@@ -306,19 +312,14 @@ async def _create_user_dirs(username, sub):
             template = raw_template
 
             replacements = {
-                "name:":   f"name: {IdP_name}",
+                "name:": f"name: {IdP_name}",
                 "issuer:": f"issuer: {IdP_URL}",
-                "sa: ":    f"sa: {SA_name}",
-                "iss:":    f"iss: {IdP_name}",
+                "sa: ": f"sa: {SA_name}",
+                "iss:": f"iss: {IdP_name}",
                 "type:": (
-                    "type: jwt-issuer"
-                    if mapping == "VO"
-                    else "type: jwt-subject"
+                    "type: jwt-issuer" if mapping == "VO" else "type: jwt-subject"
                 ),
-                "sub:": (
-                    "" if mapping == "VO"
-                    else f"sub: {sub}"
-                )
+                "sub:": ("" if mapping == "VO" else f"sub: {sub}")
             }
             for old, new in replacements.items():
                 template = template.replace(old, new)
@@ -345,9 +346,7 @@ async def _create_user_dirs(username, sub):
             "Created application.yml file for the authorization to the storage areas"
         )
     else:
-        logger.debug(
-            "application.yml already exists; skipping initial creation."
-        )
+        logger.debug("application.yml already exists; skipping initial creation.")
 
     # if not exists(f"{user_config_dir}/application.yml"):
     #     with open(f"{config_dir}/issuers", "r", encoding="utf-8") as issuers:
@@ -377,14 +376,6 @@ async def _create_user_dirs(username, sub):
 
 
 async def _create_user_env(username, port):
-    config_update = configparser.ConfigParser()
-    config_update.add_section("Current-user")
-    config_update.set("Current-user", "username", str(username))
-    config_update.set("Current-user", "port", str(port))
-    config_update.set("Current-user", "port1", str(port + 1))
-    with open("/etc/teapot/user_config.ini", "w", encoding="utf-8") as configfile:
-        config_update.write(configfile)
-    config.read(["/etc/teapot/config.ini", "/etc/teapot/user_config.ini"])
     os.environ["STORM_WEBDAV_JVM_OPTS"] = config["Storm-webdav"]["JVM_OPTS"]
     os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = config["Storm-webdav"]["SERVER_ADDRESS"]
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = config["Storm-webdav"]["HTTPS_PORT"]
@@ -448,7 +439,7 @@ async def _remove_user_env():
 
 
 async def _start_webdav_instance(username, port, sub):
-    res = await _create_user_dirs(username, sub)
+    res = await _create_user_dirs(username, port, sub)
     if not res:
         logger.error("could not create user dirs for %s", username)
         return False
