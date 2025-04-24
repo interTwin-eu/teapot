@@ -4,17 +4,17 @@ oauth:
     issuer:
 
 storm:
-  authy:
+  authz:
     policies:
     - sa:
       actions:
       - all
       effect: permit
-      description: Grant complete access to the user in the $storage_area area
+      description: Grant complete access to the user in the storage area
       paths:
       - /**
       principals:
-      - type: jwt-subject
+      - type:
         params:
           iss:
           sub:

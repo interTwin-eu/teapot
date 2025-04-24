@@ -196,15 +196,6 @@ async def _create_user_dirs(username, sub):
     logger.debug("creating user configuration directories")
     config_dir = f"/etc/{APP_NAME}"
 
-    if not exists(f"{config_dir}/storage-areas"):
-        logger.error(
-            "%s/storage-areas is missing. It should consist of two variables "
-            + "per storage area: name of the storage area and root path to the "
-            + "storage area's directory separated by a single space.",
-            config_dir,
-        )
-        return False
-
     if mapping == "FILE":
         mapping_file = f"{config_dir}/user-mapping.csv"
         if not exists(mapping_file):
@@ -239,13 +230,14 @@ async def _create_user_dirs(username, sub):
     for dir in dirs_to_create:
         await makedir_chown_chmod(dir)
 
+    # Automated creation of the user storage_area.properties files
     i = 1
     while config.has_section(f"STORAGE_AREA_{i}"):
         try:
             SA_name = config[f"STORAGE_AREA_{i}"]["name"]
             SA_rootPath = config[f"STORAGE_AREA_{i}"]["rootPath"]
             SA_access_point = config[f"STORAGE_AREA_{i}"]["accessPoint"]
-            SA_orgs = config["Teapot"]["trusted_OP"]
+            SA_orgs = config["STORAGE_AREA_{i}"]["IdP_URL"]
         except KeyError as e:
             logger.error(
                 "Missing key for the STORAGE_AREA_%d in configuration: %s", i, e
@@ -269,35 +261,118 @@ async def _create_user_dirs(username, sub):
             template = template.replace(old, new)
 
         SA_properties_path = f"{user_sa_d_dir}/{SA_name}.properties"
-        with open(SA_properties_path, "w", encoding="utf-8") as properties:
-            properties.write(template)
-        i += 1
-        os.chmod(SA_properties_path, STANDARD_MODE)
-        logger.debug("Created properties file for storage area: %s", SA_name)
+        if not os.path.exists(SA_properties_path):
+            with open(SA_properties_path, "w", encoding="utf-8") as properties:
+                properties.write(template)
+            os.chmod(SA_properties_path, STANDARD_MODE)
+            logger.debug("Created properties file for storage area: %s", SA_name)
+        else:
+            logger.debug(
+                "Skipped creation: properties file already exists for storage area %s (%s)",
+                SA_name,
+                SA_properties_path,
+            )
 
-    if not exists(f"{user_config_dir}/application.yml"):
-        with open(f"{config_dir}/issuers", "r", encoding="utf-8") as issuers:
-            issuers_part = issuers.readlines()
+        i += 1
+
+    # Automated creation of the user application.yml files
+    app_ym_path = f"{user_config_dir}/application.yml"
+
+    if not os.path.exists(app_ym_path):
         with open(
-            "/usr/share/teapot/storage_authorizations", "r", encoding="utf-8"
-        ) as auths:
-            authorization_part = "".join(auths.readlines())
-        with open(
-            f"{user_config_dir}/application.yml", "a", encoding="utf-8"
-        ) as application_yml:
-            for line in issuers_part:
-                application_yml.write(line)
-            application_yml.write("storm:\n  authz:\n    policies:\n")
-            with open(
-                f"{config_dir}/storage-areas", "r", encoding="utf-8"
-            ) as storage_areas:
-                for line in storage_areas:
-                    storage_area = line.split(" ")[0]
-                    application_yml.write(
-                        authorization_part.replace("$sub", sub).replace(
-                            "$storage_area", storage_area
-                        )
-                    )
+            f"/etc/{APP_NAME}/application.yml.template",
+            "r", encoding="utf-8"
+        ) as prop:
+            raw_template = prop.read()
+
+        i = 1
+        first = True
+
+        while config.has_section(f"STORAGE_AREA_{i}"):
+            try:
+                SA_name  = config[f"STORAGE_AREA_{i}"]["name"]
+                IdP_name = config[f"STORAGE_AREA_{i}"]["IdP_name"]
+                IdP_URL  = config[f"STORAGE_AREA_{i}"]["IdP_URL"]
+            except KeyError as e:
+                logger.error(
+                    "Missing key for STORAGE_AREA_%d in configuration: %s",
+                    i,
+                    e
+                )
+                break
+
+            logger.debug("Processing storage area '%s' (section %d)", SA_name, i)
+
+            template = raw_template
+
+            replacements = {
+                "name:":   f"name: {IdP_name}",
+                "issuer:": f"issuer: {IdP_URL}",
+                "sa: ":    f"sa: {SA_name}",
+                "iss:":    f"iss: {IdP_name}",
+                "type:": (
+                    "type: jwt-issuer"
+                    if mapping == "VO"
+                    else "type: jwt-subject"
+                ),
+                "sub:": (
+                    "" if mapping == "VO"
+                    else f"sub: {sub}"
+                )
+            }
+            for old, new in replacements.items():
+                template = template.replace(old, new)
+
+            if first:
+                # Write the full template for the first storage area
+                with open(app_ym_path, "w", encoding="utf-8") as yml:
+                    yml.write(template)
+                first = False
+            else:
+                # Append only from the '- sa:' block onward
+                with open(app_ym_path, "a", encoding="utf-8") as yml:
+                    sa_block_started = False
+                    for line in template.splitlines():
+                        if not sa_block_started and line.strip().startswith("- sa:"):
+                            sa_block_started = True
+                        if sa_block_started:
+                            yml.write(line + "\n")
+
+            i += 1
+
+        os.chmod(app_ym_path, STANDARD_MODE)
+        logger.debug(
+            "Created application.yml file for the authorization to the storage areas"
+        )
+    else:
+        logger.debug(
+            "application.yml already exists; skipping initial creation."
+        )
+
+    # if not exists(f"{user_config_dir}/application.yml"):
+    #     with open(f"{config_dir}/issuers", "r", encoding="utf-8") as issuers:
+    #         issuers_part = issuers.readlines()
+    #     with open(
+    #         "/usr/share/teapot/storage_authorizations", "r", encoding="utf-8"
+    #     ) as auths:
+    #         authorization_part = "".join(auths.readlines())
+    #     with open(
+    #         f"{user_config_dir}/application.yml", "a", encoding="utf-8"
+    #     ) as application_yml:
+    #         for line in issuers_part:
+    #             application_yml.write(line)
+    #         application_yml.write("storm:\n  authz:\n    policies:\n")
+    #         with open(
+    #             f"{config_dir}/storage-areas", "r", encoding="utf-8"
+    #         ) as storage_areas:
+    #             for line in storage_areas:
+    #                 storage_area = line.split(" ")[0]
+    #                 application_yml.write(
+    #                     authorization_part.replace("$sub", sub).replace(
+    #                         "$storage_area", storage_area
+    #                     )
+    #                 )
+
     return True
 
 
