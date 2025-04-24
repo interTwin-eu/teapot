@@ -37,7 +37,8 @@ Teapot uses a template to define authorization to storage areas, found at:
 - Installation: `/etc/teapot/application.yml.template`
 
 The template is pre-configured. To make any additional changes, please
-refer to the [StoRM WebDAV Guidelines](https://github.com/italiangrid/storm-webdav/blob/master/doc/storage-area-configuration.md) for detailed instructions.
+refer to the [StoRM WebDAV Guidelines](https://github.com/italiangrid/storm-webdav/blob/master/doc/storage-area-configuration.md)
+for detailed instructions.
 
 ## Mapping user’s global and local identities
 
