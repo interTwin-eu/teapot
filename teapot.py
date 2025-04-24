@@ -314,7 +314,7 @@ async def _create_user_dirs(username, port, sub):
             replacements = {
                 "name:": f"name: {IdP_name}",
                 "issuer:": f"issuer: {IdP_URL}",
-                "sa: ": f"sa: {SA_name}",
+                "sa:": f"sa: {SA_name}",
                 "iss:": f"iss: {IdP_URL}",
                 "type: jwt-subject": (
                     "type: jwt-issuer" if mapping == "VO" else "type: jwt-subject"
