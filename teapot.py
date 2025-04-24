@@ -352,7 +352,6 @@ async def _create_user_dirs(username, port, sub):
 
 
 async def _create_user_env(username, port):
-    config.read(["/etc/teapot/config.ini", "/etc/teapot/user_config.ini"])
     os.environ["STORM_WEBDAV_JVM_OPTS"] = config["Storm-webdav"]["JVM_OPTS"]
     os.environ["STORM_WEBDAV_SERVER_ADDRESS"] = config["Storm-webdav"]["SERVER_ADDRESS"]
     os.environ["STORM_WEBDAV_HTTPS_PORT"] = config["Storm-webdav"]["HTTPS_PORT"]
