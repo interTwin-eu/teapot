@@ -1,45 +1,43 @@
 # Configuration
 
 All configuration settings are stored in the `config.ini` file, located at
-`/etc/teapot/`. Update this file as needed to align with your requirements.
-
-All users must be added to the `teapot` group. This can be done by running
-`usermod -a -G teapot $USERNAME`.
+`/etc/teapot/`. Update this file to configure Teapot according to your
+requirements.
 
 ## Certificates
 
 Both Teapot and StoRM WebDAV servers require `SSL` certificates. The certificate
 must also be added to the system’s trust store to ensure secure communication.
+Path to the Teapot's certificate should be specified in `config.ini`.
 To generate self-signed certificates for StoRM WebDAV and add them to the trust
 store, run `sudo /usr/share/teapot/self-signed-cert-gen.sh`.
 
-## Additional Storm-webdav configuration
+## Storm-webdav configuration files
 
 ### Storage areas
 
+Teapot uses a pre-configured template for storage area configuration.
+It can be found at:
+
+- Repository: `/templates/storage_area.properties.template`
+- Installation: `/etc/teapot/storage_area.properties.template`
+
 For user-specific storage areas, configuration files must be created manually
-and added to `/var/lib/teapot/user-$USER/sa/$SA_NAME.properties`. Template for
-this can be found under `/templates/storage_area.properties.template` in the
-repository or `/etc/teapot/storage_area.properties.template` upon installation.
+and added to `/var/lib/teapot/user-<username>/sa/<storage_area>.properties`.
 
-For information on how to configure storage-areas, please refer to the
-[StoRM WebDAV Guidelines](https://github.com/italiangrid/storm-webdav/blob/master/doc/storage-area-configuration.md).
+To make any changes to the template, please refer to the
+[StoRM WebDAV Guidelines](https://github.com/italiangrid/storm-webdav/blob/master/doc/storage-area-configuration.md)
+for detailed instructions.
 
-### OIDC provider and identity mapping information
+### Authorization Template
 
-OIDC provider information used to authenticate users must be provided. See below
-for information on where to change the OIDC provider information, besides the
-changes already made in `config.ini` file. For more details on authentication to
-the storage areas, refer to the [StoRM WebDAV Guidelines](https://github.com/italiangrid/storm-webdav/blob/master/doc/storage-area-configuration.md).
+Teapot uses a template to define authorization to storage areas, found at:
 
-To configure the OIDC provider information, make the following changes:
+- Repository: `/templates/application.yml.template`
+- Installation: `/etc/teapot/application.yml.template`
 
-1. Modify the OIDC provider in `/etc/teapot/issuers` by changing the `name` and
-   `issuer` information.
-2. Modify the OIDC provider in `/usr/share/teapot/storage_authorizations` by
-   modifying the `iss` information which stands for issuer.
-3. Modify the OIDC providers that have access to the storage area by modifying
-   the `org` information in `/usr/share/teapot/storage_element.properties`.
+The template is pre-configured. To make any additional changes, please
+refer to the [StoRM WebDAV Guidelines](https://github.com/italiangrid/storm-webdav/blob/master/doc/storage-area-configuration.md) for detailed instructions.
 
 ## Mapping user’s global and local identities
 
@@ -60,7 +58,7 @@ user1 248289761001
 user2 a12b3c4d5e6f
 ```
 
-### ALISE - Account Linking Serice
+### ALISE - Account Linking Service
 
 The second method uses the **ALISE - Account Linking Service**
 ([ALISE documentation](https://github.com/m-team-kit/alise/tree/master/alise)).
@@ -81,13 +79,3 @@ Token in the request header:
 ```bash
 curl -H "Authorization: Bearer ${ACCESS_TOKEN}" <API_ENDPOINT>
 ```
-
-## System certificates
-
-To run Teapot, OpenSSL certificates may need to be adjusted. To do this please
-do the following: In `OPENSSLDIR`, which can be found with `openssl version -d`,
-create a symbolic link to the system ca-trust-source by typing
-`sudo ln -s /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem cert.pem`. The
-letsencrypt and geant/sectigo ca-certs may need to be added to the system
-ca-trust-store `/etc/pki/ca-trust/source/anchors`, which is then updated using
-`sudo update-ca-trust`.
