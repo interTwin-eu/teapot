@@ -245,7 +245,7 @@ async def _create_user_dirs(username, port, sub):
             SA_name = config[f"STORAGE_AREA_{i}"]["name"]
             SA_rootPath = config[f"STORAGE_AREA_{i}"]["rootPath"]
             SA_access_point = config[f"STORAGE_AREA_{i}"]["accessPoint"]
-            SA_orgs = config["STORAGE_AREA_{i}"]["IdP_URL"]
+            SA_orgs = config[f"STORAGE_AREA_{i}"]["IdP_URL"]
         except KeyError as e:
             logger.error(
                 "Missing key for the STORAGE_AREA_%d in configuration: %s", i, e
