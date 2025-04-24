@@ -314,9 +314,9 @@ async def _create_user_dirs(username, port, sub):
             replacements = {
                 "name:": f"name: {IdP_name}",
                 "issuer:": f"issuer: {IdP_URL}",
-                "sa: ": f"sa: {SA_name}",
-                "iss:": f"iss: {IdP_name}",
-                "type:": (
+                "sa:": f"sa: {SA_name}",
+                "iss:": f"iss: {IdP_URL}",
+                "type: jwt-subject": (
                     "type: jwt-issuer" if mapping == "VO" else "type: jwt-subject"
                 ),
                 "sub:": ("" if mapping == "VO" else f"sub: {sub}"),
@@ -334,7 +334,7 @@ async def _create_user_dirs(username, port, sub):
                 with open(app_ym_path, "a", encoding="utf-8") as yml:
                     sa_block_started = False
                     for line in template.splitlines():
-                        if not sa_block_started and line.strip().startswith("- sa:"):
+                        if not sa_block_started and line.strip().startswith(f"sa: {SA_name}"):
                             sa_block_started = True
                         if sa_block_started:
                             yml.write(line + "\n")

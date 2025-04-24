@@ -14,7 +14,7 @@ storm:
       paths:
       - /**
       principals:
-      - type:
+      - type: jwt-subject
         params:
           iss:
           sub:
