@@ -10,7 +10,7 @@ storm:
       actions:
       - all
       effect: permit
-      description: Grant complete access to the user in the sa: storage area
+      description: Grant complete access to the user in the storage area
       paths:
       - /**
       principals:
@@ -22,7 +22,7 @@ storm:
       actions:
       - all
       effect: deny
-      description: Deny access to all users (except ones mentioned above) in the sa: storage area
+      description: Deny access to all users (except ones mentioned above) in the storage area
       path:
       - /**
       principals:
