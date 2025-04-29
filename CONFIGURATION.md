@@ -44,7 +44,7 @@ for detailed instructions.
 
 ### File-based Mapping Method
 
-Teapot provides two methods for mapping a user’s global and local identities.
+Teapot provides three methods for mapping a user’s global and local identities.
 The first method is the **File-based Mapping Method**. Teapot allows manual
 storage of user mappings in a file named `user-mapping.csv`, which must be
 placed in `/etc/teapot`. This file should contain the following information:
@@ -80,3 +80,20 @@ Token in the request header:
 ```bash
 curl -H "Authorization: Bearer ${ACCESS_TOKEN}" <API_ENDPOINT>
 ```
+
+### VO based mapping
+
+The third method is **VO-based mapping**, where all members of a Virtual Organization
+(VO) are mapped to a single local identity. This is a **group-based mapping** approach.
+
+To configure VO-based mapping, specify:
+
+- The `eduperson-entitlement` that defines the VO membership.
+- The local account to which users with the matching `eduperson-entitlement` will be
+   mapped.
+
+Also, in the `/templates/storage_authorizations` file — which will be placed in
+`/usr/share/teapot/` — the authorization must be updated:
+
+- Change `jwt-subject` to `jwt-issuer`.
+- Remove the line containing `sub = $sub`.

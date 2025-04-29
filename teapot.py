@@ -28,7 +28,7 @@ from flaat.fastapi import Flaat
 from flaat.requirements import HasSubIss
 from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
-from vo_mapping import VO_mapping
+from vo_mapping import VOMapping
 
 config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
 config.read("/etc/teapot/config.ini")
@@ -135,7 +135,7 @@ app.state.state_lock = anyio.Lock()
 sw_state: dict[str, str] = {}
 # lock for the state of the storm webdav servers
 sw_condition = anyio.Condition()
-# user_mapping method
+# user identity mapping method
 mapping = config["Teapot"]["mapping"]
 
 context = ssl.create_default_context()
@@ -732,28 +732,28 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement):
                     logger.info("local user identity is %s", row[0])
                     return row[0]
             else:
-                logger.error("The local user for sub claim %s does not exist", sub)
-                return None
+                RuntimeError("The local user for sub claim %s does not exist", sub)
         return None
     elif mapping == "ALISE":
         alise_instance = Alise()
         local_username = alise_instance.get_local_username(sub, iss)
         if not local_username:
-            logger.error(
+            raise RuntimeError(
                 "Could not determine user's local identity."
                 + "Mapping for subject claim %s does not exist",
                 sub,
             )
-            return None
         else:
             logger.info("local user identity is %s", local_username)
         return local_username
     elif mapping == "VO":
-        VO_membership = VO_mapping(eduperson_entitlement)
+        VO_membership = VOMapping(eduperson_entitlement)
         username = VO_membership.get_local_username(sub)
         if not username:
-            logger.error("Could not determine user's local group identity.")
-            return None
+            raise RuntimeError(
+                "User with sub %s has no matching VO membership; "
+                "cannot determine local username." % sub
+            )
         return username
     else:
         logger.error("The identity mapping method information is missing or incorrect.")
@@ -973,7 +973,7 @@ async def root(request: Request):
     iss = user_infos.get("iss", None)
     if mapping == "VO":
         logger.debug(
-            "User's eduperson entitlement is %s", user_infos["eduperson_entitlement"]
+            "User's eduperson entitlements are %s", user_infos["eduperson_entitlement"]
         )
         eduperson_entitlement = user_infos.get("eduperson_entitlement", None)
     else:
