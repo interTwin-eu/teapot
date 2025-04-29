@@ -27,14 +27,6 @@ class Alise:
 
     @staticmethod
     def hashencode(iss):
-        """
-        Generate a SHA-1 hash by iteratively updating the hash with each character
-        of the given issuer string.
-
-        This function takes an input string iss, hashes each character individually
-        using SHA-1, and returns the final hexadecimal hash value. If the input string
-        is empty, it logs an error and returns None.
-        """
         hash_method = "sha1"
         hash_function = getattr(hashlib, hash_method)()
 
@@ -115,3 +107,4 @@ class Alise:
             return None
 
         return local_username
+      
