@@ -23,7 +23,6 @@ ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/zY6agLE2
 
 # configuring teapot for testing
 WORKDIR /etc/teapot
-COPY --chmod=744 testing-configurations/storage-areas .
 COPY --chmod=744 testing-configurations/user-mapping.csv .
 RUN \
     adduser test-user1 && \
