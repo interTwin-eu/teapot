@@ -107,4 +107,3 @@ class Alise:
             return None
 
         return local_username
-      
