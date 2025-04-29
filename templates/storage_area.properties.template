@@ -1,8 +1,15 @@
+# This variable will be automatically updated by Teapot.
+name=
+# This variable will be automatically updated by Teapot.
+rootPath=
+# This variable will be automatically updated by Teapot.
+accessPoints=
+
 # Comma-separated list of VOMS VOs supported in this storage area
 #vos=test.vo
 
-# Comma-separated list of OAuth/OpenID Connect token issuers trusted in this storage area
-orgs=https://aai-demo.egi.eu/auth/realms/egi, https://keycloak:8443/realms/test-realm
+# This variable will be automatically updated by Teapot.
+orgs=
 
 # Enables read access to users authenticated with an X.509 certificate issued by
 # a trusted CA (users without VOMS credentials).
