@@ -1,0 +1,29 @@
+oauth:
+  issuers:
+  - name:
+    issuer:
+
+storm:
+  authz:
+    policies:
+    - sa:
+      actions:
+      - all
+      effect: permit
+      description: Grant complete access to the user in the storage area
+      paths:
+      - /**
+      principals:
+      - type: jwt-subject
+        params:
+          iss:
+          sub:
+    - sa:
+      actions:
+      - all
+      effect: deny
+      description: Deny access to all users (except ones mentioned above) in the storage area
+      path:
+      - /**
+      principals:
+      - type: anyone
