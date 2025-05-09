@@ -11,7 +11,7 @@ Source1:        storm-webdav-server.tar.gz
 Source2:        https://syncandshare.desy.de/index.php/s/nsCALcFF3JAnW9j/download/python-lib64-rocky1.tar.gz
 Source3:        https://syncandshare.desy.de/index.php/s/y2y95e8BTxrqyZG/download/python-lib-rocky1.tar.gz
 BuildRequires:  systemd-rpm-macros
-Requires:       java-17-openjdk openssl >= 1:3.0 python(abi) = 3.9 python3-psutil
+Requires:       java-17-openjdk openssl >= 1:3.0 python(abi) = 3.9 python3-psutil python3-requests
 
 %description    
 Teapot provides a WebDAV that supports multi-tenancy. It is based on StoRM-WebDAV. We have added a manager level that
@@ -104,5 +104,5 @@ fi
 %attr(755, root, root) %{_exec_prefix}/local/lib/python3.9/site-packages/*
 
 %changelog
-* Thu Apr 24 2025 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Fri May 09 2025 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}
