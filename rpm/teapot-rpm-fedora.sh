@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#setting up a file tree for the RPM package in home directory
+#setting up a file tree for the RPM package in HOME directory
 rpmdev-setuptree
 
 #adding a spec file
