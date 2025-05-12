@@ -1011,10 +1011,16 @@ async def root(request: Request):
     redirect_url = f"https://{redirect_host}:{redirect_port}{request.url.path}"
     logger.debug("redirect url is %s.", redirect_url)
 
+    forwarded_headers = [
+        (k, v) for (k, v) in request.headers.raw if k.lower() != b'host'
+    ]
+    host_header_value = f"{redirect_host}:{redirect_port}".encode()
+    forwarded_headers.append((b'host', host_header_value))
+
     forward_req = client.build_request(
         request.method,
         redirect_url,
-        headers=request.headers.raw,
+        headers=forwarded_headers,
         content=request.stream(),
         timeout=15.0,
     )
