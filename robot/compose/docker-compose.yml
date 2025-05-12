@@ -1,3 +1,4 @@
+---
 services:
   keycloak:
     image: dvrbanec/keycloak-dev:1
@@ -21,13 +22,19 @@ services:
     command: |
       /bin/sh -c '
       eval "$(oidc-agent)"
-      oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
-      oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
+      oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json \
+        --op-username test-user1 --op-password secret1  --prompt none \
+        --pw-file keycloak_setup/pw-file test-user1
+      oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json \
+        --op-username test-user2 --op-password secret2  --prompt none \
+        --pw-file keycloak_setup/pw-file test-user2
       cd /tmp
-      curl -O https://syncandshare.desy.de/index.php/s/Ncj3Lfk8iEGYGsf/download/teapot-tests.robot
-      curl -O https://syncandshare.desy.de/index.php/s/Zzr8qMipiL2En5D/download/variables.py
+      curl -O https://syncandshare.desy.de/index.php/s/Ncj3Lfk8iEGYGsf/download/ \
+        teapot-tests.robot
+      curl -O https://syncandshare.desy.de/index.php/s/Zzr8qMipiL2En5D/download/ \
+        variables.py
       robot --outputdir robot/output/ /tmp/teapot-tests.robot
-      echo "Something eee."
+      echo "Something else."
       while true; do sleep 1; done'
     networks:
       - test
