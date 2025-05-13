@@ -1,5 +1,7 @@
 #!/bin/bash
 
+: "${version_rpm:=0.0.0}"
+
 #setting up a file tree for the RPM package in HOME directory
 rpmdev-setuptree
 
@@ -8,15 +10,15 @@ cp rpm/teapot-fedora.spec "${HOME}"/rpmbuild/SPECS/
 
 #getting the teapot scripts
 mkdir teapot-"${version_rpm}"
-rsync -av --progress * teapot-"${version_rpm}"/ --exclude teapot-"${version_rpm}"
+rsync -av --progress ./* teapot-"${version_rpm}"/ --exclude teapot-"${version_rpm}"
 tar cfz teapot-"${version_rpm}".tar.gz teapot-"${version_rpm}"
 rm -r teapot-"${version_rpm}"
 mv teapot-"${version_rpm}".tar.gz "${HOME}"/rpmbuild/SOURCES/
 
 #getting the storm-webdav.jar file
-curl -O https://repo.cloud.cnaf.infn.it/repository/storm-rpm-stable/redhat9/storm-webdav-1.7.1-1.el9.noarch.rpm
-rpm2cpio storm-webdav-1.7.1-1.el9.noarch.rpm | cpio -id ./usr/share/java/storm-webdav/storm-webdav-server.jar
-rm storm-webdav-1.7.1-1.el9.noarch.rpm
+curl -O https://repo.cloud.cnaf.infn.it/repository/storm-rpm-stable/redhat9/storm-webdav-1.8.1-1.el9.noarch.rpm
+rpm2cpio storm-webdav-1.8.1-1.el9.noarch.rpm | cpio -id ./usr/share/java/storm-webdav/storm-webdav-server.jar || true
+rm storm-webdav-1.8.1-1.el9.noarch.rpm
 mv usr/share/java/storm-webdav/storm-webdav-server.jar ./
 rm -r usr
 tar cf storm-webdav-server.tar.gz storm-webdav-server.jar
