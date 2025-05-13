@@ -1014,8 +1014,6 @@ async def root(request: Request):
     forwarded_headers = [
         (k, v) for (k, v) in request.headers.raw if k.lower() != b"host"
     ]
-    host_header_value = f"{redirect_host}:{redirect_port}".encode()
-    forwarded_headers.append((b"host", host_header_value))
 
     forward_req = client.build_request(
         request.method,
