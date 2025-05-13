@@ -1,8 +1,5 @@
-# trunk-ignore-all(checkov/CKV_DOCKER_2)
-# trunk-ignore-all(checkov/CKV_DOCKER_3)
-# trunk-ignore-all(trivy/DS002)
-# trunk-ignore-all(trivy/DS026)
-# trunk-ignore-all(hadolint/DL3007)
+# trunk-ignore-all(checkov/CKV_DOCKER_4)
+
 FROM dvrbanec/teapot-requirements:2.1
 
 # installing Teapot
@@ -40,4 +37,6 @@ EXPOSE 8081
 
 WORKDIR /usr/share/teapot/
 
-CMD su -c "python3 teapot.py" teapot > /var/log/teapot/uvicorn.log
+USER teapot
+
+HEALTHCHECK --interval=30s --timeout=15s --start-period=10s --retries=3 CMD ["python3", "teapot.py"]

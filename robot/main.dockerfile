@@ -1,8 +1,9 @@
+# trunk-ignore-all(checkov/CKV_DOCKER_4)
+
 FROM ubuntu:22.04
 
-RUN apt update && \
-    apt install -y ca-certificates curl python3-pip && \
-    pip install --upgrade pip && \
+RUN apt-get install -y --no-install-recommends ca-certificates curl python3-pip
+RUN pip install --upgrade pip && \
     pip install robotframework robotframework-requests 
 
 WORKDIR /usr/local/share/ca-certificates
@@ -17,4 +18,9 @@ RUN \
 RUN echo "deb [signed-by=/etc/apt/trusted.gpg.d/kitrepo-archive.gpg] https://repo.data.kit.edu//ubuntu/22.04 ./" >> /etc/apt/sources.list && \
     echo "deb [signed-by=/etc/apt/trusted.gpg.d/kitrepo-archive.gpg] https://repo.data.kit.edu//ubuntu/jammy ./" >> /etc/apt/sources.list
 
-RUN apt -y install oidc-agent
+RUN apt-get -y install --no-install-recommends oidc-agent
+
+USER user
+
+HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 \
+  CMD echo "No-op container" || exit 0

@@ -8,8 +8,6 @@ rpmdev-setuptree
 #adding a spec file
 cp rpm/teapot-alma.spec "${HOME}"/rpmbuild/SPECS/
 
-version_rpm="$1"
-
 #getting the teapot scripts
 mkdir teapot-"${version_rpm}"
 rsync -av --progress ./* teapot-"${version_rpm}"/ --exclude teapot-"${version_rpm}"
