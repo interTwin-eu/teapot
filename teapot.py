@@ -102,6 +102,10 @@ SESSION_STORE_PATH = os.environ.get(
     "TEAPOT_SESSIONS", config["Teapot"]["sessions_path"]
 )
 APP_NAME = config["Teapot"]["APP_NAME"]
+# Teapot's hostname
+teapot_host = config["Teapot"]["hostname"]
+# Teapot's port
+teapot_port = config.getint("Teapot", "port")
 # one less than the first port that is going to be used by any storm webdav
 # instance, should be above 1024, as all ports below this are privileged and
 # normal users will not be able to use them to run services.
@@ -933,6 +937,78 @@ async def storm_webdav_state(state, condition, sub, iss, eduperson_entitlement):
         return None, port, user
 
 
+async def rewrite_response_headers(headers, from_host, from_port, to_host, to_port, content_was_modified=False):
+    """Rewrite headers that contain URLs pointing to the internal service"""
+    rewritten_headers = {}
+
+    # Headers that commonly contain URLs that need rewriting
+    url_headers = {
+        'location', 'content-location', 'uri', 'content-base',
+        'link', 'refresh', 'access-control-allow-origin'
+    }
+
+    from_url_base = f"https://{from_host}:{from_port}"
+    to_url_base = f"https://{to_host}:{to_port}"
+
+    for name, value in headers.items():
+        header_name_lower = name.lower()
+
+        # Skip Content-Length if content was modified, as it's now incorrect
+        if content_was_modified and header_name_lower == 'content-length':
+            logger.debug("Skipping Content-Length header due to content modification")
+            continue
+
+        if header_name_lower in url_headers and isinstance(value, str):
+            # Replace the internal URL with the external teapot URL
+            rewritten_value = value.replace(from_url_base, to_url_base)
+            rewritten_headers[name] = rewritten_value
+
+            if rewritten_value != value:
+                logger.debug(f"Rewrote header {name}: {value} -> {rewritten_value}")
+        else:
+            rewritten_headers[name] = value
+
+    return rewritten_headers
+
+
+async def rewrite_webdav_content(content_stream, from_host, from_port, to_host, to_port):
+    """Rewrite URLs in WebDAV XML response content"""
+    from_url_base = f"https://{from_host}:{from_port}"
+    to_url_base = f"https://{to_host}:{to_port}"
+    content_modified = False
+
+    # Read all content from the stream
+    content = b""
+    async for chunk in content_stream:
+        content += chunk
+
+    # Check if this looks like XML content that might contain URLs
+    if content and (b'<d:href>' in content or b'xmlns:d="DAV:"' in content):
+        try:
+            # Decode, replace URLs, and re-encode
+            content_str = content.decode('utf-8')
+            rewritten_content = content_str.replace(from_url_base, to_url_base)
+
+            if rewritten_content != content_str:
+                logger.debug(f"Rewrote WebDAV content URLs from {from_url_base} to {to_url_base}")
+                content_modified = True
+
+            # Return as async generator with modification flag
+            yield rewritten_content.encode('utf-8'), content_modified
+        except UnicodeDecodeError:
+            # If decoding fails, return original content
+            logger.warning("Failed to decode response content for URL rewriting")
+            yield content, False
+    else:
+        # Not XML or no URLs to rewrite, return original content
+        yield content, False
+
+
+async def create_content_stream(content_bytes):
+    """Create an async generator that yields the given content"""
+    yield content_bytes
+
+
 @app.api_route(
     "/{filepath:path}",
     methods=[
@@ -1023,10 +1099,37 @@ async def root(request: Request):
         timeout=15.0,
     )
     forward_resp = await client.send(forward_req, stream=True)
-    return StreamingResponse(
+
+    # Get the original request host and port for URL rewriting
+    original_host = request.url.hostname
+    original_port = request.url.port
+
+    # Apply content rewriting for WebDAV XML responses and check if content was modified
+    content_generator = rewrite_webdav_content(
         forward_resp.aiter_raw(),
+        redirect_host,
+        redirect_port,
+        original_host,
+        original_port
+    )
+
+    # Get the rewritten content and modification flag
+    rewritten_content_bytes, content_was_modified = await content_generator.__anext__()
+
+    # Apply header rewriting
+    rewritten_headers = await rewrite_response_headers(
+        forward_resp.headers,
+        redirect_host,
+        redirect_port,
+        original_host,
+        original_port,
+        content_was_modified
+    )
+
+    return StreamingResponse(
+        create_content_stream(rewritten_content_bytes),
         status_code=forward_resp.status_code,
-        headers=forward_resp.headers,
+        headers=rewritten_headers,
         background=BackgroundTask(forward_resp.aclose),
     )
 
@@ -1044,8 +1147,8 @@ def main():
 
     uvicorn.run(
         app,
-        host=config["Teapot"]["hostname"],
-        port=config.getint("Teapot", "port"),
+        host=teapot_host,
+        port=teapot_port,
         ssl_keyfile=key,
         ssl_certfile=cert,
     )
