@@ -937,14 +937,21 @@ async def storm_webdav_state(state, condition, sub, iss, eduperson_entitlement):
         return None, port, user
 
 
-async def rewrite_response_headers(headers, from_host, from_port, to_host, to_port, content_was_modified=False):
+async def rewrite_response_headers(
+        headers, from_host, from_port, to_host, to_port, content_was_modified=False
+    ):
     """Rewrite headers that contain URLs pointing to the internal service"""
     rewritten_headers = {}
 
     # Headers that commonly contain URLs that need rewriting
     url_headers = {
-        'location', 'content-location', 'uri', 'content-base',
-        'link', 'refresh', 'access-control-allow-origin'
+        "location",
+        "content-location",
+        "uri",
+        "content-base",
+        "link",
+        "refresh",
+        "access-control-allow-origin",
     }
 
     from_url_base = f"https://{from_host}:{from_port}"
@@ -954,7 +961,7 @@ async def rewrite_response_headers(headers, from_host, from_port, to_host, to_po
         header_name_lower = name.lower()
 
         # Skip Content-Length if content was modified, as it's now incorrect
-        if content_was_modified and header_name_lower == 'content-length':
+        if content_was_modified and header_name_lower == "content-length":
             logger.debug("Skipping Content-Length header due to content modification")
             continue
 
@@ -971,7 +978,9 @@ async def rewrite_response_headers(headers, from_host, from_port, to_host, to_po
     return rewritten_headers
 
 
-async def rewrite_webdav_content(content_stream, from_host, from_port, to_host, to_port):
+async def rewrite_webdav_content(
+        content_stream, from_host, from_port, to_host, to_port
+    ):
     """Rewrite URLs in WebDAV XML response content"""
     from_url_base = f"https://{from_host}:{from_port}"
     to_url_base = f"https://{to_host}:{to_port}"
@@ -983,18 +992,20 @@ async def rewrite_webdav_content(content_stream, from_host, from_port, to_host, 
         content += chunk
 
     # Check if this looks like XML content that might contain URLs
-    if content and (b'<d:href>' in content or b'xmlns:d="DAV:"' in content):
+    if content and (b"<d:href>" in content or b'xmlns:d="DAV:"' in content):
         try:
             # Decode, replace URLs, and re-encode
-            content_str = content.decode('utf-8')
+            content_str = content.decode("utf-8")
             rewritten_content = content_str.replace(from_url_base, to_url_base)
 
             if rewritten_content != content_str:
-                logger.debug(f"Rewrote WebDAV content URLs from {from_url_base} to {to_url_base}")
+                logger.debug(
+                    f"Rewrote WebDAV content URLs from {from_url_base} to {to_url_base}"
+                )
                 content_modified = True
 
             # Return as async generator with modification flag
-            yield rewritten_content.encode('utf-8'), content_modified
+            yield rewritten_content.encode("utf-8"), content_modified
         except UnicodeDecodeError:
             # If decoding fails, return original content
             logger.warning("Failed to decode response content for URL rewriting")
@@ -1110,7 +1121,7 @@ async def root(request: Request):
         redirect_host,
         redirect_port,
         original_host,
-        original_port
+        original_port,
     )
 
     # Get the rewritten content and modification flag
@@ -1123,7 +1134,7 @@ async def root(request: Request):
         redirect_port,
         original_host,
         original_port,
-        content_was_modified
+        content_was_modified,
     )
 
     return StreamingResponse(
