@@ -938,8 +938,8 @@ async def storm_webdav_state(state, condition, sub, iss, eduperson_entitlement):
 
 
 async def rewrite_response_headers(
-        headers, from_host, from_port, to_host, to_port, content_was_modified=False
-    ):
+    headers, from_host, from_port, to_host, to_port, content_was_modified=False
+):
     """Rewrite headers that contain URLs pointing to the internal service"""
     rewritten_headers = {}
 
@@ -979,8 +979,8 @@ async def rewrite_response_headers(
 
 
 async def rewrite_webdav_content(
-        content_stream, from_host, from_port, to_host, to_port
-    ):
+    content_stream, from_host, from_port, to_host, to_port
+):
     """Rewrite URLs in WebDAV XML response content"""
     from_url_base = f"https://{from_host}:{from_port}"
     to_url_base = f"https://{to_host}:{to_port}"
