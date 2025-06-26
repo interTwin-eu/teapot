@@ -1016,6 +1016,7 @@ async def create_content_stream(content_bytes):
     """Create an async generator that yields the given content"""
     yield content_bytes
 
+
 def get_encoding_from_headers(headers):
     content_type = headers.get("content-type", "")
     match = re.search(r"charset=([^\s;]+)", content_type, re.IGNORECASE)
@@ -1144,7 +1145,9 @@ async def root(request: Request):
         # Recalculate length safely
         rewritten_headers["content-length"] = str(len(rewritten_content_bytes))
     else:
-        rewritten_content_bytes = await forward_resp.read()
+        rewritten_content_bytes = b""
+        async for chunk in forward_resp.aiter_bytes():
+            rewritten_content_bytes += chunk
 
     return StreamingResponse(
         create_content_stream(rewritten_content_bytes),
