@@ -7,6 +7,7 @@ import errno
 import json
 import logging
 import os
+import re
 import socket
 import ssl
 import subprocess
@@ -14,7 +15,6 @@ from contextlib import asynccontextmanager
 from os.path import exists
 from pathlib import Path
 from pwd import getpwnam
-import re
 from stat import S_IRGRP, S_IRWXO, S_IRWXU, S_IXGRP
 
 import anyio
