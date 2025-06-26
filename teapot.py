@@ -14,6 +14,7 @@ from contextlib import asynccontextmanager
 from os.path import exists
 from pathlib import Path
 from pwd import getpwnam
+import re
 from stat import S_IRGRP, S_IRWXO, S_IRWXU, S_IXGRP
 
 import anyio
@@ -938,7 +939,7 @@ async def storm_webdav_state(state, condition, sub, iss, eduperson_entitlement):
 
 
 async def rewrite_response_headers(
-    headers, from_host, from_port, to_host, to_port, content_was_modified=False
+    headers, from_host, from_port, to_host, to_port, skip_content_length: bool = False
 ):
     """Rewrite headers that contain URLs pointing to the internal service"""
     rewritten_headers = {}
@@ -961,7 +962,7 @@ async def rewrite_response_headers(
         header_name_lower = name.lower()
 
         # Skip Content-Length if content was modified, as it's now incorrect
-        if content_was_modified and header_name_lower == "content-length":
+        if skip_content_length and header_name_lower == "content-length":
             logger.debug("Skipping Content-Length header due to content modification")
             continue
 
@@ -979,40 +980,48 @@ async def rewrite_response_headers(
 
 
 async def rewrite_webdav_content(
-    content_stream, from_host, from_port, to_host, to_port
+    content_stream, from_host, from_port, to_host, to_port, headers
 ):
     """Rewrite URLs in WebDAV XML response content"""
     from_url_base = f"https://{from_host}:{from_port}"
     to_url_base = f"https://{to_host}:{to_port}"
-    content_modified = False
 
     # Read all content from the stream
     content = b""
     async for chunk in content_stream:
         content += chunk
 
+    # Determine charset
+    encoding = get_encoding_from_headers(headers)
+
     try:
         # Decode, replace URLs, and re-encode
-        content_str = content.decode("utf-8")
+        content_str = content.decode(encoding)
         rewritten_content = content_str.replace(from_url_base, to_url_base)
 
         if rewritten_content != content_str:
             logger.debug(
                 f"Rewrote WebDAV content URLs from {from_url_base} to {to_url_base}"
             )
-            content_modified = True
 
-        # Return as async generator with modification flag
-        yield rewritten_content.encode("utf-8"), content_modified
+        # Return as async generator
+        yield rewritten_content.encode(encoding)
     except UnicodeDecodeError:
         # If decoding fails, return original content
         logger.warning("Failed to decode response content for URL rewriting")
-        yield content, False
+        yield content
 
 
 async def create_content_stream(content_bytes):
     """Create an async generator that yields the given content"""
     yield content_bytes
+
+def get_encoding_from_headers(headers):
+    content_type = headers.get("content-type", "")
+    match = re.search(r"charset=([^\s;]+)", content_type, re.IGNORECASE)
+    if match:
+        return match.group(1).strip()
+    return "utf-8"  # default fallback
 
 
 @app.api_route(
@@ -1110,22 +1119,6 @@ async def root(request: Request):
     original_host = request.url.hostname
     original_port = request.url.port
 
-    if request.method.upper() == "PROPFIND":
-        # Apply content rewriting for WebDAV XML responses and check if content was modified
-        content_generator = rewrite_webdav_content(
-            forward_resp.aiter_raw(),
-            redirect_host,
-            redirect_port,
-            original_host,
-            original_port,
-        )
-
-        # Get the rewritten content and modification flag
-        rewritten_content_bytes, content_was_modified = await content_generator.__anext__()
-    else:
-        rewritten_content_bytes = await forward_resp.read()
-        content_was_modified = False
-
     # Apply header rewriting
     rewritten_headers = await rewrite_response_headers(
         forward_resp.headers,
@@ -1133,8 +1126,25 @@ async def root(request: Request):
         redirect_port,
         original_host,
         original_port,
-        content_was_modified,
+        skip_content_length=(request.method.upper() == "PROPFIND"),
     )
+
+    if request.method.upper() == "PROPFIND":
+        # Read and rewrite content
+        content_generator = rewrite_webdav_content(
+            forward_resp.aiter_raw(),
+            redirect_host,
+            redirect_port,
+            original_host,
+            original_port,
+            forward_resp.headers,
+        )
+        rewritten_content_bytes = await content_generator.__anext__()
+
+        # Recalculate length safely
+        rewritten_headers["content-length"] = str(len(rewritten_content_bytes))
+    else:
+        rewritten_content_bytes = await forward_resp.read()
 
     return StreamingResponse(
         create_content_stream(rewritten_content_bytes),
