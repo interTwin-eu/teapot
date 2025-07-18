@@ -26,8 +26,8 @@ rm storm-webdav-server.jar
 mv storm-webdav-server.tar.gz "${HOME}"/rpmbuild/SOURCES/
 
 cd /tmp || exit
-curl -O https://syncandshare.desy.de/index.php/s/nsCALcFF3JAnW9j/download/python-lib64-rocky1.tar.gz .
-curl -O https://syncandshare.desy.de/index.php/s/y2y95e8BTxrqyZG/download/python-lib-rocky1.tar.gz .
+curl -L -O https://syncandshare.desy.de/index.php/s/nsCALcFF3JAnW9j/download/python-lib64-rocky1.tar.gz
+curl -L -O https://syncandshare.desy.de/index.php/s/y2y95e8BTxrqyZG/download/python-lib-rocky1.tar.gz
 mv /tmp/python-lib*.tar.gz "${HOME}"/rpmbuild/SOURCES/
 
 #building the RPM package
