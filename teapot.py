@@ -206,17 +206,6 @@ async def _create_user_dirs(username, port, sub):
     # - /etc/APP_NAME/user-mapping.csv
 
     logger.debug("creating user configuration directories")
-    config_dir = f"/etc/{APP_NAME}"
-
-    if mapping == "FILE":
-        mapping_file = f"{config_dir}/user-mapping.csv"
-        if not exists(mapping_file):
-            logger.error(
-                "%s does not exist. It should consist of two variables per user: "
-                + "username and subject claim separated by a single space.",
-                mapping_file,
-            )
-            return False
 
     app_dir = f"/var/lib/{APP_NAME}"
     if not exists(app_dir):
@@ -724,10 +713,17 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement):
     """
     logger.debug("For the user's identity mapping, %s method is used", mapping)
     if mapping == "FILE":
-        with open(
-            config["Teapot"]["mapping_file"], "r", encoding="utf-8"
-        ) as mapping_file:
-            mappingreader = csv.reader(mapping_file, delimiter=" ")
+        mapping_file = config["Teapot"]["mapping_file"]
+        if not exists(mapping_file):
+            logger.error(
+             "%s does not exist. It should consist of two variables per user: "
+                "username and subject claim separated by a single space.",
+                mapping_file,
+            )
+            return None
+
+        with open(mapping_file, "r", encoding="utf-8") as mapping_file_obj:
+            mappingreader = csv.reader(mapping_file_obj, delimiter=" ")
             for row in mappingreader:
                 if row[1] == sub:
                     if not row[0]:
@@ -735,9 +731,9 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement):
                         return None
                     logger.info("local user identity is %s", row[0])
                     return row[0]
-            else:
-                RuntimeError("The local user for sub claim %s does not exist", sub)
-        return None
+
+            raise RuntimeError(f"The local user for sub claim {sub} does not exist")
+
     elif mapping == "ALISE":
         alise_instance = Alise()
         local_username = alise_instance.get_local_username(sub, iss)
@@ -776,7 +772,7 @@ async def storm_webdav_state(state, condition, sub, iss, eduperson_entitlement):
     user = await _map_fed_to_local(sub, iss, eduperson_entitlement)
 
     should_start_sw = False
-    logger.info("Assesing the state of the storm webdav instance for user %s", user)
+    logger.info("Assessing the state of the storm webdav instance for user %s", user)
 
     async with condition:
         if user not in state:
