@@ -716,7 +716,7 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement):
         mapping_file = config["Teapot"]["mapping_file"]
         if not exists(mapping_file):
             logger.error(
-             "%s does not exist. It should consist of two variables per user: "
+                "%s does not exist. It should consist of two variables per user: "
                 "username and subject claim separated by a single space.",
                 mapping_file,
             )
