@@ -26,8 +26,8 @@ rm storm-webdav-server.jar
 mv storm-webdav-server.tar.gz "${HOME}"/rpmbuild/SOURCES/
 
 cd /tmp || exit
-curl -O https://syncandshare.desy.de/index.php/s/oSjdrPwCd6KkfJm/download/python-lib64-fedora.tar.gz .
-curl -O https://syncandshare.desy.de/index.php/s/PqN432X83764Lm4/download/python-lib-fedora.tar.gz .
+curl -L -O https://syncandshare.desy.de/index.php/s/oSjdrPwCd6KkfJm/download/python-lib64-fedora.tar.gz
+curl -L -O https://syncandshare.desy.de/index.php/s/PqN432X83764Lm4/download/python-lib-fedora.tar.gz
 mv /tmp/python-lib*.tar.gz "${HOME}"/rpmbuild/SOURCES/
 
 #building the RPM package
