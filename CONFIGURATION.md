@@ -19,7 +19,7 @@ store, run `sudo /usr/share/teapot/self-signed-cert-gen.sh`.
 Teapot uses a pre-configured template for storage area configuration.
 It can be found at:
 
-- Repository: `/templates/storage_area.properties.template`
+- Repository: `templates/storage_area.properties.template`
 - Installation: `/etc/teapot/storage_area.properties.template`
 
 For user-specific storage areas, configuration files must be created manually
@@ -33,7 +33,7 @@ for detailed instructions.
 
 Teapot uses a template to define authorization to storage areas, found at:
 
-- Repository: `/templates/application.yml.template`
+- Repository: `templates/application.yml.template`
 - Installation: `/etc/teapot/application.yml.template`
 
 The template is pre-configured. To make any additional changes, please
