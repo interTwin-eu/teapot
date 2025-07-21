@@ -7,6 +7,7 @@ import errno
 import json
 import logging
 import os
+import re
 import socket
 import ssl
 import subprocess
@@ -933,7 +934,7 @@ async def storm_webdav_state(state, condition, sub, iss, eduperson_entitlement):
 
 
 async def rewrite_response_headers(
-    headers, from_host, from_port, to_host, to_port, content_was_modified=False
+    headers, from_host, from_port, to_host, to_port, skip_content_length: bool = False
 ):
     """Rewrite headers that contain URLs pointing to the internal service"""
     rewritten_headers = {}
@@ -956,7 +957,7 @@ async def rewrite_response_headers(
         header_name_lower = name.lower()
 
         # Skip Content-Length if content was modified, as it's now incorrect
-        if content_was_modified and header_name_lower == "content-length":
+        if skip_content_length and header_name_lower == "content-length":
             logger.debug("Skipping Content-Length header due to content modification")
             continue
 
@@ -974,45 +975,49 @@ async def rewrite_response_headers(
 
 
 async def rewrite_webdav_content(
-    content_stream, from_host, from_port, to_host, to_port
+    content_stream, from_host, from_port, to_host, to_port, headers
 ):
     """Rewrite URLs in WebDAV XML response content"""
     from_url_base = f"https://{from_host}:{from_port}"
     to_url_base = f"https://{to_host}:{to_port}"
-    content_modified = False
 
     # Read all content from the stream
     content = b""
     async for chunk in content_stream:
         content += chunk
 
-    # Check if this looks like XML content that might contain URLs
-    if content and (b"<d:href>" in content or b'xmlns:d="DAV:"' in content):
-        try:
-            # Decode, replace URLs, and re-encode
-            content_str = content.decode("utf-8")
-            rewritten_content = content_str.replace(from_url_base, to_url_base)
+    # Determine charset
+    encoding = get_encoding_from_headers(headers)
 
-            if rewritten_content != content_str:
-                logger.debug(
-                    f"Rewrote WebDAV content URLs from {from_url_base} to {to_url_base}"
-                )
-                content_modified = True
+    try:
+        # Decode, replace URLs, and re-encode
+        content_str = content.decode(encoding)
+        rewritten_content = content_str.replace(from_url_base, to_url_base)
 
-            # Return as async generator with modification flag
-            yield rewritten_content.encode("utf-8"), content_modified
-        except UnicodeDecodeError:
-            # If decoding fails, return original content
-            logger.warning("Failed to decode response content for URL rewriting")
-            yield content, False
-    else:
-        # Not XML or no URLs to rewrite, return original content
-        yield content, False
+        if rewritten_content != content_str:
+            logger.debug(
+                f"Rewrote WebDAV content URLs from {from_url_base} to {to_url_base}"
+            )
+
+        # Return as async generator
+        yield rewritten_content.encode(encoding)
+    except UnicodeDecodeError:
+        # If decoding fails, return original content
+        logger.warning("Failed to decode response content for URL rewriting")
+        yield content
 
 
 async def create_content_stream(content_bytes):
     """Create an async generator that yields the given content"""
     yield content_bytes
+
+
+def get_encoding_from_headers(headers):
+    content_type = headers.get("content-type", "")
+    match = re.search(r"charset=([^\s;]+)", content_type, re.IGNORECASE)
+    if match:
+        return match.group(1).strip()
+    return "utf-8"  # default fallback
 
 
 @app.api_route(
@@ -1110,18 +1115,6 @@ async def root(request: Request):
     original_host = request.url.hostname
     original_port = request.url.port
 
-    # Apply content rewriting for WebDAV XML responses and check if content was modified
-    content_generator = rewrite_webdav_content(
-        forward_resp.aiter_raw(),
-        redirect_host,
-        redirect_port,
-        original_host,
-        original_port,
-    )
-
-    # Get the rewritten content and modification flag
-    rewritten_content_bytes, content_was_modified = await content_generator.__anext__()
-
     # Apply header rewriting
     rewritten_headers = await rewrite_response_headers(
         forward_resp.headers,
@@ -1129,8 +1122,27 @@ async def root(request: Request):
         redirect_port,
         original_host,
         original_port,
-        content_was_modified,
+        skip_content_length=(request.method.upper() == "PROPFIND"),
     )
+
+    if request.method.upper() == "PROPFIND":
+        # Read and rewrite content
+        content_generator = rewrite_webdav_content(
+            forward_resp.aiter_raw(),
+            redirect_host,
+            redirect_port,
+            original_host,
+            original_port,
+            forward_resp.headers,
+        )
+        rewritten_content_bytes = await content_generator.__anext__()
+
+        # Recalculate length safely
+        rewritten_headers["content-length"] = str(len(rewritten_content_bytes))
+    else:
+        rewritten_content_bytes = b""
+        async for chunk in forward_resp.aiter_bytes():
+            rewritten_content_bytes += chunk
 
     return StreamingResponse(
         create_content_stream(rewritten_content_bytes),
