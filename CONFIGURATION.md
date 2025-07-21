@@ -91,9 +91,3 @@ To configure VO-based mapping, specify:
 - The `eduperson-entitlement` that defines the VO membership.
 - The local account to which users with the matching `eduperson-entitlement` will be
    mapped.
-
-Also, in the `/templates/storage_authorizations` file — which will be placed in
-`/usr/share/teapot/` — the authorization must be updated:
-
-- Change `jwt-subject` to `jwt-issuer`.
-- Remove the line containing `sub = $sub`.

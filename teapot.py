@@ -203,7 +203,6 @@ async def _create_user_dirs(username, port, sub):
     # - /var/lib/APP_NAME/user-username/tmp
     # need to check files for existence
     # - /etc/APP_NAME/storage-areas
-    # - /etc/APP_NAME/user-mapping.csv
 
     logger.debug("creating user configuration directories")
 
