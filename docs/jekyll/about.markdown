@@ -4,15 +4,19 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+Teapot is open-source software that allows HTTP/WebDAV access to your
+existing storage. It supports multi-tenancy and it's based on StoRM-WebDAV.
+We have added a manager level that accepts requests, authenticates the user,
+identifies the local username of the user, starts a StoRM-WebDAV server for
+that local user with a randomly assigned port to listen on, and forwards the
+user's request to that port. The StoRM-WebDAV server will then handle the
+request in the usual way. If the StoRM-WebDAV server is inactive for 10 minutes,
+it will be shut down by the manager. If another request comes in or a different
+user, the manager will start another StoRM-WebDAV server for that user in the same
+way.
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
-
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
-
-
-[jekyll-organization]: https://github.com/jekyll
+![Teapot](/assets/Teapot-diagram.drawio.png)
+<figure>
+  <img src="/assets/Teapot-diagram.drawio.png" alt="Figure 1:" width="400">
+  <figcaption>A diagram of Teapot handling requests.</figcaption>
+</figure>
