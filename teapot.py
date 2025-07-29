@@ -967,7 +967,8 @@ async def rewrite_response_headers(
             rewritten_headers[name] = rewritten_value
 
             if rewritten_value != value:
-                logger.debug("Rewrote header %s: %s -> %s",
+                logger.debug(
+                    "Rewrote header %s: %s -> %s",
                     name,
                     value,
                     rewritten_value,
@@ -993,10 +994,11 @@ async def rewrite_webdav_content(content_stream, from_host, from_port, headers):
     try:
         # Decode, replace URLs, and re-encode
         content_str = content.decode(encoding)
-        pattern = re.compile(rf'(<d:href>){re.escape(from_url_base)}(/[^<]*)</d:href>')
+        pattern = re.compile(rf"(<d:href>){re.escape(from_url_base)}(/[^<]*)</d:href>")
+
         def repl(match):
             return f"{match.group(1)}{match.group(2)}</d:href>"
-        
+
         rewritten_content = pattern.sub(repl, content_str)
 
         if rewritten_content != content_str:
