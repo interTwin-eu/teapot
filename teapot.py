@@ -967,19 +967,21 @@ async def rewrite_response_headers(
             rewritten_headers[name] = rewritten_value
 
             if rewritten_value != value:
-                logger.debug(f"Rewrote header {name}: {value} -> {rewritten_value}")
+                logger.debug(
+                    "Rewrote header %s: %s -> %s",
+                    name,
+                    value,
+                    rewritten_value,
+                )
         else:
             rewritten_headers[name] = value
 
     return rewritten_headers
 
 
-async def rewrite_webdav_content(
-    content_stream, from_host, from_port, to_host, to_port, headers
-):
+async def rewrite_webdav_content(content_stream, from_host, from_port, headers):
     """Rewrite URLs in WebDAV XML response content"""
     from_url_base = f"https://{from_host}:{from_port}"
-    to_url_base = f"https://{to_host}:{to_port}"
 
     # Read all content from the stream
     content = b""
@@ -992,19 +994,24 @@ async def rewrite_webdav_content(
     try:
         # Decode, replace URLs, and re-encode
         content_str = content.decode(encoding)
-        rewritten_content = content_str.replace(from_url_base, to_url_base)
+        pattern = re.compile(rf"(<d:href>){re.escape(from_url_base)}(/[^<]*)</d:href>")
+
+        def repl(match):
+            return f"{match.group(1)}{match.group(2)}</d:href>"
+
+        rewritten_content = pattern.sub(repl, content_str)
 
         if rewritten_content != content_str:
             logger.debug(
-                f"Rewrote WebDAV content URLs from {from_url_base} to {to_url_base}"
+                "Rewrote WebDAV content URLs by removing prefix %s in <d:href> tags",
+                from_url_base,
             )
 
-        # Return as async generator
-        yield rewritten_content.encode(encoding)
+        return rewritten_content.encode(encoding)
     except UnicodeDecodeError:
         # If decoding fails, return original content
         logger.warning("Failed to decode response content for URL rewriting")
-        yield content
+        return content
 
 
 async def create_content_stream(content_bytes):
@@ -1115,34 +1122,45 @@ async def root(request: Request):
     original_host = request.url.hostname
     original_port = request.url.port
 
-    # Apply header rewriting
-    rewritten_headers = await rewrite_response_headers(
-        forward_resp.headers,
-        redirect_host,
-        redirect_port,
-        original_host,
-        original_port,
-        skip_content_length=(request.method.upper() == "PROPFIND"),
-    )
-
-    if request.method.upper() == "PROPFIND":
-        # Read and rewrite content
-        content_generator = rewrite_webdav_content(
-            forward_resp.aiter_raw(),
+    if request.method.upper() == "HEAD":
+        rewritten_headers = await rewrite_response_headers(
+            forward_resp.headers,
             redirect_host,
             redirect_port,
             original_host,
             original_port,
-            forward_resp.headers,
+            skip_content_length=False,
         )
-        rewritten_content_bytes = await content_generator.__anext__()
-
-        # Recalculate length safely
-        rewritten_headers["content-length"] = str(len(rewritten_content_bytes))
-    else:
         rewritten_content_bytes = b""
-        async for chunk in forward_resp.aiter_bytes():
-            rewritten_content_bytes += chunk
+    else:
+        response_body = await forward_resp.aread()
+        if request.method.upper() == "PROPFIND":
+            rewritten_content_bytes = await rewrite_webdav_content(
+                create_content_stream(response_body),
+                redirect_host,
+                redirect_port,
+                forward_resp.headers,
+            )
+        else:
+            rewritten_content_bytes = response_body
+
+        # Calculate new content-length
+        content_length = len(rewritten_content_bytes)
+
+        rewritten_headers = await rewrite_response_headers(
+            forward_resp.headers,
+            redirect_host,
+            redirect_port,
+            original_host,
+            original_port,
+            skip_content_length=(request.method.upper() == "PROPFIND"),
+        )
+
+        # Remove any old content-length headers (case insensitive)
+        rewritten_headers = {
+            k: v for k, v in rewritten_headers.items() if k.lower() != "content-length"
+        }
+        rewritten_headers["Content-Length"] = str(content_length)
 
     return StreamingResponse(
         create_content_stream(rewritten_content_bytes),
