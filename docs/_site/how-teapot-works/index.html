@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>How Teapot works | Teapot Documentation</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="How Teapot works" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Teapot is open-source software that allows HTTP/WebDAV access to your existing storage." />
+<meta property="og:description" content="Teapot is open-source software that allows HTTP/WebDAV access to your existing storage." />
+<link rel="canonical" href="http://localhost:4000/teapot/how-teapot-works/" />
+<meta property="og:url" content="http://localhost:4000/teapot/how-teapot-works/" />
+<meta property="og:site_name" content="Teapot Documentation" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="How Teapot works" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Teapot is open-source software that allows HTTP/WebDAV access to your existing storage.","headline":"How Teapot works","url":"http://localhost:4000/teapot/how-teapot-works/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/teapot/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/teapot/feed.xml" title="Teapot Documentation" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/teapot/">Teapot Documentation</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/teapot/">Teapot</a><a class="page-link" href="/teapot/how-teapot-works/">How Teapot works</a><a class="page-link" href="/teapot/installation_guide/">Installation Guide</a><a class="page-link" href="/teapot/configuration/">Configuration</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">How Teapot works</h1>
+  </header>
+
+  <div class="post-content">
+    <p><strong>Teapot</strong> is open-source software providing HTTP/WebDAV access to existing storage systems. It supports multi-tenancy and is built on top of <strong>StoRM-WebDAV</strong>.</p>
+
+<p>Teapot handles incoming requests by:</p>
+
+<ul>
+  <li>Authenticating users</li>
+  <li>Resolving the local username based on the chosen identity mapping method</li>
+  <li>Launching a dedicated StoRM-WebDAV server instance per user on a dynamically assigned port (if not already running)</li>
+  <li>Forwarding user requests to the appropriate StoRM-WebDAV instance</li>
+</ul>
+
+<p>Each StoRM-WebDAV server processes requests normally. If inactive for 10 minutes, the server is automatically shut down by Teapot.</p>
+
+<p>If a request arrives for a user with an active StoRM-WebDAV server, Teapot forwards the request to the existing instance. Otherwise, it starts a new one.</p>
+
+<hr />
+
+<h2 id="workflow-overview">Workflow Overview</h2>
+
+<p><img src="/teapot/assets/Teapot-diagram.drawio.png" alt="Teapot workflow" /></p>
+
+<p><em>Figure 1: Teapot’s process for handling user requests</em></p>
+
+<p>Upon receiving a request, Teapot authenticates the user and maps the global identity to a local username. It then checks for an active StoRM-WebDAV server for that user:</p>
+
+<ul>
+  <li>If none exists, it starts a new server on an available port above 32400 on localhost.</li>
+  <li>Communication between Teapot and StoRM-WebDAV is encrypted.</li>
+  <li>Requests are forwarded to the user’s StoRM-WebDAV server, which interacts with the storage and returns responses via Teapot.</li>
+  <li>Requests from other users are handled similarly, starting new server instances as needed.</li>
+  <li>After 10 minutes of inactivity, StoRM-WebDAV servers are shut down to save resources.</li>
+</ul>
+
+<p>For more details on StoRM-WebDAV, see the <a href="https://github.com/italiangrid/storm-webdav/blob/master/doc/storage-area-configuration.md">official documentation</a>.</p>
+
+<hr />
+
+<h2 id="identity-mapping-methods">Identity Mapping Methods</h2>
+
+<p>Teapot supports three identity mapping methods to resolve user identities:</p>
+
+<h3 id="1-file-based-mapping">1. File-based Mapping</h3>
+
+<p>User mappings are stored in a file with lines containing the local username and the user’s OIDC subject claim (<code class="language-plaintext highlighter-rouge">sub</code>), separated by a space.</p>
+
+<p>Example:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>user1 248289761001
+user2 a12b3c4d5e6f
+</code></pre></div></div>
+
+<h3 id="2-alise-account-linking-service">2. ALISE (Account Linking Service)</h3>
+
+<p>Using <a href="https://github.com/m-team-kit/alise/tree/master/alise">ALISE</a>, users link multiple global accounts to a single local account per site.</p>
+
+<h3 id="3-vo-based-mapping">3. VO-based Mapping</h3>
+
+<p>All members of a Virtual Organization (VO) are mapped to a single local identity. This is a group-based mapping approach.</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/teapot/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Teapot Documentation</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Teapot Documentation</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Teapot is open-source software that allows HTTP/WebDAV access to your existing storage.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

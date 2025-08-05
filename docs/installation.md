@@ -1,4 +1,8 @@
-# Installation Guide
+---
+layout: page
+title: Installation Guide
+permalink: /installation_guide/
+---
 
 ## Requirements
 
@@ -13,9 +17,9 @@ Teapot can be installed via an RPM package. On the release page, we provide RPMs
 AlmaLinux 9.4, and Rocky Linux 9.3. If you need an RPM file for another Linux distribution,
 feel free to contact us and we’ll gladly provide you with one for your specific Linux distribution.
 
-To install teapot, first a user `teapot` must be created. To do that run `sudo adduser teapot`.
+To install Teapot, first a user `teapot` must be created. To do that run `sudo adduser teapot`.
 
-Please refer to [Configuration](configuration.html) for information on how to configure Teapot and Storm-Webdav.
+Please refer to [Configuration](/teapot/configuration) for information on how to configure Teapot and Storm-Webdav.
 
 ## Starting
 

@@ -3,25 +3,25 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
-<title>Teapot | Teapot is open-source software that allows HTTP/WebDAV access to your existing storage.</title>
+<title>Teapot | Teapot Documentation</title>
 <meta name="generator" content="Jekyll v3.10.0" />
 <meta property="og:title" content="Teapot" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="Teapot is open-source software that allows HTTP/WebDAV access to your existing storage." />
 <meta property="og:description" content="Teapot is open-source software that allows HTTP/WebDAV access to your existing storage." />
-<link rel="canonical" href="http://localhost:4000/teapot/docs/jekyll/" />
-<meta property="og:url" content="http://localhost:4000/teapot/docs/jekyll/" />
-<meta property="og:site_name" content="Teapot" />
+<link rel="canonical" href="http://localhost:4000/teapot/" />
+<meta property="og:url" content="http://localhost:4000/teapot/" />
+<meta property="og:site_name" content="Teapot Documentation" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Teapot" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebSite","description":"Teapot is open-source software that allows HTTP/WebDAV access to your existing storage.","headline":"Teapot","name":"Teapot","url":"http://localhost:4000/teapot/docs/jekyll/"}</script>
+{"@context":"https://schema.org","@type":"WebSite","description":"Teapot is open-source software that allows HTTP/WebDAV access to your existing storage.","headline":"Teapot","name":"Teapot Documentation","url":"http://localhost:4000/teapot/"}</script>
 <!-- End Jekyll SEO tag -->
-<link rel="stylesheet" href="/teapot/docs/jekyll/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/teapot/docs/jekyll/feed.xml" title="Teapot" /></head>
+<link rel="stylesheet" href="/teapot/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/teapot/feed.xml" title="Teapot Documentation" /></head>
 <body><header class="site-header" role="banner">
 
-  <div class="wrapper"><a class="site-title" rel="author" href="/teapot/docs/jekyll/">Teapot</a><nav class="site-nav">
+  <div class="wrapper"><a class="site-title" rel="author" href="/teapot/">Teapot Documentation</a><nav class="site-nav">
         <input type="checkbox" id="nav-trigger" class="nav-trigger" />
         <label for="nav-trigger">
           <span class="menu-icon">
@@ -31,48 +31,54 @@
           </span>
         </label>
 
-        <div class="trigger"><a class="page-link" href="/teapot/docs/jekyll/about/">About</a><a class="page-link" href="/teapot/docs/jekyll/">Teapot</a><a class="page-link" href="/teapot/docs/jekyll/configuration.html">Configuration</a><a class="page-link" href="/teapot/docs/jekyll/installation.html">Installation Guide</a></div>
+        <div class="trigger"><a class="page-link" href="/teapot/">Teapot</a><a class="page-link" href="/teapot/how-teapot-works/">How Teapot works</a><a class="page-link" href="/teapot/installation_guide/">Installation Guide</a><a class="page-link" href="/teapot/configuration/">Configuration</a></div>
       </nav></div>
 </header>
 <main class="page-content" aria-label="Content">
       <div class="wrapper">
-        <div class="home"><h1 class="page-heading">Teapot</h1><p>Teapot is open-source software that allows HTTP/WebDAV access to your
-existing storage. It supports multi-tenancy and it’s based on StoRM-WebDAV.
-We have added a manager level that accepts requests, authenticates the user,
-identifies the local username of the user, starts a StoRM-WebDAV server for
-that local user with a randomly assigned port to listen on, and forwards the
-user’s request to that port. The StoRM-WebDAV server will then handle the
-request in the usual way. If the StoRM-WebDAV server is inactive for 10 minutes,
-it will be shut down by the manager. If another request comes in or a different
-user, the manager will start another StoRM-WebDAV server for that user in the same
-way.</p>
+        <div class="home"><h1 class="page-heading">Teapot</h1><p><strong>Teapot</strong> is open-source software that provides HTTP/WebDAV access to existing storage systems. It supports multi-tenancy by dynamically launching user-specific StoRM-WebDAV instances on demand.</p>
 
-<p><em>This website is under update, and more information will come soon.</em></p>
-<h2 class="post-list-heading">Posts</h2>
-    <ul class="post-list"><li><span class="post-meta">Jul 28, 2025</span>
-        <h3>
-          <a class="post-link" href="/teapot/docs/jekyll/teapot/updates/2025/07/28/welcome-to-jekyll.html">
-            Teapot updates
-          </a>
-        </h3></li></ul>
+<p>Teapot is ideal for environments where fine-grained, user-isolated access to storage is needed—such as in grid computing, research infrastructure, or institutional data platforms.</p>
 
-    <p class="rss-subscribe">subscribe <a href="/teapot/docs/jekyll/feed.xml">via RSS</a></p></div>
+<h2 id="features">Features</h2>
+
+<ul>
+  <li>WebDAV and HTTP access to existing storage</li>
+  <li>Multi-user support with per-user StoRM-WebDAV instances</li>
+  <li>Automatic launch and shutdown of StoRM-WebDAV servers</li>
+  <li>Identity mapping via file-based, ALISE, or VO-based methods</li>
+  <li>Encrypted communication between components</li>
+</ul>
+
+<h2 id="learn-more">Learn More</h2>
+
+<ul>
+  <li><a href="/teapot/how-teapot-works/">How Teapot Works</a></li>
+  <li><a href="/teapot/installation-guide">Installation Guide</a></li>
+  <li><a href="/teapot//configuration/">Configuration Guide</a></li>
+  <li><a href="https://github.com/interTwin-eu/teapot">GitHub Repository</a></li>
+</ul>
+
+<hr />
+
+<p>© 2025 — Developed as part of the interTwin project • Authors: <a href="mailto:paul.millar@desy.de">Paul Millar</a>, <a href="mailto:dijana.vrbanec@desy.de">Dijana Vrbanec</a>, <a href="mailto:tim.wetzel@desy.de">Tim Wetzel</a> • <a href="https://github.com/interTwin-eu/teapot/blob/main/LICENSE">License</a></p>
+</div>
 
       </div>
     </main><footer class="site-footer h-card">
-  <data class="u-url" href="/teapot/docs/jekyll/"></data>
+  <data class="u-url" href="/teapot/"></data>
 
   <div class="wrapper">
 
-    <h2 class="footer-heading">Teapot</h2>
+    <h2 class="footer-heading">Teapot Documentation</h2>
 
     <div class="footer-col-wrapper">
       <div class="footer-col footer-col-1">
         <ul class="contact-list">
-          <li class="p-name">Teapot</li></ul>
+          <li class="p-name">Teapot Documentation</li></ul>
       </div>
 
-      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/jekyll"><svg class="svg-icon"><use xlink:href="/teapot/docs/jekyll/assets/minima-social-icons.svg#github"></use></svg> <span class="username">jekyll</span></a></li><li><a href="https://www.twitter.com/jekyllrb"><svg class="svg-icon"><use xlink:href="/teapot/docs/jekyll/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">jekyllrb</span></a></li></ul>
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
 </div>
 
       <div class="footer-col footer-col-3">

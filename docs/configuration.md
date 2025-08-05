@@ -1,8 +1,12 @@
-# Configuration
+---
+layout: page
+title: Configuration
+permalink: /configuration/
+---
 
 All configuration settings are stored in the `config.ini` file, located at
-`/etc/teapot/`. Update this file to configure Teapot according to your
-requirements.
+`/etc/teapot/`. To update this file to configure Teapot according to your
+requirements follow the instructions inside the file.
 
 ## Certificates
 
@@ -46,11 +50,10 @@ for detailed instructions.
 
 Teapot provides three methods for mapping a user’s global and local identities.
 The first method is the **File-based Mapping Method**. Teapot allows manual
-storage of user mappings in a file named `user-mapping.csv`, which must be
-placed in `/etc/teapot`. This file should contain the following information:
-for each user, the local username and the user's OIDC subject claim (sub),
-as provided by the Identity Provider (IdP). These values must be listed on a
-single line, separated by a single space.
+storage of user mappings in a file. This file should contain the following
+information: for each user, the local username and the user's OIDC subject
+claim (sub), as provided by the Identity Provider (IdP). These values must
+be listed on a single line, separated by a single space.
 
 Example:
 
