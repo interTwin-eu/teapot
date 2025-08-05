@@ -5,9 +5,13 @@ permalink: /
 ---
 
 
-**Teapot** is open-source software that provides HTTP/WebDAV access to existing storage systems. It supports multi-tenancy by dynamically launching user-specific StoRM-WebDAV instances on demand.
+**Teapot** is open-source software that provides HTTP/WebDAV access to existing
+storage systems. It supports multi-tenancy by dynamically launching
+user-specific StoRM-WebDAV instances on demand.
 
-Teapot is ideal for environments where fine-grained, user-isolated access to storage is needed—such as in grid computing, research infrastructure, or institutional data platforms.
+Teapot is ideal for environments where fine-grained, user-isolated access to
+storage is needed—such as in grid computing, research infrastructure, or
+institutional data platforms.
 
 ## Features
 
@@ -26,4 +30,8 @@ Teapot is ideal for environments where fine-grained, user-isolated access to sto
 
 ---
 
-© 2025 — Developed as part of the interTwin project • Authors: [Paul Millar](mailto:paul.millar@desy.de), [Dijana Vrbanec](mailto:dijana.vrbanec@desy.de), [Tim Wetzel](mailto:tim.wetzel@desy.de) • [License](https://github.com/interTwin-eu/teapot/blob/main/LICENSE)
+© 2025 — Developed as part of the interTwin project • Authors:
+[Paul Millar](mailto:paul.millar@desy.de),
+[Dijana Vrbanec](mailto:dijana.vrbanec@desy.de),
+[Tim Wetzel](mailto:tim.wetzel@desy.de)
+ • [License](https://github.com/interTwin-eu/teapot/blob/main/LICENSE)

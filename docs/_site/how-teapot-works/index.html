@@ -43,20 +43,25 @@
   </header>
 
   <div class="post-content">
-    <p><strong>Teapot</strong> is open-source software providing HTTP/WebDAV access to existing storage systems. It supports multi-tenancy and is built on top of <strong>StoRM-WebDAV</strong>.</p>
+    <p><strong>Teapot</strong> is open-source software providing HTTP/WebDAV access to existing
+storage systems. It supports multi-tenancy and is built on top of
+<strong>StoRM-WebDAV</strong>.</p>
 
 <p>Teapot handles incoming requests by:</p>
 
 <ul>
   <li>Authenticating users</li>
   <li>Resolving the local username based on the chosen identity mapping method</li>
-  <li>Launching a dedicated StoRM-WebDAV server instance per user on a dynamically assigned port (if not already running)</li>
+  <li>Launching a dedicated StoRM-WebDAV server instance per user on a dynamically
+assigned port (if not already running)</li>
   <li>Forwarding user requests to the appropriate StoRM-WebDAV instance</li>
 </ul>
 
-<p>Each StoRM-WebDAV server processes requests normally. If inactive for 10 minutes, the server is automatically shut down by Teapot.</p>
+<p>Each StoRM-WebDAV server processes requests normally. If inactive for 10
+minutes, the server is automatically shut down by Teapot.</p>
 
-<p>If a request arrives for a user with an active StoRM-WebDAV server, Teapot forwards the request to the existing instance. Otherwise, it starts a new one.</p>
+<p>If a request arrives for a user with an active StoRM-WebDAV server, Teapot
+forwards the request to the existing instance. Otherwise, it starts a new one.</p>
 
 <hr />
 
@@ -64,16 +69,22 @@
 
 <p><img src="/teapot/assets/Teapot-diagram.drawio.png" alt="Teapot workflow" /></p>
 
-<p><em>Figure 1: Teapot’s process for handling user requests</em></p>
+<p>Figure 1: Teapot’s process for handling user requests</p>
 
-<p>Upon receiving a request, Teapot authenticates the user and maps the global identity to a local username. It then checks for an active StoRM-WebDAV server for that user:</p>
+<p>Upon receiving a request, Teapot authenticates the user and maps the global
+identity to a local username. It then checks for an active StoRM-WebDAV server
+for that user:</p>
 
 <ul>
-  <li>If none exists, it starts a new server on an available port above 32400 on localhost.</li>
+  <li>If none exists, it starts a new server on an available port above 32400 on
+localhost.</li>
   <li>Communication between Teapot and StoRM-WebDAV is encrypted.</li>
-  <li>Requests are forwarded to the user’s StoRM-WebDAV server, which interacts with the storage and returns responses via Teapot.</li>
-  <li>Requests from other users are handled similarly, starting new server instances as needed.</li>
-  <li>After 10 minutes of inactivity, StoRM-WebDAV servers are shut down to save resources.</li>
+  <li>Requests are forwarded to the user’s StoRM-WebDAV server, which interacts
+with the storage and returns responses via Teapot.</li>
+  <li>Requests from other users are handled similarly, starting new server instances
+as needed.</li>
+  <li>After 10 minutes of inactivity, StoRM-WebDAV servers are shut down to save
+resources.</li>
 </ul>
 
 <p>For more details on StoRM-WebDAV, see the <a href="https://github.com/italiangrid/storm-webdav/blob/master/doc/storage-area-configuration.md">official documentation</a>.</p>
@@ -86,7 +97,8 @@
 
 <h3 id="1-file-based-mapping">1. File-based Mapping</h3>
 
-<p>User mappings are stored in a file with lines containing the local username and the user’s OIDC subject claim (<code class="language-plaintext highlighter-rouge">sub</code>), separated by a space.</p>
+<p>User mappings are stored in a file with lines containing the local username and
+the user’s OIDC subject claim (<code class="language-plaintext highlighter-rouge">sub</code>), separated by a space.</p>
 
 <p>Example:</p>
 
@@ -96,11 +108,13 @@ user2 a12b3c4d5e6f
 
 <h3 id="2-alise-account-linking-service">2. ALISE (Account Linking Service)</h3>
 
-<p>Using <a href="https://github.com/m-team-kit/alise/tree/master/alise">ALISE</a>, users link multiple global accounts to a single local account per site.</p>
+<p>Using <a href="https://github.com/m-team-kit/alise/tree/master/alise">ALISE</a>, users
+link multiple global accounts to a single local account per site.</p>
 
 <h3 id="3-vo-based-mapping">3. VO-based Mapping</h3>
 
-<p>All members of a Virtual Organization (VO) are mapped to a single local identity. This is a group-based mapping approach.</p>
+<p>All members of a Virtual Organization (VO) are mapped to a single local
+identity. This is a group-based mapping approach.</p>
 
   </div>
 

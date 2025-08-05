@@ -10,11 +10,11 @@ requirements follow the instructions inside the file.
 
 ## Certificates
 
-Both Teapot and StoRM WebDAV servers require `SSL` certificates. The certificate
-must also be added to the system’s trust store to ensure secure communication.
-Path to the Teapot's certificate should be specified in `config.ini`.
-To generate self-signed certificates for StoRM WebDAV and add them to the trust
-store, run `sudo /usr/share/teapot/self-signed-cert-gen.sh`.
+Both Teapot and StoRM WebDAV servers require `SSL` certificates. The
+certificate must also be added to the system’s trust store to ensure secure
+communication. Path to the Teapot's certificate should be specified in
+`config.ini`. To generate self-signed certificates for StoRM WebDAV and add
+them to the trust store, run `sudo /usr/share/teapot/self-signed-cert-gen.sh`.
 
 ## Storm-webdav configuration files
 
@@ -75,10 +75,11 @@ To configure ALISE you must specify:
 - The computing center where local identities should be mapped.
 
 To access ALISE's API, you first need to obtain an API key. This can be done
-via the following endpoint: `ALISE_INSTANCE + /api/v1/target/{site}/get_apikey`.
+via the following endpoint:
+`ALISE_INSTANCE + /api/v1/target/{site}/get_apikey`.
 The API key is associated with a specific user and is obtained using an Access
-Token. You can retrieve the API key via a `curl` request by including the Access
-Token in the request header:
+Token. You can retrieve the API key via a `curl` request by including the
+Access Token in the request header:
 
 ```bash
 curl -H "Authorization: Bearer ${ACCESS_TOKEN}" <API_ENDPOINT>
@@ -86,11 +87,12 @@ curl -H "Authorization: Bearer ${ACCESS_TOKEN}" <API_ENDPOINT>
 
 ### VO based mapping
 
-The third method is **VO-based mapping**, where all members of a Virtual Organization
-(VO) are mapped to a single local identity. This is a **group-based mapping** approach.
+The third method is **VO-based mapping**, where all members of a Virtual
+Organization (VO) are mapped to a single local identity. This is a
+**group-based mapping** approach.
 
 To configure VO-based mapping, specify:
 
 - The `eduperson-entitlement` that defines the VO membership.
-- The local account to which users with the matching `eduperson-entitlement` will be
-   mapped.
+- The local account to which users with the matching `eduperson-entitlement`
+will be mapped.
