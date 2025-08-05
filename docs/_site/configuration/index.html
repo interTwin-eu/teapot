@@ -44,12 +44,12 @@
 
   <div class="post-content">
     <p>All configuration settings are stored in the <code class="language-plaintext highlighter-rouge">config.ini</code> file, located at
-<code class="language-plaintext highlighter-rouge">/etc/teapot/</code>. To update this file to configure Teapot according to your
-requirements follow the instructions inside the file.</p>
+<code class="language-plaintext highlighter-rouge">/etc/teapot/</code>. To configure Teapot according to your requirements, follow the
+instructions provided inside the file.</p>
 
 <h2 id="certificates">Certificates</h2>
 
-<p>Both Teapot and StoRM WebDAV servers require <code class="language-plaintext highlighter-rouge">SSL</code> certificates. The
+<p>Both Teapot and StoRM WebDAV servers require SSL certificates. The
 certificate must also be added to the system’s trust store to ensure secure
 communication. Path to the Teapot’s certificate should be specified in
 <code class="language-plaintext highlighter-rouge">config.ini</code>. To generate self-signed certificates for StoRM WebDAV and add
@@ -92,7 +92,7 @@ for detailed instructions.</p>
 <h3 id="file-based-mapping-method">File-based Mapping Method</h3>
 
 <p>Teapot provides three methods for mapping a user’s global and local identities.
-The first method is the <strong>File-based Mapping Method</strong>. Teapot allows manual
+The first method is the File-based Mapping Method. Teapot allows manual
 storage of user mappings in a file. This file should contain the following
 information: for each user, the local username and the user’s OIDC subject
 claim (sub), as provided by the Identity Provider (IdP). These values must
@@ -104,9 +104,9 @@ be listed on a single line, separated by a single space.</p>
 user2 a12b3c4d5e6f
 </code></pre></div></div>
 
-<h3 id="alise-account-linking-service">ALISE - Account Linking Service</h3>
+<h3 id="alise---account-linking-service">ALISE - Account Linking Service</h3>
 
-<p>The second method uses the <strong>ALISE - Account Linking Service</strong>
+<p>The second method uses the ALISE - Account Linking Service
 (<a href="https://github.com/m-team-kit/alise/tree/master/alise">ALISE documentation</a>).
 ALISE allows users to log in with a single local account per site while linking
 multiple global accounts.</p>
@@ -130,9 +130,9 @@ Access Token in the request header:</p>
 
 <h3 id="vo-based-mapping">VO based mapping</h3>
 
-<p>The third method is <strong>VO-based mapping</strong>, where all members of a Virtual
+<p>The third method is VO-based mapping, where all members of a Virtual
 Organization (VO) are mapped to a single local identity. This is a
-<strong>group-based mapping</strong> approach.</p>
+group-based mapping approach.</p>
 
 <p>To configure VO-based mapping, specify:</p>
 

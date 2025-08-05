@@ -5,12 +5,12 @@ permalink: /configuration/
 ---
 
 All configuration settings are stored in the `config.ini` file, located at
-`/etc/teapot/`. To update this file to configure Teapot according to your
-requirements follow the instructions inside the file.
+`/etc/teapot/`. To configure Teapot according to your requirements, follow the
+instructions provided inside the file.
 
 ## Certificates
 
-Both Teapot and StoRM WebDAV servers require `SSL` certificates. The
+Both Teapot and StoRM WebDAV servers require SSL certificates. The
 certificate must also be added to the system’s trust store to ensure secure
 communication. Path to the Teapot's certificate should be specified in
 `config.ini`. To generate self-signed certificates for StoRM WebDAV and add
@@ -49,7 +49,7 @@ for detailed instructions.
 ### File-based Mapping Method
 
 Teapot provides three methods for mapping a user’s global and local identities.
-The first method is the **File-based Mapping Method**. Teapot allows manual
+The first method is the File-based Mapping Method. Teapot allows manual
 storage of user mappings in a file. This file should contain the following
 information: for each user, the local username and the user's OIDC subject
 claim (sub), as provided by the Identity Provider (IdP). These values must
@@ -64,7 +64,7 @@ user2 a12b3c4d5e6f
 
 ### ALISE - Account Linking Service
 
-The second method uses the **ALISE - Account Linking Service**
+The second method uses the ALISE - Account Linking Service
 ([ALISE documentation](https://github.com/m-team-kit/alise/tree/master/alise)).
 ALISE allows users to log in with a single local account per site while linking
 multiple global accounts.
@@ -87,9 +87,9 @@ curl -H "Authorization: Bearer ${ACCESS_TOKEN}" <API_ENDPOINT>
 
 ### VO based mapping
 
-The third method is **VO-based mapping**, where all members of a Virtual
+The third method is VO-based mapping, where all members of a Virtual
 Organization (VO) are mapped to a single local identity. This is a
-**group-based mapping** approach.
+group-based mapping approach.
 
 To configure VO-based mapping, specify:
 

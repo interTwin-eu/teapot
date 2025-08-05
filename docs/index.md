@@ -7,7 +7,8 @@ permalink: /
 
 **Teapot** is open-source software that provides HTTP/WebDAV access to existing
 storage systems. It supports multi-tenancy by dynamically launching
-user-specific StoRM-WebDAV instances on demand.
+user-specific [StoRM-WebDAV](https://github.com/italiangrid/storm-webdav)
+instances on demand.
 
 Teapot is ideal for environments where fine-grained, user-isolated access to
 storage is needed—such as in grid computing, research infrastructure, or
