@@ -1,6 +1,6 @@
 ---
 layout: home
-title: Teapot
+title: 
 permalink: /
 ---
 
@@ -24,9 +24,10 @@ institutional data platforms.
 
 ## Learn More
 
-- [How Teapot Works](/teapot/how-teapot-works/)
+- [How Teapot Works](/teapot/how-teapot-works)
 - [Installation Guide](/teapot/installation-guide)
-- [Configuration Guide](/teapot//configuration/)
+- [Configuration Guide](/teapot//configuration)
+- [Support](/teapot/support)
 - [GitHub Repository](https://github.com/interTwin-eu/teapot)
 
 ---

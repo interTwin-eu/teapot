@@ -19,7 +19,7 @@
 # You can create any custom variable you would like, and they will be
 # accessible in the templates via {{ site.myvariable }}.
 
-title: Teapot Documentation
+title: Teapot
 description: >- # this means to ignore newlines until "baseurl:"
   Teapot is open-source software that provides HTTP/WebDAV access to existing
   storage systems.
@@ -36,6 +36,7 @@ header_pages:
   - how-teapot-works.md
   - installation.md
   - configuration.md
+  - support.md
 
 # Exclude from processing.
 # The following items will not be processed, by default.
