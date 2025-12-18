@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Installation Guide
-permalink: /installation_guide/
+title: Installation
+permalink: /installation-guide/
 ---
 
 ## Requirements
