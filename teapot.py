@@ -771,7 +771,9 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement, preferred_username)
         return None
 
 
-async def storm_webdav_state(state, condition, sub, iss, eduperson_entitlement, preferred_username):
+async def storm_webdav_state(
+    state, condition, sub, iss, eduperson_entitlement, preferred_username
+):
     """
     This function gets the mapping for the federated user from the sub-claim to the
     user's local identity. With this local identity, it manages the state of the
