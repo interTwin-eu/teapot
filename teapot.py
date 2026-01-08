@@ -689,7 +689,7 @@ async def load_session_state():
                 app.state.session_state = json.load(f)
 
 
-async def _map_fed_to_local(sub, iss, eduperson_entitlement):
+async def _map_fed_to_local(sub, iss, eduperson_entitlement, preferred_username):
     """
     This function returns the local username for a federated user or None.
     The local username can be retrieved from a mapping file on the local file
@@ -746,6 +746,7 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement):
         else:
             logger.info("local user identity is %s", local_username)
         return local_username
+
     elif mapping == "VO":
         VO_membership = VOMapping(eduperson_entitlement)
         username = VO_membership.get_local_username(sub)
@@ -755,12 +756,24 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement):
                 "cannot determine local username." % sub
             )
         return username
+
+    elif mapping == "KEYCLOAK":
+        username = preferred_username
+        if not username:
+            raise RuntimeError(
+                "User with sub %s has no matching preferred_username; "
+                "cannot determine local username." % sub
+            )
+        return username
+
     else:
         logger.error("The identity mapping method information is missing or incorrect.")
         return None
 
 
-async def storm_webdav_state(state, condition, sub, iss, eduperson_entitlement):
+async def storm_webdav_state(
+    state, condition, sub, iss, eduperson_entitlement, preferred_username
+):
     """
     This function gets the mapping for the federated user from the sub-claim to the
     user's local identity. With this local identity, it manages the state of the
@@ -769,7 +782,7 @@ async def storm_webdav_state(state, condition, sub, iss, eduperson_entitlement):
     state is NOT_RUNNING. Transition between different states is triggered by an
     incomming request or by storm-webdav instance reaching the inactivity treshold.
     """
-    user = await _map_fed_to_local(sub, iss, eduperson_entitlement)
+    user = await _map_fed_to_local(sub, iss, eduperson_entitlement, preferred_username)
 
     should_start_sw = False
     logger.info("Assessing the state of the storm webdav instance for user %s", user)
@@ -1073,13 +1086,21 @@ async def root(request: Request):
     else:
         eduperson_entitlement = None
 
+    if mapping == "KEYCLOAK":
+        logger.debug(
+            "User's 'preferred_username' is %s", user_infos["preferred_username"]
+        )
+        preferred_username = user_infos.get("preferred_username", None)
+    else:
+        preferred_username = None
+
     if not sub:
         # if there is no sub, user can not be authenticated
         raise HTTPException(status_code=403)
 
     # user is valid, so check if a storm instance is running for this sub
     redirect_host, redirect_port, local_user = await storm_webdav_state(
-        sw_state, sw_condition, sub, iss, eduperson_entitlement
+        sw_state, sw_condition, sub, iss, eduperson_entitlement, preferred_username
     )
 
     if not redirect_host and not redirect_port:
