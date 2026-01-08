@@ -44,12 +44,12 @@ for detailed instructions.
 
 ### File-based Mapping Method
 
-Teapot provides three methods for mapping a user’s global and local identities.
-The first method is the **File-based Mapping Method**. Teapot allows manual
-storage of user mappings in a file. This file should contain the following
-information: for each user, the local username and the user's OIDC subject
-claim (sub), as provided by the Identity Provider (IdP). These values must
-be listed on a single line, separated by a single space.
+Teapot provides several methods for mapping a user’s global and local
+identities. The File-based Mapping Method allows manual storage of user
+mappings in a file. This file should contain the following information:
+for each user, the local username and the user's OIDC subject claim (`sub`),
+as provided by the Identity Provider (IdP). These values must be listed on
+a single line, separated by a single space.
 
 Example:
 
@@ -60,9 +60,9 @@ user2 a12b3c4d5e6f
 
 ### ALISE - Account Linking Service
 
-The second method uses the **ALISE - Account Linking Service**
-([ALISE documentation](https://github.com/m-team-kit/alise/tree/master/alise)).
-ALISE allows users to log in with a single local account per site while linking
+The ALISE - Account Linking Service
+([ALISE documentation](https://github.com/m-team-kit/alise/tree/master/alise))
+allows users to log in with a single local account per site while linking
 multiple global accounts.
 
 To configure ALISE you must specify:
@@ -71,10 +71,11 @@ To configure ALISE you must specify:
 - The computing center where local identities should be mapped.
 
 To access ALISE's API, you first need to obtain an API key. This can be done
-via the following endpoint: `ALISE_INSTANCE + /api/v1/target/{site}/get_apikey`.
+via the following endpoint:
+`ALISE_INSTANCE + /api/v1/target/{site}/get_apikey`.
 The API key is associated with a specific user and is obtained using an Access
-Token. You can retrieve the API key via a `curl` request by including the Access
-Token in the request header:
+Token. You can retrieve the API key via a `curl` request by including the
+Access Token in the request header:
 
 ```bash
 curl -H "Authorization: Bearer ${ACCESS_TOKEN}" <API_ENDPOINT>
@@ -82,11 +83,16 @@ curl -H "Authorization: Bearer ${ACCESS_TOKEN}" <API_ENDPOINT>
 
 ### VO based mapping
 
-The third method is **VO-based mapping**, where all members of a Virtual Organization
-(VO) are mapped to a single local identity. This is a **group-based mapping** approach.
+VO-based mapping maps all members of a Virtual Organization (VO) to a single
+local identity. This is a group-based mapping approach.
 
 To configure VO-based mapping, specify:
 
 - The `eduperson-entitlement` that defines the VO membership.
-- The local account to which users with the matching `eduperson-entitlement` will be
-   mapped.
+- The local account to which users with the matching `eduperson-entitlement`
+will be mapped.
+
+### Keycloak-based Mapping
+
+**Keycloak-based mapping** maps the user's `sub` claim to Keycloak's
+`preferred_username`. No extra configuration is needed.
