@@ -98,5 +98,5 @@ will be mapped.
 
 ### Keycloak-based Mapping
 
-**Keycloak-based mapping** maps the user's `sub` claim to Keycloak's
+Keycloak-based mapping maps the user's `sub` claim to Keycloak's
 `preferred_username`. No extra configuration is needed.

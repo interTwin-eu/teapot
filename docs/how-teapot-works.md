@@ -50,9 +50,9 @@ For more details on StoRM-WebDAV, see the [official documentation](https://githu
 
 ## Identity Mapping Methods
 
-Teapot supports three identity mapping methods to resolve user identities:
+Teapot supports several identity mapping methods to resolve user identities:
 
-### 1. File-based Mapping
+### File-based Mapping
 
 User mappings are stored in a file with lines containing the local username and
 the user's OIDC subject claim (`sub`), separated by a space.
@@ -64,12 +64,17 @@ user1 248289761001
 user2 a12b3c4d5e6f
 ```
 
-### 2. ALISE (Account Linking Service)
+### ALISE (Account Linking Service)
 
 Using [ALISE](https://github.com/m-team-kit/alise/tree/master/alise), users
 link multiple global accounts to a single local account per site.
 
-### 3. VO-based Mapping
+### VO-based Mapping
 
 All members of a Virtual Organization (VO) are mapped to a single local
 identity. This is a group-based mapping approach.
+
+### Keycloak-based Mapping
+
+For sites deploying Keycloak, Teapot maps a user's global identity (`sub` claim)
+to the local identity as expressed in the `preferred_username` claim.
