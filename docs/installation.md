@@ -11,7 +11,7 @@ operating system. The required Python packages for installing Teapot are
 listed in the [requirements.txt](https://github.com/interTwin-eu/teapot/blob/main/requirements.txt)
 file. Python packages that aren't available in the rpm format are already
 included in Teapot's rpm file. To automatically generate self-signed
-certificate `openssl>3` is needed. Storm-webdav needs `java-17`.
+certificate `openssl>3` is needed. Storm-webdav needs `java-21`.
 
 ## Installation
 
