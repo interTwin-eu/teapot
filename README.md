@@ -28,11 +28,13 @@ StoRM-WebDAV requires `Java 21`.
 
 Teapot can be installed using either an **RPM** or **DEB** package.
 
-- **DEB package:** Automatically creates a dedicated `teapot` system user. Distribution-independent.
-- **RPM package:** Available for Fedora 39, AlmaLinux 9.4, and Rocky Linux 9.3. The system user must currently be created manually.
+- **DEB package:** Automatically creates a dedicated `teapot` system user.
+Distribution-independent.
+- **RPM package:** Available for Fedora 39, AlmaLinux 9.4, and Rocky Linux 9.3.
+The system user must currently be created manually.
 
-
-For configuration details, please refer to [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md),
+For configuration details, please refer to
+[CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md),
 which covers both Teapot and StoRM-WebDAV.
 
 ### Starting the Service
