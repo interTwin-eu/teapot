@@ -34,7 +34,7 @@ ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/AT4LMp9q
 ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/zY6agLE29TAtkke/download/teapot.key .
 
 WORKDIR /etc/teapot
-COPY --chmod=644 ./../testing-configurations/user-mapping.csv .
+COPY --chmod=644 user-mapping.csv .
 RUN \
     adduser test-user1 && \
     adduser test-user2  && \
