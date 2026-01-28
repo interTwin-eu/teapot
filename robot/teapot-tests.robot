@@ -30,6 +30,33 @@ Delete Test File2 USER1 EXTRA AREA     ${RESPONSE}=    DELETE    ${EXTRA_AREA}/T
 
 Delete Test File2 USER2 EXTRA AREA     ${RESPONSE}=    DELETE    ${EXTRA_AREA}/TestFile2    headers=${HEADER2}      expected_status=204
 
+
+Add Test File USER1 DEB     ${RESPONSE}=    PUT    ${DEFAULT_DEB_AREA}/TestFile2    data=${DATA}    headers=${HEADER1}      expected_status=201
+
+Add Test File USER2 DEB     ${RESPONSE}=    PUT    ${DEFAULT_DEB_AREA}/TestFile2    data=${DATA}    headers=${HEADER2}      expected_status=201
+
+Delete Test File1 USER1 DEB     ${RESPONSE}=    DELETE    ${DEFAULT_DEB_AREA}/TestFile1    headers=${HEADER1}      expected_status=204
+
+Delete Test File1 USER2 DEB     ${RESPONSE}=    DELETE    ${DEFAULT_DEB_AREA}/TestFile1    headers=${HEADER2}      expected_status=204
+
+Delete Test File2 USER1 DEB     ${RESPONSE}=    DELETE    ${DEFAULT_DEB_AREA}/TestFile2    headers=${HEADER1}      expected_status=204
+
+Delete Test File2 USER2 DEB     ${RESPONSE}=    DELETE    ${DEFAULT_DEB_AREA}/TestFile2    headers=${HEADER2}      expected_status=204
+
+
+Add Test File USER1 EXTRA AREA DEB    ${RESPONSE}=    PUT    ${EXTRA_DEB_AREA}/TestFile2    data=${DATA}    headers=${HEADER1}      expected_status=201
+
+Add Test File USER2 EXTRA AREA DEB     ${RESPONSE}=    PUT    ${EXTRA_DEB_AREA}/TestFile2    data=${DATA}    headers=${HEADER2}      expected_status=201
+
+Delete Test File1 USER1 EXTRA AREA DEB     ${RESPONSE}=    DELETE    ${EXTRA_DEB_AREA}/TestFile1    headers=${HEADER1}      expected_status=204
+
+Delete Test File1 USER2 EXTRA AREA DEB     ${RESPONSE}=    DELETE    ${EXTRA_DEB_AREA}/TestFile1    headers=${HEADER2}      expected_status=204
+
+Delete Test File2 USER1 EXTRA AREA DEB     ${RESPONSE}=    DELETE    ${EXTRA_DEB_AREA}/TestFile2    headers=${HEADER1}      expected_status=204
+
+Delete Test File2 USER2 EXTRA AREA DEB     ${RESPONSE}=    DELETE    ${EXTRA_DEB_AREA}/TestFile2    headers=${HEADER2}      expected_status=204
+
+
 *** Test Cases ***
 
 GET USER1
@@ -150,3 +177,122 @@ DELETE REQUEST INVALID TOKEN EXTRA_AREA
 
 DELETE REQUEST NO TOKEN EXTRA_AREA
     ${RESPONSE}=    DELETE    ${EXTRA_AREA}/TestFile2                            expected_status=401
+
+GET USER1 DEB
+    ${RESPONSE}=    GET    ${DEFAULT_DEB_AREA}    headers=${HEADER1}     expected_status=200
+
+GET USER2 DEB
+    ${RESPONSE}=    GET    ${DEFAULT_DEB_AREA}    headers=${HEADER2}     expected_status=200
+
+GET NO TOKEN DEB
+    ${RESPONSE}=    GET    ${DEFAULT_DEB_AREA}                           expected_status=401
+
+GET INVALID TOKEN DEB
+    ${RESPONSE}=    GET    ${DEFAULT_DEB_AREA}    headers=${HEADER3}     expected_status=401
+
+
+PUT REQUEST INVALID TOKEN DEB
+    ${RESPONSE}=    PUT    ${DEFAULT_DEB_AREA}/TestFile1    data=${DATA}    headers=${HEADER3}      expected_status=401
+
+PUT REQUEST NO TOKEN DEB
+    ${RESPONSE}=    PUT    ${DEFAULT_DEB_AREA}/TestFile1    data=${DATA}                            expected_status=401
+
+PUT REQUEST USER1 DEB
+    ${RESPONSE}=    PUT    ${DEFAULT_DEB_AREA}/TestFile1    data=${DATA}    headers=${HEADER1}      expected_status=201
+    [Teardown]    Delete Test File1 USER1
+
+PUT REQUEST USER2 DEB
+    ${RESPONSE}=    PUT    ${DEFAULT_DEB_AREA}/TestFile1    data=${DATA}    headers=${HEADER2}      expected_status=201
+    [Teardown]    Delete Test File1 USER2
+
+
+GET FILE USER1 DEB
+    [Setup]     Add Test File USER1 DEB
+    ${RESPONSE}=    GET    ${DEFAULT_DEB_AREA}/TestFile2    headers=${HEADER1}     expected_status=200
+    [Teardown]    Delete Test File2 USER1 DEB
+
+GET FILE USER2 DEB
+    [Setup]     Add Test File USER2 DEB
+    ${RESPONSE}=    GET    ${DEFAULT_DEB_AREA}/TestFile2    headers=${HEADER2}     expected_status=200
+    [Teardown]    Delete Test File2 USER2 DEB
+
+GET FILE NO TOKEN DEB
+    ${RESPONSE}=    GET    ${DEFAULT_DEB_AREA}/TestFile2                           expected_status=401
+
+GET FILE INVALID TOKEN DEB
+    ${RESPONSE}=    GET    ${DEFAULT_DEB_AREA}/TestFile2    headers=${HEADER3}     expected_status=401
+
+
+DELETE REQUEST USER1 DEB
+    [Setup]     Add Test File USER1 DEB
+    ${RESPONSE}=    DELETE    ${DEFAULT_DEB_AREA}/TestFile2    headers=${HEADER1}      expected_status=204
+
+DELETE REQUEST USER2 DEB
+    [Setup]     Add Test File USER2 DEB
+    ${RESPONSE}=    DELETE    ${DEFAULT_DEB_AREA}/TestFile2    headers=${HEADER2}      expected_status=204
+
+DELETE REQUEST INVALID TOKEN DEB
+    ${RESPONSE}=    DELETE    ${DEFAULT_DEB_AREA}/TestFile2    headers=${HEADER3}      expected_status=401
+
+DELETE REQUEST NO TOKEN DEB
+    ${RESPONSE}=    DELETE    ${DEFAULT_DEB_AREA}/TestFile2                            expected_status=401
+
+
+GET USER1 EXTRA_AREA DEB
+    ${RESPONSE}=    GET    ${EXTRA_DEB_AREA}    headers=${HEADER1}     expected_status=200
+
+GET USER2 EXTRA_AREA DEB
+    ${RESPONSE}=    GET    ${EXTRA_DEB_AREA}    headers=${HEADER2}     expected_status=200
+
+GET NO TOKEN EXTRA_AREA DEB
+    ${RESPONSE}=    GET    ${EXTRA_DEB_AREA}                           expected_status=401
+
+GET INVALID TOKEN EXTRA_AREA DEB
+    ${RESPONSE}=    GET    ${EXTRA_DEB_AREA}    headers=${HEADER3}     expected_status=401
+
+
+PUT REQUEST INVALID TOKEN EXTRA_AREA DEB
+    ${RESPONSE}=    PUT    ${EXTRA_DEB_AREA}/TestFile1    data=${DATA}    headers=${HEADER3}      expected_status=401
+
+PUT REQUEST NO TOKEN EXTRA_AREA DEB
+    ${RESPONSE}=    PUT    ${EXTRA_DEB_AREA}/TestFile1    data=${DATA}                            expected_status=401
+
+PUT REQUEST USER1 EXTRA_AREA DEB
+    ${RESPONSE}=    PUT    ${EXTRA_DEB_AREA}/TestFile1    data=${DATA}    headers=${HEADER1}      expected_status=201
+    [Teardown]    Delete Test File1 USER1 EXTRA AREA
+
+PUT REQUEST USER2 EXTRA_AREA DEB
+    ${RESPONSE}=    PUT    ${EXTRA_DEB_AREA}/TestFile1    data=${DATA}    headers=${HEADER2}      expected_status=201
+    [Teardown]    Delete Test File1 USER2 EXTRA AREA
+
+
+GET FILE USER1 EXTRA_AREA DEB
+    [Setup]     Add Test File USER1 EXTRA AREA DEB
+    ${RESPONSE}=    GET    ${EXTRA_DEB_AREA}/TestFile2    headers=${HEADER1}     expected_status=200
+    [Teardown]    Delete Test File2 USER1 EXTRA AREA DEB
+
+GET FILE USER2 EXTRA_AREA DEB
+    [Setup]     Add Test File USER2 EXTRA AREA DEB
+    ${RESPONSE}=    GET    ${EXTRA_DEB_AREA}/TestFile2    headers=${HEADER2}     expected_status=200
+    [Teardown]    Delete Test File2 USER2 EXTRA AREA DEB
+
+GET FILE NO TOKEN EXTRA_AREA DEB
+    ${RESPONSE}=    GET    ${EXTRA_DEB_AREA}/TestFile2                           expected_status=401
+
+GET FILE INVALID TOKEN EXTRA_AREA DEB
+    ${RESPONSE}=    GET    ${EXTRA_DEB_AREA}/TestFile2    headers=${HEADER3}     expected_status=401
+
+
+DELETE REQUEST USER1 EXTRA_AREA DEB
+    [Setup]     Add Test File USER1 EXTRA AREA DEB
+    ${RESPONSE}=    DELETE    ${EXTRA_DEB_AREA}/TestFile2    headers=${HEADER1}      expected_status=204
+
+DELETE REQUEST USER2 EXTRA_AREA DEB
+    [Setup]     Add Test File USER2 EXTRA AREA DEB
+    ${RESPONSE}=    DELETE    ${EXTRA_DEB_AREA}/TestFile2    headers=${HEADER2}      expected_status=204
+
+DELETE REQUEST INVALID TOKEN EXTRA_AREA DEB
+    ${RESPONSE}=    DELETE    ${EXTRA_DEB_AREA}/TestFile2    headers=${HEADER3}      expected_status=401
+
+DELETE REQUEST NO TOKEN EXTRA_AREA DEB
+    ${RESPONSE}=    DELETE    ${EXTRA_DEB_AREA}/TestFile2                            expected_status=401

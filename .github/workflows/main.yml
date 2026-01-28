@@ -85,8 +85,8 @@ jobs:
           name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_almalinux_9.4
           path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ needs.build-fedora.outputs.version_rpm }}*.x86_64.rpm
 
-  build-ubuntu:
-    name: build-ubuntu
+  build-deb:
+    name: build-deb
     needs: build-fedora
     runs-on: ubuntu-latest
     steps:
@@ -134,6 +134,27 @@ jobs:
           echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
           docker push ghcr.io/intertwin-eu/teapot:latest
 
+  containerization-ubuntu:
+    name: containerization-ubuntu
+    needs: [build-fedora, build-deb]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: teapot-${{ needs.build-fedora.outputs.version }}_debian_all
+          path: /home/runner/work/teapot/teapot/robot/ubuntu
+      - name: Building Teapot docker image
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+          USERNAME: ${{ secrets.USERNAME }}
+        run: |
+          cd robot/ubuntu
+          docker build . --tag ghcr.io/intertwin-eu/teapot-ubuntu:latest
+          echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
+          docker push ghcr.io/intertwin-eu/teapot-ubuntu:latest
   test:
     name: test
     needs: [build-fedora, containerization]
@@ -145,8 +166,11 @@ jobs:
         image: dvrbanec/keycloak-dev:1
       teapot:
         image: ghcr.io/intertwin-eu/teapot:latest
-        ports:
-          - 8081:8081
+        credentials:
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.TOKEN }}
+      teapot-ubuntu:
+        image: ghcr.io/intertwin-eu/teapot-ubuntu:latest
         credentials:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.TOKEN }}
