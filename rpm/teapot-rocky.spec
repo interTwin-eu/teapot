@@ -100,9 +100,9 @@ fi
 %attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 %attr(775, root, root) %{_sysconfdir}/grid-security/vomsdir/
 %attr(664, root, root) %{_unitdir}/teapot.service
-%attr(755, root, root) %{_exec_prefix}/local/lib64/python3.12/site-packages/*
-%attr(755, root, root) %{_exec_prefix}/local/lib/python3.12/site-packages/*
+%attr(755, root, root) %{_exec_prefix}/local/lib64/python3.9/site-packages/*
+%attr(755, root, root) %{_exec_prefix}/local/lib/python3.9/site-packages/*
 
 %changelog
-* Mon Jan 26 2026 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Wed Jan 28 2026 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}
