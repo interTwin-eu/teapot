@@ -145,6 +145,8 @@ jobs:
         image: dvrbanec/keycloak-dev:1
       teapot:
         image: ghcr.io/intertwin-eu/teapot:latest
+        ports:
+          - 8081:8081
         credentials:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.TOKEN }}
