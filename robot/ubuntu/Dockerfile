@@ -3,7 +3,7 @@
 # trunk-ignore-all(trivy/DS002)
 # trunk-ignore-all(trivy/DS026)
 # trunk-ignore-all(hadolint/DL3007)
-# trunk-ignore-all(hadolint/DL3008)
+# hadolint ignore=DL3008
 FROM ubuntu:24.04
 
 WORKDIR /tmp
