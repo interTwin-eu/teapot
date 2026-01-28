@@ -106,7 +106,7 @@ jobs:
           dch --newversion "${VERSION_DEB}-1" --distribution unstable "Release ${VERSION_DEB}"
           dch --release ""
           dpkg-buildpackage -us -uc -b
-          cp ../*.deb $GITHUB_WORKSPACE/
+          cp ../*.deb "$GITHUB_WORKSPACE"/
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ needs.build-fedora.outputs.version }}_debian_all
