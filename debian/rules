@@ -1,0 +1,42 @@
+#!/usr/bin/make -f
+
+export PYBUILD_DISABLE=1
+
+STORM_VERSION ?= 1.12.0
+STORM_RPM_URL=https://repo.cloud.cnaf.infn.it/repository/storm-rpm-stable/redhat9/storm-webdav-$(STORM_VERSION)-1.el9.noarch.rpm
+
+
+%:
+	dh $@ --with python3
+
+override_dh_auto_build:
+	# Download and extract storm-webdav JAR if not present
+	if [ ! -f storm-webdav-server.jar ]; then \
+		wget $(STORM_RPM_URL) -O storm-webdav.rpm; \
+		rpm2cpio storm-webdav.rpm | cpio -idmv; \
+		cp usr/share/java/storm-webdav/storm-webdav-server.jar .; \
+		rm -rf usr storm-webdav.rpm; \
+	fi
+
+	# Install flaat and certifi-linux WITH all dependencies
+	mkdir -p python-packages
+	pip3 install --target=python-packages --ignore-installed 'flaat>=1.1.18' certifi-linux
+
+override_dh_install:
+	dh_install
+	# Copy pre-installed Python packages to teapot user's location
+	mkdir -p debian/teapot/var/lib/teapot/.local/lib/python3.12/site-packages
+	cp -r python-packages/* debian/teapot/var/lib/teapot/.local/lib/python3.12/site-packages/
+
+override_dh_auto_test:
+	# Skip tests
+
+override_dh_clean:
+	dh_clean
+	rm -f storm-webdav-server.jar storm-webdav.rpm
+
+override_dh_fixperms:
+	dh_fixperms
+	chmod 0440 debian/teapot/etc/sudoers.d/teapot
+	mv debian/teapot/usr/share/teapot/self-signed-cert-gen-deb.sh \
+	   debian/teapot/usr/share/teapot/self-signed-cert-gen.sh

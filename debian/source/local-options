@@ -1,0 +1,2 @@
+extend-diff-ignore = "^storm-webdav-server\.jar$"
+extend-diff-ignore = "^storm-webdav\.rpm$"

@@ -1,0 +1,38 @@
+#!/bin/bash
+set -e
+
+case "$1" in
+    remove)
+        # Stop and disable service on removal
+        if [ -d /run/systemd/system ]; then
+            systemctl stop teapot.service || true
+            systemctl disable teapot.service || true
+            systemctl daemon-reload || true
+        fi
+        ;;
+        
+    purge)
+
+        # Remove user's pip-installed packages
+        rm -rf /var/lib/teapot/.local
+        
+        # Remove user on purge (complete removal)
+        if getent passwd teapot > /dev/null; then
+            deluser --system teapot || true
+        fi
+        
+        if getent group teapot > /dev/null; then
+            delgroup --system teapot || true
+        fi
+        
+        # Remove directories and data
+        rm -rf /var/log/teapot
+        rm -rf /var/lib/teapot
+        rm -rf /etc/teapot
+        rm -rf /etc/storm/webdav/vo-mapfiles.d
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

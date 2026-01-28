@@ -1,4 +1,3 @@
-teapot ALL=(ALL) NOPASSWD: /bin/yum
 teapot ALL=(ALL:ALL) NOPASSWD:SETENV: /usr/bin/java -jar /usr/share/java/storm-webdav/storm-webdav-server.jar *
 teapot ALL=(ALL:ALL) NOPASSWD: /usr/bin/kill
 teapot ALL=(ALL) NOPASSWD: /bin/touch /etc/teapot/
