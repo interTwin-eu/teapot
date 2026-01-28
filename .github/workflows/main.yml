@@ -152,7 +152,7 @@ jobs:
           USERNAME: ${{ secrets.USERNAME }}
         run: |
           cd robot/ubuntu
-          cp /robot/testing-configurations/user-mapping.csv .
+          cp ./../testing-configurations/user-mapping.csv .
           docker build . --tag ghcr.io/intertwin-eu/teapot-ubuntu:latest
           echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
           docker push ghcr.io/intertwin-eu/teapot-ubuntu:latest
