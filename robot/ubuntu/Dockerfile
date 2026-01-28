@@ -3,11 +3,11 @@
 # trunk-ignore-all(trivy/DS002)
 # trunk-ignore-all(trivy/DS026)
 # trunk-ignore-all(hadolint/DL3007)
-# hadolint ignore=DL3008
 FROM ubuntu:24.04
 
 WORKDIR /tmp
 COPY teapot_*-1_all.deb .
+# hadolint ignore=DL3008
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         cron \
