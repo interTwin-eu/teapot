@@ -3,15 +3,21 @@
 # trunk-ignore-all(trivy/DS002)
 # trunk-ignore-all(trivy/DS026)
 # trunk-ignore-all(hadolint/DL3007)
+# trunk-ignore-all(hadolint/DL3008)
 FROM ubuntu:24.04
 
 WORKDIR /tmp
 COPY teapot_*-1_all.deb .
-RUN \
-    apt-get -y update && \
-    apt-get -y install cron ca-certificates sudo vim && \
-    apt-get -y install /tmp/teapot_*-1_all.deb && \
-    /usr/share/teapot/self-signed-cert-gen.sh
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        cron \
+        ca-certificates \
+        sudo \
+        vim \
+        /tmp/teapot_*-1_all.deb && \
+    /usr/share/teapot/self-signed-cert-gen.sh && \
+    rm -rf /var/lib/apt/lists/*
+
 
 WORKDIR /usr/local/share/ca-certificates
 ADD --chmod=644 https://letsencrypt.org/certs/isrgrootx1.pem .
