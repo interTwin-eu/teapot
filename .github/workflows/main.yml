@@ -107,11 +107,10 @@ jobs:
           dch --release ""
           dpkg-buildpackage -us -uc -b
           cp ./../teapot*.deb .
-          ls
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ needs.build-fedora.outputs.version }}_debian_all
-          path: teapot*.deb
+          path: teapot_*1_all.deb
 
   containerization:
     name: containerization
