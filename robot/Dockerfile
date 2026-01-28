@@ -40,5 +40,5 @@ RUN    /usr/share/teapot/self-signed-cert-gen.sh
 EXPOSE 8081
 
 WORKDIR /usr/share/teapot/
-
-CMD su -c "python3 teapot.py" teapot > /var/log/teapot/uvicorn.log
+USER teapot
+CMD ["python3", "teapot.py"]
