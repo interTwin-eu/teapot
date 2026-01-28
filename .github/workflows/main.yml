@@ -110,7 +110,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ needs.build-fedora.outputs.version }}_debian_all
-          path: teapot/*.deb
+          path: teapot*.deb
 
   containerization:
     name: containerization
