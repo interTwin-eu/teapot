@@ -8,9 +8,9 @@ FROM ubuntu:24.04
 WORKDIR /tmp
 COPY teapot_*-1_all.deb .
 RUN \
-    apt -y update && \
-    apt -y install cron ca-certificates sudo vim && \
-    apt -y install /tmp/teapot_*-1_all.deb && \
+    apt-get -y update && \
+    apt-get -y install cron ca-certificates sudo vim && \
+    apt-get -y install /tmp/teapot_*-1_all.deb && \
     /usr/share/teapot/self-signed-cert-gen.sh
 
 WORKDIR /usr/local/share/ca-certificates
