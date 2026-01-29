@@ -20,8 +20,8 @@ RUN apt-get update && \
 
 COPY --chmod=644 Teapot-testing.crt /usr/local/share/ca-certificates
 COPY --chmod=644 Teapot-testing.crt /var/lib/teapot/webdav/
-COPY --chown=teapot --chmod=644  teapot-ubuntu.crt /var/lib/teapot/webdav/
-COPY --chown=teapot --chmod=644  teapot-ubuntu.key /var/lib/teapot/webdav/
+COPY --chown=teapot --chmod=644  teapot.crt /var/lib/teapot/webdav/
+COPY --chown=teapot --chmod=644  teapot.key /var/lib/teapot/webdav/
 RUN update-ca-certificates
 
 WORKDIR /etc/teapot

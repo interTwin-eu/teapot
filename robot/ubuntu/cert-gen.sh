@@ -9,23 +9,23 @@ if [[ -z "${SERVER}" ]]; then
 fi
 
 # server key
-openssl genrsa -out "${SERVER}.key" 2048
+openssl genrsa -out "teapot.key" 2048
 
 # CSR {no prompts}
 openssl req -new \
-  -key "${SERVER}.key" \
+  -key teapot.key \
   -subj "/CN=${SERVER}" \
   -addext "subjectAltName=DNS:${SERVER}" \
   -addext "keyUsage=digitalSignature,keyEncipherment" \
   -addext "extendedKeyUsage=serverAuth" \
-  -out "${SERVER}.csr"
+  -out "teapot.csr"
 
 # sign with CA (no prompts)
 openssl x509 -req \
-  -in "${SERVER}.csr" \
+  -in "teapot.csr" \
   -CA Teapot-testing.crt \
   -CAkey Teapot-testing.key \
   -CAcreateserial \
-  -out "${SERVER}.crt" \
+  -out "teapot.crt" \
   -days 1 \
   -sha256
