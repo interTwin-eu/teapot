@@ -8,7 +8,7 @@ FROM fedora:39
 # installing Teapot
 COPY teapot-*.x86_64.rpm /tmp
 RUN adduser teapot && \
-    dnf install -y /tmp/teapot-*.x86_64.rpm && \
+    dnf install -y cronie /tmp/teapot-*.x86_64.rpm && \
     dnf clean all
 
 # certificates
