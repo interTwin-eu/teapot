@@ -1,0 +1,27 @@
+# shellcheck disable=SC2148
+# Storm WebDAV JAR
+storm-webdav-server.jar usr/share/java/storm-webdav/
+
+# Main application files
+teapot.py usr/share/teapot/
+alise.py usr/share/teapot/
+vo_mapping.py usr/share/teapot/
+self-signed-cert-gen-deb.sh usr/share/teapot/
+
+# Configuration templates
+templates/application.yml.template etc/teapot/
+templates/storage_area.properties.template etc/teapot/
+templates/logback.xml etc/teapot/
+templates/logback-access.xml etc/teapot/
+config.ini etc/teapot/
+user_config.ini etc/teapot/
+
+# Sudoers file
+templates/teapot etc/sudoers.d/
+
+# Systemd service
+teapot.service lib/systemd/system/
+
+# Empty log files (will be created in postinst instead)
+# templates/teapot.log var/log/teapot/
+# templates/uvicorn.log var/log/teapot/

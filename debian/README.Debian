@@ -1,0 +1,82 @@
+Teapot for Debian
+=================
+
+For general information about Teapot, please see:
+    /usr/share/doc/teapot/README.md
+    https://intertwin-eu.github.io/teapot/
+    or https://github.com/interTwin-eu/teapot
+
+
+Debian-Specific Installation Notes
+-----------------------------------
+
+Python Dependencies
+-------------------
+
+The package automatically installs required Python packages (flaat and 
+certifi-linux) for the teapot user during installation. No manual 
+installation is required.
+
+After installing the package:
+
+1. Configure Teapot by editing:
+   - /etc/teapot/config.ini
+
+   See CONFIGURATION.md or the online documentation at
+   https://intertwin-eu.github.io/teapot/configuration/
+   for detailed configuration instructions.
+
+2. Start the service:
+   
+     sudo systemctl start teapot.service
+
+
+Service User
+------------
+
+The package automatically creates a 'teapot' system user. The service
+runs as this user for security.
+
+
+File Locations
+--------------
+
+Configuration:           /etc/teapot/
+Application files:       /usr/share/teapot/
+User-specific configs:   /var/lib/teapot/
+Log files:               /var/log/teapot/
+Storm WebDAV JAR:        /usr/share/java/storm-webdav/
+Systemd service:         /lib/systemd/system/teapot.service
+
+
+Troubleshooting
+---------------
+
+Check service status:
+    sudo systemctl status teapot.service
+
+View logs:
+    sudo journalctl -u teapot.service
+    tail -f /var/log/teapot/teapot.log
+    tail -f /var/log/teapot/uvicorn.log
+    
+View all logs in the log directory:
+    ls -lh /var/log/teapot/
+    tail -f /var/log/teapot/*
+
+Note: Storm-WebDAV creates separate log files for each user in /var/log/teapot/
+
+For administration support and troubleshooting guides, see:
+    https://intertwin-eu.github.io/teapot/support/
+
+
+Support
+-------
+
+Documentation:     https://intertwin-eu.github.io/teapot/
+
+Support Contacts:  https://intertwin-eu.github.io/teapot/support/
+GitHub:            https://github.com/interTwin-eu/teapot
+
+
+ -- Dijana Vrbanec <dijana.vrbanec@desy.de>  Mon, 26 Jan 2026

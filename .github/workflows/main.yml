@@ -59,7 +59,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_rockylinux_9.3
-          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ steps.rpm_build.outputs.version_rpm }}*.x86_64.rpm
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ needs.build-fedora.outputs.version_rpm }}*.x86_64.rpm
 
   build-almalinux:
     name: build-almalinux
@@ -83,7 +83,34 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_almalinux_9.4
-          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ steps.rpm_build.outputs.version_rpm }}*.x86_64.rpm
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ needs.build-fedora.outputs.version_rpm }}*.x86_64.rpm
+
+  build-deb:
+    name: build-deb
+    needs: build-fedora
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install build requisites
+        run: |
+          sudo apt -y update
+          sudo apt -y install dpkg-dev build-essential devscripts fakeroot
+          sudo apt -y install debhelper-compat=13 dh-python python3 python3-pip
+          sudo apt -y install python3-setuptools wget rpm2cpio cpio
+      - name: Build deb
+        run: |
+          export VERSION_DEB="${{ needs.build-fedora.outputs.version_rpm }}"
+          export STORM_VERSION=1.12.0
+          dch --newversion "${VERSION_DEB}-1" --distribution unstable "Release ${VERSION_DEB}"
+          dch --release ""
+          dpkg-buildpackage -us -uc -b
+          cp ./../teapot*.deb .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: teapot-${{ needs.build-fedora.outputs.version }}_debian_all
+          path: teapot_*1_all.deb
 
   containerization:
     name: containerization
@@ -107,9 +134,37 @@ jobs:
           echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
           docker push ghcr.io/intertwin-eu/teapot:latest
 
+  containerization-ubuntu:
+    name: containerization-ubuntu
+    needs: [build-fedora, build-deb]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: teapot-${{ needs.build-fedora.outputs.version }}_debian_all
+          path: /home/runner/work/teapot/teapot/robot/ubuntu
+      - name: Building Teapot docker image
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+          USERNAME: ${{ secrets.USERNAME }}
+          TEAPOT_CA_CRT: ${{ secrets.TEAPOT_CA_CRT }}
+          TEAPOT_CA_KEY:  ${{ secrets.TEAPOT_CA_KEY }}
+        run: |
+          cd robot/ubuntu
+          echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
+          echo "$TEAPOT_CA_KEY" > Teapot-testing.key
+          chmod 777 cert-gen.sh
+          ./cert-gen.sh teapot-ubuntu
+          cp ./../testing-configurations/user-mapping.csv .
+          docker build . --tag ghcr.io/intertwin-eu/teapot-ubuntu:latest
+          echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
+          docker push ghcr.io/intertwin-eu/teapot-ubuntu:latest
   test:
     name: test
-    needs: [build-fedora, containerization]
+    needs: [build-fedora, containerization, containerization-ubuntu]
     runs-on: ubuntu-latest
     container:
       image: dvrbanec/main:latest
@@ -118,6 +173,11 @@ jobs:
         image: dvrbanec/keycloak-dev:1
       teapot:
         image: ghcr.io/intertwin-eu/teapot:latest
+        credentials:
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.TOKEN }}
+      teapot-ubuntu:
+        image: ghcr.io/intertwin-eu/teapot-ubuntu:latest
         credentials:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.TOKEN }}

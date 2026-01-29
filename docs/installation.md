@@ -15,16 +15,14 @@ certificate `openssl>3` is needed. Storm-webdav needs `java-21`.
 
 ## Installation
 
-Teapot can be installed via an RPM package. On the release page, we provide
-RPMs for Fedora 39, AlmaLinux 9.4, and Rocky Linux 9.3. If you need an RPM
-file for another Linux distribution, feel free to contact us and we’ll gladly
-provide you with one for your specific Linux distribution.
+Teapot can be installed using either an **RPM** or **DEB** package.
 
-To install Teapot, first a user `teapot` must be created. To do that run
- `sudo adduser teapot`.
+- **DEB package:** Automatically creates a dedicated `teapot` system user. Distribution-independent.
+- **RPM package:** Available for Fedora 39, AlmaLinux 9.4, and Rocky Linux 9.3.
+The system user must currently be created manually.
 
-Please refer to [Configuration](/teapot/configuration) for information on how
-to configure Teapot and Storm-Webdav.
+For configuration details, please refer to [Configuration](/teapot/configuration),
+which covers both Teapot and StoRM-WebDAV.
 
 ## Starting
 

@@ -1,0 +1,57 @@
+#!/bin/bash
+set -e
+
+case "$1" in
+    configure)
+        # Create teapot user if it doesn't exist
+        if ! getent passwd teapot > /dev/null; then
+            adduser --system --group --home /var/lib/teapot \
+                    --disabled-password --disabled-login \
+                    --gecos "Teapot Service User" teapot
+        fi
+
+        # Create directories
+        mkdir -p /var/lib/teapot/webdav
+        mkdir -p /var/log/teapot
+        mkdir -p /etc/storm/webdav/vo-mapfiles.d
+        mkdir -p /etc/grid-security/vomsdir
+
+        # Create log files if they don't exist
+        touch /var/log/teapot/teapot.log
+        touch /var/log/teapot/uvicorn.log
+        
+        # Set ownership
+        chown -R teapot:teapot /var/lib/teapot
+        chown -R teapot:teapot /var/log/teapot
+        chown -R teapot:teapot /etc/teapot
+        chown -R teapot:teapot /usr/share/teapot
+        chown teapot:teapot /etc/storm/webdav/vo-mapfiles.d
+        
+        # Set permissions
+        chmod 777 /var/lib/teapot
+        chmod 775 /var/lib/teapot/webdav
+        chmod 775 /etc/grid-security/vomsdir
+        chmod 774 /etc/storm/webdav/vo-mapfiles.d
+        chmod 644 /var/log/teapot/teapot.log
+        chmod 644 /var/log/teapot/uvicorn.log
+        chmod 744 /usr/share/teapot/teapot.py
+        chmod 744 /usr/share/teapot/alise.py
+        chmod 774 /usr/share/teapot/vo_mapping.py
+        chmod 774 /usr/share/teapot/self-signed-cert-gen.sh
+
+        # Reload systemd
+        if [ -d /run/systemd/system ]; then
+            systemctl daemon-reload || true
+            systemctl enable teapot.service || true
+            
+            # Only restart on upgrade
+            if [ -n "$2" ]; then
+                systemctl restart teapot.service || true
+            fi
+        fi
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

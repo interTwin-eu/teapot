@@ -13,13 +13,14 @@ RUN \
     rpm -i teapot-*.x86_64.rpm
 
 WORKDIR /etc/pki/ca-trust/source/anchors
-ADD --chmod=744 https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
+ADD --chmod=644 https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
 RUN update-ca-trust 
 
 # certificates
 WORKDIR /var/lib/teapot/webdav/
 ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/AT4LMp9qJ3yxs9x/download/teapot.crt .
 ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/zY6agLE29TAtkke/download/teapot.key .
+ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
 
 # configuring teapot for testing
 WORKDIR /etc/teapot
@@ -39,5 +40,5 @@ RUN    /usr/share/teapot/self-signed-cert-gen.sh
 EXPOSE 8081
 
 WORKDIR /usr/share/teapot/
-
-CMD su -c "python3 teapot.py" teapot > /var/log/teapot/uvicorn.log
+USER teapot
+CMD ["python3", "teapot.py"]

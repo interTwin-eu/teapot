@@ -81,28 +81,28 @@ fi
 
 %files
 %attr(644, root, root) %{_datadir}/java/storm-webdav/storm-webdav-server.jar
-%attr(774, teapot, teapot) %{_datadir}/%name/teapot.py
-%attr(774, teapot, teapot) %{_datadir}/%name/alise.py
-%attr(774, teapot, teapot) %{_datadir}/%name/vo_mapping.py
+%attr(744, teapot, teapot) %{_datadir}/%name/teapot.py
+%attr(644, teapot, teapot) %{_datadir}/%name/alise.py
+%attr(664, teapot, teapot) %{_datadir}/%name/vo_mapping.py
 %attr(774, root, root) %{_datadir}/%name/self-signed-cert-gen.sh
 %attr(644, root, root) %{_sysconfdir}/%name/application.yml.template
 %attr(644, root, root) %{_sysconfdir}/%name/storage_area.properties.template
-%attr(744, teapot, teapot) %{_sysconfdir}/%name/logback.xml
-%attr(744, teapot, teapot) %{_sysconfdir}/%name/logback-access.xml
-%attr(744, teapot, teapot) %{_sysconfdir}/%name/config.ini
-%attr(744, teapot, teapot) %{_sysconfdir}/%name/user_config.ini
+%attr(644, teapot, teapot) %{_sysconfdir}/%name/logback.xml
+%attr(644, teapot, teapot) %{_sysconfdir}/%name/logback-access.xml
+%attr(644, teapot, teapot) %{_sysconfdir}/%name/config.ini
+%attr(644, teapot, teapot) %{_sysconfdir}/%name/user_config.ini
 %attr(755, teapot, teapot) %{_localstatedir}/log/%name/
 %attr(644, teapot, teapot) %{_localstatedir}/log/%name/teapot.log
 %attr(644, teapot, teapot) %{_localstatedir}/log/%name/uvicorn.log
 %attr(440, root, root) %{_sysconfdir}/sudoers.d/teapot
-%attr(775, teapot, teapot) %{_sharedstatedir}/%name/
-%attr(775, teapot, teapot) %{_sharedstatedir}/%name/webdav
+%attr(777, teapot, teapot) %{_sharedstatedir}/%name/
+%attr(755, teapot, teapot) %{_sharedstatedir}/%name/webdav
 %attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 %attr(775, root, root) %{_sysconfdir}/grid-security/vomsdir/
-%attr(774, root, root) %{_unitdir}/teapot.service
+%attr(664, root, root) %{_unitdir}/teapot.service
 %attr(755, root, root) %{_exec_prefix}/local/lib64/python3.9/site-packages/*
 %attr(755, root, root) %{_exec_prefix}/local/lib/python3.9/site-packages/*
 
 %changelog
-* Fri May 09 2025 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Wed Jan 28 2026 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}

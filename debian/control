@@ -1,0 +1,43 @@
+Source: teapot
+Section: python
+Priority: optional
+Maintainer: Dijana Vrbanec <dijana.vrbanec@desy.de>
+Build-Depends: debhelper-compat (= 13),
+               dh-python,
+               python3,
+               python3-pip,
+               python3-setuptools,
+               wget,
+               rpm2cpio,
+               cpio
+Standards-Version: 4.6.2
+Homepage: https://github.com/interTwin-eu/teapot
+Rules-Requires-Root: no
+
+Package: teapot
+Architecture: all
+Depends: ${python3:Depends},
+         ${misc:Depends},
+         default-jre-headless | java17-runtime-headless,
+         openssl (>= 3.0),
+         python3 (>= 3.10),
+         python3-fastapi (>= 0.68.0),
+         python3-httpx (>= 0.23.0),
+         python3-pydantic (>= 1.8.0),
+         python3-uvicorn (>= 0.15.0),
+         python3-anyio (>= 3.0.0),
+         python3-psutil,
+         python3-requests
+Description: Multi-tenant WebDAV server based on StoRM-WebDAV
+ Teapot provides a WebDAV server that supports multi-tenancy. It is based on
+ StoRM-WebDAV and adds a manager level that accepts requests, authenticates
+ users, identifies local usernames, and starts a StoRM-WebDAV server for each
+ user with a randomly assigned port.
+ .
+ The StoRM-WebDAV server handles requests in the usual way. If inactive for
+ 10 minutes, the server is shut down by the manager. When another request
+ comes in for a different user, the manager starts another StoRM-WebDAV
+ server for that user in the same way.
+ .
+ Required Python packages (flaat, certifi-linux) are automatically installed
+ during package installation.
