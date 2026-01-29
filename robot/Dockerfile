@@ -6,6 +6,7 @@
 FROM fedora:39
 
 # installing Teapot
+# hadolint ignore=DL3041
 COPY teapot-*.x86_64.rpm /tmp
 RUN adduser teapot && \
     dnf install -y cronie /tmp/teapot-*.x86_64.rpm && \
