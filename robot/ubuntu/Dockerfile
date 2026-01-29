@@ -18,20 +18,11 @@ RUN apt-get update && \
     /usr/share/teapot/self-signed-cert-gen.sh && \
     rm -rf /var/lib/apt/lists/*
 
-
-WORKDIR /usr/local/share/ca-certificates
-ADD --chmod=644 https://letsencrypt.org/certs/isrgrootx1.pem .
-ADD --chmod=644 https://letsencrypt.org/certs/lets-encrypt-r3.pem .
-ADD --chmod=644 http://crl.usertrust.com/USERTrustRSACertificationAuthority.crl .
-ADD --chmod=644 http://crt.usertrust.com/USERTrustRSAAddTrustCA.crt .
-ADD --chmod=644 https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
-ADD --chmod=644 https://syncandshare.desy.de/index.php/s/AT4LMp9qJ3yxs9x/download/teapot.crt .
+COPY --chmod=644 Teapot-testing.crt /usr/local/share/ca-certificates
+COPY --chmod=644 Teapot-testing.crt /var/lib/teapot/webdav/
+COPY --chown=teapot --chmod=644  teapot-ubuntu.crt /var/lib/teapot/webdav/
+COPY --chown=teapot --chmod=644  teapot-ubuntu.key /var/lib/teapot/webdav/
 RUN update-ca-certificates
-
-WORKDIR /var/lib/teapot/webdav/
-ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/KY8ARPLQHzw2Fdm/download/Teapot-testing.crt .
-ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/AT4LMp9qJ3yxs9x/download/teapot.crt .
-ADD --chown=teapot --chmod=644 https://syncandshare.desy.de/index.php/s/zY6agLE29TAtkke/download/teapot.key .
 
 WORKDIR /etc/teapot
 COPY --chmod=644 user-mapping.csv .
