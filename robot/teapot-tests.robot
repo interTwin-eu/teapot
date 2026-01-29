@@ -199,11 +199,11 @@ PUT REQUEST NO TOKEN DEB
 
 PUT REQUEST USER1 DEB
     ${RESPONSE}=    PUT    ${DEFAULT_DEB_AREA}/TestFile1    data=${DATA}    headers=${HEADER1}      expected_status=201
-    [Teardown]    Delete Test File1 USER1
+    [Teardown]    Delete Test File1 USER1 DEB
 
 PUT REQUEST USER2 DEB
     ${RESPONSE}=    PUT    ${DEFAULT_DEB_AREA}/TestFile1    data=${DATA}    headers=${HEADER2}      expected_status=201
-    [Teardown]    Delete Test File1 USER2
+    [Teardown]    Delete Test File1 USER2 DEB
 
 
 GET FILE USER1 DEB
@@ -259,11 +259,11 @@ PUT REQUEST NO TOKEN EXTRA_AREA DEB
 
 PUT REQUEST USER1 EXTRA_AREA DEB
     ${RESPONSE}=    PUT    ${EXTRA_DEB_AREA}/TestFile1    data=${DATA}    headers=${HEADER1}      expected_status=201
-    [Teardown]    Delete Test File1 USER1 EXTRA AREA
+    [Teardown]    Delete Test File1 USER1 EXTRA AREA DEB
 
 PUT REQUEST USER2 EXTRA_AREA DEB
     ${RESPONSE}=    PUT    ${EXTRA_DEB_AREA}/TestFile1    data=${DATA}    headers=${HEADER2}      expected_status=201
-    [Teardown]    Delete Test File1 USER2 EXTRA AREA
+    [Teardown]    Delete Test File1 USER2 EXTRA AREA DEB
 
 
 GET FILE USER1 EXTRA_AREA DEB
