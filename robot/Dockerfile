@@ -3,14 +3,13 @@
 # trunk-ignore-all(trivy/DS002)
 # trunk-ignore-all(trivy/DS026)
 # trunk-ignore-all(hadolint/DL3007)
-FROM dvrbanec/teapot-requirements:3.0
+FROM fedora:39
 
 # installing Teapot
-WORKDIR /tmp
-COPY teapot-*.x86_64.rpm .
-RUN \
-    adduser teapot && \
-    rpm -i teapot-*.x86_64.rpm
+COPY teapot-*.x86_64.rpm /tmp
+RUN adduser teapot && \
+    dnf install -y /tmp/teapot-*.x86_64.rpm && \
+    dnf clean all
 
 # certificates
 COPY --chmod=644 Teapot-testing.crt /etc/pki/ca-trust/source/anchors
@@ -32,7 +31,7 @@ RUN \
     su -c "mkdir -p /home/test-user2/interTwin" test-user2 && \
     su -c "mkdir -p /home/test-user2/interTwin_extra" test-user2
 
-RUN    /usr/share/teapot/self-signed-cert-gen.sh
+RUN /usr/share/teapot/self-signed-cert-gen.sh
 
 EXPOSE 8081
 
