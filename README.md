@@ -50,7 +50,7 @@ Functional tests can be found in `/robot`. To execute them, run `robot teapot-te
 
 ## Version
 
-The current version of Teapot is 0.20.0, and it uses Storm-Webdav version 1.12.0.
+The current version of Teapot is 0.20.1, and it uses Storm-Webdav version 1.12.0.
 
 ## Authors
 
