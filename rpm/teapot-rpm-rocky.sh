@@ -16,9 +16,9 @@ rm -r teapot-"${version_rpm}"
 mv teapot-"${version_rpm}".tar.gz "${HOME}"/rpmbuild/SOURCES/
 
 #getting the storm-webdav.jar file
-curl -O https://repo.cloud.cnaf.infn.it/repository/storm-rpm-stable/redhat9/storm-webdav-1.8.1-1.el9.noarch.rpm
-rpm2cpio storm-webdav-1.8.1-1.el9.noarch.rpm | cpio -id ./usr/share/java/storm-webdav/storm-webdav-server.jar || true
-rm storm-webdav-1.8.1-1.el9.noarch.rpm
+curl -O https://repo.cloud.cnaf.infn.it/repository/storm-rpm-stable/redhat9/storm-webdav-1.12.0-1.el9.noarch.rpm
+rpm2cpio storm-webdav-1.12.0-1.el9.noarch.rpm | cpio -id ./usr/share/java/storm-webdav/storm-webdav-server.jar || true
+rm storm-webdav-1.12.0-1.el9.noarch.rpm
 mv usr/share/java/storm-webdav/storm-webdav-server.jar ./
 rm -r usr
 tar cf storm-webdav-server.tar.gz storm-webdav-server.jar
