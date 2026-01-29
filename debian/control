@@ -18,7 +18,7 @@ Package: teapot
 Architecture: all
 Depends: ${python3:Depends},
          ${misc:Depends},
-         default-jre-headless | java17-runtime-headless,
+         default-jre-headless (>= 21) | java21-runtime-headless
          openssl (>= 3.0),
          python3 (>= 3.10),
          python3-fastapi (>= 0.68.0),
