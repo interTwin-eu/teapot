@@ -4,8 +4,7 @@ FROM fedora:39
 # installing Teapot
 COPY teapot-*.x86_64.rpm /tmp
 # hadolint ignore=DL3041
-RUN adduser teapot && \
-    dnf install -y cronie /tmp/teapot-*.x86_64.rpm && \
+RUN dnf install -y cronie /tmp/teapot-*.x86_64.rpm && \
     dnf clean all
 
 # certificates
