@@ -65,7 +65,6 @@ cp templates/storage_area.properties.template %{buildroot}/%{_sysconfdir}/%name/
 cp templates/logback.xml %{buildroot}/%{_sysconfdir}/%name/
 cp templates/logback-access.xml %{buildroot}/%{_sysconfdir}/%name/
 cp config.ini %{buildroot}/%{_sysconfdir}/%name/
-cp user_config.ini %{buildroot}/%{_sysconfdir}/%name/
 
 # Sudoers
 mkdir -p %{buildroot}/%{_sysconfdir}/sudoers.d/
@@ -134,7 +133,6 @@ fi
 %attr(644, teapot, teapot) %{_sysconfdir}/%name/logback.xml
 %attr(644, teapot, teapot) %{_sysconfdir}/%name/logback-access.xml
 %attr(644, teapot, teapot) %{_sysconfdir}/%name/config.ini
-%attr(644, teapot, teapot) %{_sysconfdir}/%name/user_config.ini
 %attr(755, teapot, teapot) %dir %{_localstatedir}/log/%name/
 %attr(440, root, root) %{_sysconfdir}/sudoers.d/teapot
 %attr(777, teapot, teapot) %dir %{_sharedstatedir}/%name/
