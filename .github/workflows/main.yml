@@ -168,12 +168,31 @@ jobs:
           docker build . --tag ghcr.io/intertwin-eu/teapot-ubuntu:latest
           echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
           docker push ghcr.io/intertwin-eu/teapot-ubuntu:latest
+
+  container-robot:
+    name: container-robot
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build and push robot testing container
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+          USERNAME: ${{ secrets.USERNAME }}
+          TEAPOT_CA_CRT: ${{ secrets.TEAPOT_CA_CRT }}
+        run: |
+          echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
+          echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
+          docker build -f robot/main.dockerfile -t ghcr.io/intertwin-eu/robot-testing:latest .
+          docker push ghcr.io/intertwin-eu/robot-testing:latest
+
   test:
     name: test
-    needs: [build-fedora, containerization, containerization-ubuntu]
+    needs: [build-fedora, containerization, containerization-ubuntu, container-robot]
     runs-on: ubuntu-latest
     container:
-      image: dvrbanec/main:latest
+      image: ghcr.io/intertwin-eu/robot-testing:latest
     services:
       keycloak:
         image: dvrbanec/keycloak-dev:1
