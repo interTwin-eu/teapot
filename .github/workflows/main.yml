@@ -57,7 +57,7 @@ jobs:
     outputs:
       version: ${{ steps.versions.outputs.version }}
       version_rpm: ${{ steps.versions.outputs.version_rpm }}
-      strom_version: ${{ steps.versions.outputs.storm_version }}
+      storm_version: ${{ steps.versions.outputs.storm_version }}
 
   build-rockylinux:
     name: build-rockylinux
