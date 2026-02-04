@@ -38,7 +38,7 @@ if [ ! -f storm-webdav-server.jar ]; then
     rm -rf usr storm-webdav.rpm
 fi
 
-# Install Python packages with pip
+# Install Python packages with pip (including all their dependencies)
 mkdir -p python-packages
 pip3 install --target=python-packages --ignore-installed 'flaat>=1.1.18' certifi-linux
 
@@ -79,9 +79,13 @@ mkdir -p %{buildroot}/%{_sysconfdir}/grid-security/vomsdir/
 mkdir -p %{buildroot}/%{_unitdir}
 cp teapot.service %{buildroot}/%{_unitdir}/
 
-# Python packages to system site-packages
+# Python packages to application-specific directory (avoids all conflicts)
+mkdir -p %{buildroot}/%{_datadir}/%name/python-packages
+cp -r python-packages/* %{buildroot}/%{_datadir}/%name/python-packages/
+
+# Create .pth file to add application packages to Python path
 mkdir -p %{buildroot}/usr/lib/python3.12/site-packages/
-cp -r python-packages/* %{buildroot}/usr/lib/python3.12/site-packages/
+echo "/usr/share/teapot/python-packages" > %{buildroot}/usr/lib/python3.12/site-packages/teapot.pth
 
 %clean
 rm -rf %{buildroot}
@@ -136,7 +140,9 @@ fi
 %attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 %attr(775, root, root) %{_sysconfdir}/grid-security/vomsdir/
 %attr(664, root, root) %{_unitdir}/teapot.service
-/usr/lib/python3.12/site-packages/*
+%attr(755, teapot, teapot) %dir %{_datadir}/%name/python-packages
+%{_datadir}/%name/python-packages/*
+%attr(644, root, root) /usr/lib/python3.12/site-packages/teapot.pth
 
 %changelog
 * Wed Feb 04 2026 Dijana Vrbanec <dijana.vrbanec@desy.de>
