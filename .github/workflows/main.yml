@@ -193,6 +193,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/intertwin-eu/robot-testing:latest
+      credentials:
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.TOKEN }}
     services:
       keycloak:
         image: dvrbanec/keycloak-dev:1
