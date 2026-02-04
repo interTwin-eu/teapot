@@ -184,7 +184,7 @@ jobs:
         run: |
           echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
           echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
-          docker build -f robot/main.dockerfile -t ghcr.io/intertwin-eu/robot-testing:latest .
+          docker build -f robot/robot.dockerfile -t ghcr.io/intertwin-eu/robot-testing:latest .
           docker push ghcr.io/intertwin-eu/robot-testing:latest
 
   test:
