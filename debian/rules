@@ -44,4 +44,4 @@ override_dh_fixperms:
 	dh_fixperms
 	chmod 0440 debian/teapot/etc/sudoers.d/teapot
 	mv debian/teapot/usr/share/teapot/self-signed-cert-gen-deb.sh \
-	   de
+	   debian/teapot/usr/share/teapot/self-signed-cert-gen.sh
