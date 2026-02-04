@@ -1,6 +1,6 @@
 Name:           teapot
 Version:        %{version_}
-Release:        1%{?dist}
+Release:        1.rocky9%{?dist}
 Summary:        A WebDAV solution supporting multitenancy based on StoRM-WebDAV
 BuildArch:      x86_64
 

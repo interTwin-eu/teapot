@@ -53,7 +53,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ steps.versions.outputs.version }}_rpm_fedora_39
-          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ steps.versions.outputs.version_rpm }}*.x86_64.rpm
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-*.fc39.*.rpm
     outputs:
       version: ${{ steps.versions.outputs.version }}
       version_rpm: ${{ steps.versions.outputs.version_rpm }}
@@ -92,7 +92,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_rockylinux_9.3
-          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ needs.build-fedora.outputs.version_rpm }}*.x86_64.rpm
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-*.rocky9.*.rpm
 
   build-almalinux:
     name: build-almalinux
@@ -127,7 +127,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_almalinux_9.4
-          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ needs.build-fedora.outputs.version_rpm }}*.x86_64.rpm
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-*.alma9.*.rpm
 
   build-deb:
     name: build-deb
@@ -285,3 +285,22 @@ jobs:
         uses: joonvena/robotframework-reporter-action@v2.4
         with:
           gh_access_token: ${{ secrets.TOKEN }}
+
+  release:
+    name: Create Release
+    needs: [build-fedora, build-almalinux, build-rockylinux, build-deb, test]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+      - name: Unzip all artifacts
+        run: |
+          mkdir -p rpms/
+          find artifacts/ -name "*.rpm" -exec cp {} rpms/ \;
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: rpms/*.rpm
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
