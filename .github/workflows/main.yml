@@ -17,26 +17,44 @@ jobs:
       - name: Install build requisites
         run: |
           dnf -y update
-          dnf -y install rpmdevtools systemd-rpm-macros rpmlint rsync git
+          dnf -y install rpmdevtools systemd-rpm-macros rpmlint rsync git python3-pip wget rpm-build cpio
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - id: rpm_build
+      - name: Get versions
+        id: versions
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          export "version=$(git describe --tags --dirty)"
-          echo "version=$(git describe --tags --dirty)"  >> "$GITHUB_OUTPUT"
-          export "version_rpm=$(git describe --tags --abbrev=0)"
-          echo "version_rpm=$(git describe --tags --abbrev=0)"  >> "$GITHUB_OUTPUT"
-          chmod 777 rpm/teapot-rpm-fedora.sh
-          rpm/teapot-rpm-fedora.sh
+          VERSION=$(git describe --tags --dirty)
+          VERSION_RPM=$(git describe --tags --abbrev=0)
+          STORM_VERSION=1.12.0
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "version_rpm=$VERSION_RPM" >> "$GITHUB_OUTPUT"
+          echo "storm_version=$STORM_VERSION" >> "$GITHUB_OUTPUT"
+      - name: Set up RPM build environment
+        run: rpmdev-setuptree
+      - name: Copy spec file
+        run: cp rpm/teapot-fedora.spec ~/rpmbuild/SPECS/
+      - name: Create source tarball
+        run: |
+          mkdir teapot-${{ steps.versions.outputs.version_rpm }}
+          rsync -av --progress ./* teapot-${{ steps.versions.outputs.version_rpm }}/ --exclude teapot-${{ steps.versions.outputs.version_rpm }}
+          tar cfz teapot-${{ steps.versions.outputs.version_rpm }}.tar.gz teapot-${{ steps.versions.outputs.version_rpm }}
+          rm -r teapot-${{ steps.versions.outputs.version_rpm }}
+          mv teapot-${{ steps.versions.outputs.version_rpm }}.tar.gz ~/rpmbuild/SOURCES/
+      - name: Build RPM
+        run: |
+          rpmbuild -ba \
+            --define "version_ ${{ steps.versions.outputs.version_rpm }}" \
+            --define "storm_version ${{ steps.versions.outputs.storm_version }}" \
+            ~/rpmbuild/SPECS/teapot-fedora.spec
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-${{ steps.rpm_build.outputs.version }}_rpm_fedora_39
-          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ steps.rpm_build.outputs.version_rpm }}*.x86_64.rpm
+          name: teapot-${{ steps.versions.outputs.version }}_rpm_fedora_39
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ steps.versions.outputs.version_rpm }}*.x86_64.rpm
     outputs:
-      version: ${{ steps.rpm_build.outputs.version }}
-      version_rpm: ${{ steps.rpm_build.outputs.version_rpm }}
+      version: ${{ steps.versions.outputs.version }}
+      version_rpm: ${{ steps.versions.outputs.version_rpm }}
 
   build-rockylinux:
     name: build-rockylinux

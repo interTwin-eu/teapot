@@ -7,76 +7,114 @@ BuildArch:      x86_64
 License:        Apache 2.0
 URL:            https://github.com/interTwin-eu/%name
 Source0:        %name-%version.tar.gz
-Source1:        storm-webdav-server.tar.gz
-Source2:        https://syncandshare.desy.de/index.php/s/oSjdrPwCd6KkfJm/download/python-lib64-fedora.tar.gz
-Source3:        https://syncandshare.desy.de/index.php/s/PqN432X83764Lm4/download/python-lib-fedora.tar.gz
-BuildRequires:  systemd-rpm-macros
-Requires:       java-21-openjdk openssl >= 1:3.0 python(abi) = 3.12 python3-fastapi python3-httpx python3-pydantic python3-uvicorn python3-anyio python3-psutil python3-requests
-
+BuildRequires:  systemd-rpm-macros python3-pip wget rpm-build cpio
+Requires:       java-21-openjdk openssl >= 1:3.0 python(abi) = 3.12 python3-fastapi python3-httpx python3-pydantic python3-uvicorn python3-anyio python3-psutil python3-requests python3-dotenv shadow-utils
 %description    
-Teapot provides a WebDAV that supports multi-tenancy. It is based on StoRM-WebDAV. We have added a manager level that
-accepts requests, authenticates the user, identifies the local username of the user, starts a StoRM-WebDAV server
-for that local user with a randomly assigned port to listen on, and forwards the user's request to that port.
-The StoRM-WebDAV server will then handle the request in the usual way. If the StoRM-WebDAV server is inactive for
-10 minutes, it will be shut down by the manager. If another request comes in for a different user, the manager will
-start another StoRM-WebDAV server for that user in the same way.
+Multi-tenant WebDAV server based on StoRM-WebDAV.
+Teapot provides a WebDAV server that supports multi-tenancy. It is based on
+StoRM-WebDAV and adds a manager level that accepts requests, authenticates
+users, identifies local usernames, and starts a StoRM-WebDAV server for each
+user with a randomly assigned port.
+The StoRM-WebDAV server handles requests in the usual way. If inactive for
+10 minutes, the server is shut down by the manager. When another request
+comes in for a different user, the manager starts another StoRM-WebDAV
+server for that user in the same way.
+Python packages not available as RPM (flaat, certifi-linux) are automatically
+installed during package installation.
 
 %define __jar_repack %{nil}
 %global debug_package %{nil}
 
 %prep
 %setup
-%setup -T -D -a 1
-%setup -T -D -a 2
-%setup -T -D -a 3
 
 %build
+# Download storm-webdav JAR (version from environment or default)
+STORM_VERSION=%{?storm_version}%{!?storm_version:1.12.0}
+if [ ! -f storm-webdav-server.jar ]; then
+    wget https://repo.cloud.cnaf.infn.it/repository/storm-rpm-stable/redhat9/storm-webdav-${STORM_VERSION}-1.el9.noarch.rpm -O storm-webdav.rpm
+    rpm2cpio storm-webdav.rpm | cpio -idmv
+    cp usr/share/java/storm-webdav/storm-webdav-server.jar .
+    rm -rf usr storm-webdav.rpm
+fi
+
+# Install Python packages with pip
+mkdir -p python-packages
+pip3 install --target=python-packages --ignore-installed 'flaat>=1.1.18' certifi-linux
 
 %install
 rm -rf %{buildroot}
+
+# Storm WebDAV JAR
 mkdir -p %{buildroot}/%{_datadir}/java/storm-webdav
-cp %{_builddir}/%name-%version/storm-webdav-server.jar %{buildroot}/%{_datadir}/java/storm-webdav/storm-webdav-server.jar
+cp storm-webdav-server.jar %{buildroot}/%{_datadir}/java/storm-webdav/
+
+# Application files
 mkdir -p %{buildroot}/%{_datadir}/%name
-cp %{_builddir}/%name-%version/teapot.py %{buildroot}/%{_datadir}/%name/
-cp %{_builddir}/%name-%version/alise.py %{buildroot}/%{_datadir}/%name/
-cp %{_builddir}/%name-%version/vo_mapping.py %{buildroot}/%{_datadir}/%name/
-cp %{_builddir}/%name-%version/self-signed-cert-gen.sh %{buildroot}/%{_datadir}/%name/
+cp teapot.py %{buildroot}/%{_datadir}/%name/
+cp alise.py %{buildroot}/%{_datadir}/%name/
+cp vo_mapping.py %{buildroot}/%{_datadir}/%name/
+cp self-signed-cert-gen.sh %{buildroot}/%{_datadir}/%name/
+
+# Configuration files
 mkdir -p %{buildroot}/%{_sysconfdir}/%name
-cp %{_builddir}/%name-%version/templates/application.yml.template %{buildroot}/%{_sysconfdir}/%name/
-cp %{_builddir}/%name-%version/templates/storage_area.properties.template %{buildroot}/%{_sysconfdir}/%name/
-cp %{_builddir}/%name-%version/templates/logback.xml %{buildroot}/%{_sysconfdir}/%name/
-cp %{_builddir}/%name-%version/templates/logback-access.xml %{buildroot}/%{_sysconfdir}/%name/
-cp %{_builddir}/%name-%version/config.ini %{buildroot}/%{_sysconfdir}/%name/
-cp %{_builddir}/%name-%version/user_config.ini %{buildroot}/%{_sysconfdir}/%name/
+cp templates/application.yml.template %{buildroot}/%{_sysconfdir}/%name/
+cp templates/storage_area.properties.template %{buildroot}/%{_sysconfdir}/%name/
+cp templates/logback.xml %{buildroot}/%{_sysconfdir}/%name/
+cp templates/logback-access.xml %{buildroot}/%{_sysconfdir}/%name/
+cp config.ini %{buildroot}/%{_sysconfdir}/%name/
+cp user_config.ini %{buildroot}/%{_sysconfdir}/%name/
+
+# Sudoers
 mkdir -p %{buildroot}/%{_sysconfdir}/sudoers.d/
-cp %{_builddir}/%name-%version/templates/teapot %{buildroot}/%{_sysconfdir}/sudoers.d/
+cp templates/teapot %{buildroot}/%{_sysconfdir}/sudoers.d/
+
+# Directories
 mkdir -p %{buildroot}/%{_sharedstatedir}/%name/webdav
 mkdir -p %{buildroot}/%{_localstatedir}/log/%name/
-cp %{_builddir}/%name-%version/templates/teapot.log %{buildroot}/%{_localstatedir}/log/%name/
-cp %{_builddir}/%name-%version/templates/uvicorn.log %{buildroot}/%{_localstatedir}/log/%name/
 mkdir -p %{buildroot}/%{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 mkdir -p %{buildroot}/%{_sysconfdir}/grid-security/vomsdir/
+
+# Systemd service
 mkdir -p %{buildroot}/%{_unitdir}
-cp %{_builddir}/%name-%version/teapot.service %{buildroot}/%{_unitdir}/
-mkdir -p %{buildroot}/%{_exec_prefix}/local/lib64/python3.12/site-packages/
-cp -r %{_builddir}/%name-%version//%{_exec_prefix}/local/lib64/python3.12/site-packages/* %{buildroot}/%{_exec_prefix}/local/lib64/python3.12/site-packages/
-mkdir -p %{buildroot}/%{_exec_prefix}/local/lib/python3.12/site-packages/
-cp -r %{_builddir}/%name-%version//%{_exec_prefix}/local/lib/python3.12/site-packages/* %{buildroot}/%{_exec_prefix}/local/lib/python3.12/site-packages/
+cp teapot.service %{buildroot}/%{_unitdir}/
+
+# Python packages to teapot user's .local
+mkdir -p %{buildroot}/%{_sharedstatedir}/%name/.local/lib/python3.12/site-packages/
+cp -r python-packages/* %{buildroot}/%{_sharedstatedir}/%name/.local/lib/python3.12/site-packages/
 
 %clean
 rm -rf %{buildroot}
 
+%pre
+# Create teapot user before installation
+getent group teapot >/dev/null || groupadd -r teapot
+getent passwd teapot >/dev/null || \
+    useradd -r -g teapot -d %{_sharedstatedir}/%name -s /sbin/nologin \
+    -c "Teapot Service User" teapot
+exit 0
+
 %post
-if [ $1 -gt 1 ] ; then
-    %systemd_post teapot.service
-fi
+# Set ownership after files are installed
+chown -R teapot:teapot %{_sharedstatedir}/%name
+chown -R teapot:teapot %{_localstatedir}/log/%name
+chown -R teapot:teapot %{_sysconfdir}/%name
+chown -R teapot:teapot %{_datadir}/%name
+
+# Systemd
+%systemd_post teapot.service
 
 %preun
 %systemd_preun teapot.service
 
 %postun
 if [ $1 -eq 0 ] ; then
+    # Complete uninstall
     %systemd_postun_with_restart teapot.service
+    userdel teapot 2>/dev/null || :
+    groupdel teapot 2>/dev/null || :
+    rm -rf %{_sharedstatedir}/%name
+    rm -rf %{_localstatedir}/log/%name
 fi
 
 %files
@@ -91,18 +129,15 @@ fi
 %attr(644, teapot, teapot) %{_sysconfdir}/%name/logback-access.xml
 %attr(644, teapot, teapot) %{_sysconfdir}/%name/config.ini
 %attr(644, teapot, teapot) %{_sysconfdir}/%name/user_config.ini
-%attr(755, teapot, teapot) %{_localstatedir}/log/%name/
-%attr(644, teapot, teapot) %{_localstatedir}/log/%name/teapot.log
-%attr(644, teapot, teapot) %{_localstatedir}/log/%name/uvicorn.log
+%attr(755, teapot, teapot) %dir %{_localstatedir}/log/%name/
 %attr(440, root, root) %{_sysconfdir}/sudoers.d/teapot
-%attr(777, teapot, teapot) %{_sharedstatedir}/%name/
-%attr(755, teapot, teapot) %{_sharedstatedir}/%name/webdav
+%attr(777, teapot, teapot) %dir %{_sharedstatedir}/%name/
+%attr(755, teapot, teapot) %dir %{_sharedstatedir}/%name/webdav
 %attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 %attr(775, root, root) %{_sysconfdir}/grid-security/vomsdir/
 %attr(664, root, root) %{_unitdir}/teapot.service
-%attr(755, root, root) %{_exec_prefix}/local/lib64/python3.12/site-packages/*
-%attr(755, root, root) %{_exec_prefix}/local/lib/python3.12/site-packages/*
+%{_sharedstatedir}/%name/.local/
 
 %changelog
-* Mon Jan 26 2026 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Tue Feb 04 2026 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}
