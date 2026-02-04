@@ -64,42 +64,65 @@ jobs:
     runs-on: ubuntu-latest
     container: rockylinux:9.3
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Install build requisites
         run: |
           dnf -y update
-          dnf -y install rpmdevtools rpmlint rsync systemd-rpm-macros
-      - name: Build rpm
+          dnf -y install rpmdevtools systemd-rpm-macros rpmlint rsync git python3-pip wget rpm-build cpio
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up RPM build environment
+        run: rpmdev-setuptree
+      - name: Copy spec file
+        run: cp rpm/teapot-rockylinux.spec ~/rpmbuild/SPECS/
+      - name: Create source tarball
         run: |
-          export "version_rpm=${{ needs.build-fedora.outputs.version_rpm }}"
-          chmod 777 rpm/teapot-rpm-rocky.sh
-          rpm/teapot-rpm-rocky.sh
+          mkdir teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          rsync -av --progress ./* teapot-${{ needs.build-fedora.outputs.version_rpm }}/ --exclude teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          tar cfz teapot-${{ needs.build-fedora.outputs.version_rpm }}.tar.gz teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          rm -r teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          mv teapot-${{ needs.build-fedora.outputs.version_rpm }}.tar.gz ~/rpmbuild/SOURCES/
+      - name: Build RPM
+        run: |
+          rpmbuild -ba \
+            --define "version_ ${{ needs.build-fedora.outputs.version_rpm }}" \
+            --define "storm_version ${{ needs.build-fedora.outputs.storm_version }}" \
+            ~/rpmbuild/SPECS/teapot-rockylinux.spec
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_rockylinux_9.3
           path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ needs.build-fedora.outputs.version_rpm }}*.x86_64.rpm
 
-  build-almalinux:
+build-almalinux:
     name: build-almalinux
     needs: build-fedora
     runs-on: ubuntu-latest
     container: almalinux:9.4
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Install build requisites
         run: |
           dnf -y update
-          dnf -y install rpmdevtools rpmlint rsync systemd-rpm-macros
-      - name: Build rpm
+          dnf -y install rpmdevtools systemd-rpm-macros rpmlint rsync git python3-pip wget rpm-build cpio
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up RPM build environment
+        run: rpmdev-setuptree
+      - name: Copy spec file
+        run: cp rpm/teapot-almalinux.spec ~/rpmbuild/SPECS/
+      - name: Create source tarball
         run: |
-          export "version_rpm=${{ needs.build-fedora.outputs.version_rpm }}"
-          echo "version_rpm is $version_rpm"
-          chmod 777 rpm/teapot-rpm-alma.sh
-          rpm/teapot-rpm-alma.sh
+          mkdir teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          rsync -av --progress ./* teapot-${{ needs.build-fedora.outputs.version_rpm }}/ --exclude teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          tar cfz teapot-${{ needs.build-fedora.outputs.version_rpm }}.tar.gz teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          rm -r teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          mv teapot-${{ needs.build-fedora.outputs.version_rpm }}.tar.gz ~/rpmbuild/SOURCES/
+      - name: Build RPM
+        run: |
+          rpmbuild -ba \
+            --define "version_ ${{ needs.build-fedora.outputs.version_rpm }}" \
+            --define "storm_version ${{ needs.build-fedora.outputs.storm_version }}" \
+            ~/rpmbuild/SPECS/teapot-almalinux.spec
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_almalinux_9.4
