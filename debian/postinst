@@ -32,8 +32,6 @@ case "$1" in
         chmod 775 /var/lib/teapot/webdav
         chmod 775 /etc/grid-security/vomsdir
         chmod 774 /etc/storm/webdav/vo-mapfiles.d
-        chmod 644 /var/log/teapot/teapot.log
-        chmod 644 /var/log/teapot/uvicorn.log
         chmod 744 /usr/share/teapot/teapot.py
         chmod 744 /usr/share/teapot/alise.py
         chmod 774 /usr/share/teapot/vo_mapping.py

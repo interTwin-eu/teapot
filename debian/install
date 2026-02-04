@@ -21,7 +21,3 @@ templates/teapot etc/sudoers.d/
 
 # Systemd service
 teapot.service lib/systemd/system/
-
-# Empty log files (will be created in postinst instead)
-# templates/teapot.log var/log/teapot/
-# templates/uvicorn.log var/log/teapot/

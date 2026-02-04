@@ -24,9 +24,13 @@ override_dh_auto_build:
 
 override_dh_install:
 	dh_install
-	# Copy pre-installed Python packages to teapot user's location
-	mkdir -p debian/teapot/var/lib/teapot/.local/lib/python3.12/site-packages
-	cp -r python-packages/* debian/teapot/var/lib/teapot/.local/lib/python3.12/site-packages/
+	# Copy Python packages to application-specific directory
+	mkdir -p debian/teapot/usr/share/teapot/python-packages
+	cp -r python-packages/* debian/teapot/usr/share/teapot/python-packages/
+
+	# Create .pth file to add application packages to Python path
+	mkdir -p debian/teapot/usr/lib/python3/dist-packages
+	echo "/usr/share/teapot/python-packages" > debian/teapot/usr/lib/python3/dist-packages/teapot.pth
 
 override_dh_auto_test:
 	# Skip tests
@@ -34,9 +38,10 @@ override_dh_auto_test:
 override_dh_clean:
 	dh_clean
 	rm -f storm-webdav-server.jar storm-webdav.rpm
+	rm -rf python-packages
 
 override_dh_fixperms:
 	dh_fixperms
 	chmod 0440 debian/teapot/etc/sudoers.d/teapot
 	mv debian/teapot/usr/share/teapot/self-signed-cert-gen-deb.sh \
-	   debian/teapot/usr/share/teapot/self-signed-cert-gen.sh
+	   de
