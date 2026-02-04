@@ -28,9 +28,11 @@ jobs:
           VERSION=$(git describe --tags --dirty)
           VERSION_RPM=$(git describe --tags --abbrev=0)
           STORM_VERSION=1.12.0
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "version_rpm=$VERSION_RPM" >> "$GITHUB_OUTPUT"
-          echo "storm_version=$STORM_VERSION" >> "$GITHUB_OUTPUT"
+          {
+            echo "version=$VERSION"
+            echo "version_rpm=$VERSION_RPM"
+            echo "storm_version=$STORM_VERSION"
+          } >> "$GITHUB_OUTPUT"
       - name: Set up RPM build environment
         run: rpmdev-setuptree
       - name: Copy spec file

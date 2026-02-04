@@ -79,9 +79,9 @@ mkdir -p %{buildroot}/%{_sysconfdir}/grid-security/vomsdir/
 mkdir -p %{buildroot}/%{_unitdir}
 cp teapot.service %{buildroot}/%{_unitdir}/
 
-# Python packages to teapot user's .local
-mkdir -p %{buildroot}/%{_sharedstatedir}/%name/.local/lib/python3.12/site-packages/
-cp -r python-packages/* %{buildroot}/%{_sharedstatedir}/%name/.local/lib/python3.12/site-packages/
+# Python packages to system site-packages
+mkdir -p %{buildroot}/usr/lib/python3.12/site-packages/
+cp -r python-packages/* %{buildroot}/usr/lib/python3.12/site-packages/
 
 %clean
 rm -rf %{buildroot}
@@ -136,8 +136,8 @@ fi
 %attr(774, teapot, teapot) %{_sysconfdir}/storm/webdav/vo-mapfiles.d/
 %attr(775, root, root) %{_sysconfdir}/grid-security/vomsdir/
 %attr(664, root, root) %{_unitdir}/teapot.service
-%{_sharedstatedir}/%name/.local/
+/usr/lib/python3.12/site-packages/*
 
 %changelog
-* Tue Feb 04 2026 Dijana Vrbanec <dijana.vrbanec@desy.de>
+* Wed Feb 04 2026 Dijana Vrbanec <dijana.vrbanec@desy.de>
 - %{version}
