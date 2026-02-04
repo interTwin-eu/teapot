@@ -93,7 +93,7 @@ jobs:
           name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_rockylinux_9.3
           path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ needs.build-fedora.outputs.version_rpm }}*.x86_64.rpm
 
-build-almalinux:
+  build-almalinux:
     name: build-almalinux
     needs: build-fedora
     runs-on: ubuntu-latest
