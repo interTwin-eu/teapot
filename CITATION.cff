@@ -11,6 +11,6 @@ authors:
     given-names: Tim
     orcid: https://orcid.org/0000-0002-9131-0906
 title: "Teapot"
-version: 0.8.0
+version: 0.21.0
 license: Apache-2.0
 repository-code: https://github.com/interTwin-eu/teapot

@@ -1,6 +1,6 @@
 Name:           teapot
 Version:        %{version_}
-Release:        1.fc39%{?dist}
+Release:        1.rocky9%{?dist}
 Summary:        A WebDAV solution supporting multitenancy based on StoRM-WebDAV
 BuildArch:      x86_64
 
@@ -8,7 +8,8 @@ License:        Apache 2.0
 URL:            https://github.com/interTwin-eu/%name
 Source0:        %name-%version.tar.gz
 BuildRequires:  systemd-rpm-macros python3-pip wget rpm-build cpio
-Requires:       java-21-openjdk openssl >= 1:3.0 python(abi) = 3.12 python3-fastapi python3-httpx python3-pydantic python3-uvicorn python3-anyio python3-psutil python3-requests python3-dotenv shadow-utils
+Requires:       java-21-openjdk openssl >= 1:3.0 python(abi) = 3.9 python3-psutil python3-requests shadow-utils
+
 %description    
 Multi-tenant WebDAV server based on StoRM-WebDAV.
 Teapot provides a WebDAV server that supports multi-tenancy. It is based on
@@ -19,8 +20,9 @@ The StoRM-WebDAV server handles requests in the usual way. If inactive for
 10 minutes, the server is shut down by the manager. When another request
 comes in for a different user, the manager starts another StoRM-WebDAV
 server for that user in the same way.
-Python packages not available as RPM (flaat, certifi-linux) are automatically
-installed during package installation.
+Python packages not available as RPM (flaat, certifi-linux, fastapi, httpx,
+pydantic, uvicorn, anyio, python-dotenv) are automatically installed during
+package installation.
 
 %define __jar_repack %{nil}
 %global debug_package %{nil}
@@ -40,7 +42,7 @@ fi
 
 # Install Python packages with pip (including all their dependencies)
 mkdir -p python-packages
-pip3 install --target=python-packages --ignore-installed 'flaat>=1.1.18' certifi-linux
+pip3 install --target=python-packages --ignore-installed 'flaat>=1.1.18' certifi-linux fastapi httpx pydantic uvicorn anyio python-dotenv
 
 %install
 rm -rf %{buildroot}
@@ -83,8 +85,8 @@ mkdir -p %{buildroot}/%{_datadir}/%name/python-packages
 cp -r python-packages/* %{buildroot}/%{_datadir}/%name/python-packages/
 
 # Create .pth file to add application packages to Python path
-mkdir -p %{buildroot}/usr/lib/python3.12/site-packages/
-echo "/usr/share/teapot/python-packages" > %{buildroot}/usr/lib/python3.12/site-packages/teapot.pth
+mkdir -p %{buildroot}/usr/lib/python3.9/site-packages/
+echo "/usr/share/teapot/python-packages" > %{buildroot}/usr/lib/python3.9/site-packages/teapot.pth
 
 %clean
 rm -rf %{buildroot}
@@ -140,7 +142,7 @@ fi
 %attr(664, root, root) %{_unitdir}/teapot.service
 %attr(755, teapot, teapot) %dir %{_datadir}/%name/python-packages
 %{_datadir}/%name/python-packages/*
-%attr(644, root, root) /usr/lib/python3.12/site-packages/teapot.pth
+%attr(644, root, root) /usr/lib/python3.9/site-packages/teapot.pth
 
 %changelog
 * Wed Feb 04 2026 Dijana Vrbanec <dijana.vrbanec@desy.de>

@@ -19,7 +19,7 @@ institutional data platforms.
 - WebDAV and HTTP access to existing storage
 - Multi-user support with per-user StoRM-WebDAV instances
 - Automatic launch and shutdown of StoRM-WebDAV servers
-- Identity mapping via file-based, ALISE, or VO-based methods
+- Identity mapping via ALISE or file-, Keycloak-, and VO-based methods
 - Encrypted communication between components
 
 ## Learn More
@@ -32,7 +32,7 @@ institutional data platforms.
 
 ---
 
-© 2025 — Developed as part of the interTwin project • Authors:
+© 2023-2026 — Developed as part of the interTwin project • Authors:
 [Paul Millar](mailto:paul.millar@desy.de),
 [Dijana Vrbanec](mailto:dijana.vrbanec@desy.de),
 [Tim Wetzel](mailto:tim.wetzel@desy.de)

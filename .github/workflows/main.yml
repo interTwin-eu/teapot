@@ -17,26 +17,47 @@ jobs:
       - name: Install build requisites
         run: |
           dnf -y update
-          dnf -y install rpmdevtools systemd-rpm-macros rpmlint rsync git
+          dnf -y install rpmdevtools systemd-rpm-macros rpmlint rsync git python3-pip wget rpm-build cpio
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - id: rpm_build
+      - name: Get versions
+        id: versions
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          export "version=$(git describe --tags --dirty)"
-          echo "version=$(git describe --tags --dirty)"  >> "$GITHUB_OUTPUT"
-          export "version_rpm=$(git describe --tags --abbrev=0)"
-          echo "version_rpm=$(git describe --tags --abbrev=0)"  >> "$GITHUB_OUTPUT"
-          chmod 777 rpm/teapot-rpm-fedora.sh
-          rpm/teapot-rpm-fedora.sh
+          VERSION=$(git describe --tags --dirty)
+          VERSION_RPM=$(git describe --tags --abbrev=0)
+          STORM_VERSION=1.12.0
+          {
+            echo "version=$VERSION"
+            echo "version_rpm=$VERSION_RPM"
+            echo "storm_version=$STORM_VERSION"
+          } >> "$GITHUB_OUTPUT"
+      - name: Set up RPM build environment
+        run: rpmdev-setuptree
+      - name: Copy spec file
+        run: cp rpm/teapot-fedora.spec ~/rpmbuild/SPECS/
+      - name: Create source tarball
+        run: |
+          mkdir teapot-${{ steps.versions.outputs.version_rpm }}
+          rsync -av --progress ./* teapot-${{ steps.versions.outputs.version_rpm }}/ --exclude teapot-${{ steps.versions.outputs.version_rpm }}
+          tar cfz teapot-${{ steps.versions.outputs.version_rpm }}.tar.gz teapot-${{ steps.versions.outputs.version_rpm }}
+          rm -r teapot-${{ steps.versions.outputs.version_rpm }}
+          mv teapot-${{ steps.versions.outputs.version_rpm }}.tar.gz ~/rpmbuild/SOURCES/
+      - name: Build RPM
+        run: |
+          rpmbuild -ba \
+            --define "version_ ${{ steps.versions.outputs.version_rpm }}" \
+            --define "storm_version ${{ steps.versions.outputs.storm_version }}" \
+            ~/rpmbuild/SPECS/teapot-fedora.spec
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-${{ steps.rpm_build.outputs.version }}_rpm_fedora_39
-          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ steps.rpm_build.outputs.version_rpm }}*.x86_64.rpm
+          name: teapot-${{ steps.versions.outputs.version }}_rpm_fedora_39
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-*.fc39.*.rpm
     outputs:
-      version: ${{ steps.rpm_build.outputs.version }}
-      version_rpm: ${{ steps.rpm_build.outputs.version_rpm }}
+      version: ${{ steps.versions.outputs.version }}
+      version_rpm: ${{ steps.versions.outputs.version_rpm }}
+      storm_version: ${{ steps.versions.outputs.storm_version }}
 
   build-rockylinux:
     name: build-rockylinux
@@ -44,22 +65,34 @@ jobs:
     runs-on: ubuntu-latest
     container: rockylinux:9.3
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Install build requisites
         run: |
           dnf -y update
-          dnf -y install rpmdevtools rpmlint rsync systemd-rpm-macros
-      - name: Build rpm
+          dnf -y install rpmdevtools systemd-rpm-macros rpmlint rsync git python3-pip wget rpm-build cpio
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up RPM build environment
+        run: rpmdev-setuptree
+      - name: Copy spec file
+        run: cp rpm/teapot-rockylinux.spec ~/rpmbuild/SPECS/
+      - name: Create source tarball
         run: |
-          export "version_rpm=${{ needs.build-fedora.outputs.version_rpm }}"
-          chmod 777 rpm/teapot-rpm-rocky.sh
-          rpm/teapot-rpm-rocky.sh
+          mkdir teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          rsync -av --progress ./* teapot-${{ needs.build-fedora.outputs.version_rpm }}/ --exclude teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          tar cfz teapot-${{ needs.build-fedora.outputs.version_rpm }}.tar.gz teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          rm -r teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          mv teapot-${{ needs.build-fedora.outputs.version_rpm }}.tar.gz ~/rpmbuild/SOURCES/
+      - name: Build RPM
+        run: |
+          rpmbuild -ba \
+            --define "version_ ${{ needs.build-fedora.outputs.version_rpm }}" \
+            --define "storm_version ${{ needs.build-fedora.outputs.storm_version }}" \
+            ~/rpmbuild/SPECS/teapot-rockylinux.spec
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_rockylinux_9.3
-          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ needs.build-fedora.outputs.version_rpm }}*.x86_64.rpm
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-*.rocky9.*.rpm
 
   build-almalinux:
     name: build-almalinux
@@ -67,23 +100,34 @@ jobs:
     runs-on: ubuntu-latest
     container: almalinux:9.4
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Install build requisites
         run: |
           dnf -y update
-          dnf -y install rpmdevtools rpmlint rsync systemd-rpm-macros
-      - name: Build rpm
+          dnf -y install rpmdevtools systemd-rpm-macros rpmlint rsync git python3-pip wget rpm-build cpio
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up RPM build environment
+        run: rpmdev-setuptree
+      - name: Copy spec file
+        run: cp rpm/teapot-almalinux.spec ~/rpmbuild/SPECS/
+      - name: Create source tarball
         run: |
-          export "version_rpm=${{ needs.build-fedora.outputs.version_rpm }}"
-          echo "version_rpm is $version_rpm"
-          chmod 777 rpm/teapot-rpm-alma.sh
-          rpm/teapot-rpm-alma.sh
+          mkdir teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          rsync -av --progress ./* teapot-${{ needs.build-fedora.outputs.version_rpm }}/ --exclude teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          tar cfz teapot-${{ needs.build-fedora.outputs.version_rpm }}.tar.gz teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          rm -r teapot-${{ needs.build-fedora.outputs.version_rpm }}
+          mv teapot-${{ needs.build-fedora.outputs.version_rpm }}.tar.gz ~/rpmbuild/SOURCES/
+      - name: Build RPM
+        run: |
+          rpmbuild -ba \
+            --define "version_ ${{ needs.build-fedora.outputs.version_rpm }}" \
+            --define "storm_version ${{ needs.build-fedora.outputs.storm_version }}" \
+            ~/rpmbuild/SPECS/teapot-almalinux.spec
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_almalinux_9.4
-          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ needs.build-fedora.outputs.version_rpm }}*.x86_64.rpm
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-*.alma9.*.rpm
 
   build-deb:
     name: build-deb
@@ -128,8 +172,14 @@ jobs:
         env:
           TOKEN: ${{ secrets.TOKEN }}
           USERNAME: ${{ secrets.USERNAME }}
+          TEAPOT_CA_CRT: ${{ secrets.TEAPOT_CA_CRT }}
+          TEAPOT_CA_KEY:  ${{ secrets.TEAPOT_CA_KEY }}
         run: |
           cd robot
+          echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
+          echo "$TEAPOT_CA_KEY" > Teapot-testing.key
+          chmod 777 ubuntu/cert-gen.sh
+          ubuntu/cert-gen.sh teapot
           docker build . --tag ghcr.io/intertwin-eu/teapot:latest
           echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
           docker push ghcr.io/intertwin-eu/teapot:latest
@@ -162,12 +212,34 @@ jobs:
           docker build . --tag ghcr.io/intertwin-eu/teapot-ubuntu:latest
           echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
           docker push ghcr.io/intertwin-eu/teapot-ubuntu:latest
+
+  container-robot:
+    name: container-robot
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build and push robot testing container
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+          USERNAME: ${{ secrets.USERNAME }}
+          TEAPOT_CA_CRT: ${{ secrets.TEAPOT_CA_CRT }}
+        run: |
+          echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
+          echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
+          docker build -f robot/robot.dockerfile -t ghcr.io/intertwin-eu/robot-testing:latest .
+          docker push ghcr.io/intertwin-eu/robot-testing:latest
+
   test:
     name: test
-    needs: [build-fedora, containerization, containerization-ubuntu]
+    needs: [build-fedora, containerization, containerization-ubuntu, container-robot]
     runs-on: ubuntu-latest
     container:
-      image: dvrbanec/main:latest
+      image: ghcr.io/intertwin-eu/robot-testing:latest
+      credentials:
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.TOKEN }}
     services:
       keycloak:
         image: dvrbanec/keycloak-dev:1
@@ -213,3 +285,22 @@ jobs:
         uses: joonvena/robotframework-reporter-action@v2.4
         with:
           gh_access_token: ${{ secrets.TOKEN }}
+
+  release:
+    name: Create Release
+    needs: [build-fedora, build-almalinux, build-rockylinux, build-deb, test]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+      - name: Unzip all artifacts
+        run: |
+          mkdir -p rpms/
+          find artifacts/ -name "*.rpm" -exec cp {} rpms/ \;
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: rpms/*.rpm
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

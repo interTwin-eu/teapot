@@ -14,14 +14,9 @@ templates/storage_area.properties.template etc/teapot/
 templates/logback.xml etc/teapot/
 templates/logback-access.xml etc/teapot/
 config.ini etc/teapot/
-user_config.ini etc/teapot/
 
 # Sudoers file
 templates/teapot etc/sudoers.d/
 
 # Systemd service
 teapot.service lib/systemd/system/
-
-# Empty log files (will be created in postinst instead)
-# templates/teapot.log var/log/teapot/
-# templates/uvicorn.log var/log/teapot/
