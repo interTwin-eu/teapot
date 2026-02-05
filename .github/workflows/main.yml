@@ -298,9 +298,13 @@ jobs:
       - name: Unzip all artifacts
         run: |
           mkdir -p rpms/
+          mkdir -p debs/
           find artifacts/ -name "*.rpm" -exec cp {} rpms/ \;
+          find artifacts/ -name "*.deb" -exec cp {} debs/ \;
       - uses: softprops/action-gh-release@v2
         with:
-          files: rpms/*.rpm
+          files: |
+            rpms/*.rpm
+            debs/*.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
