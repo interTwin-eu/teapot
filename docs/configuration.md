@@ -10,11 +10,10 @@ instructions provided inside the file.
 
 ## Certificates
 
-Both Teapot and StoRM WebDAV servers require SSL certificates. The
-certificate must also be added to the system’s trust store to ensure secure
-communication. Path to the Teapot's certificate should be specified in
-`config.ini`. To generate self-signed certificates for StoRM WebDAV and add
-them to the trust store, run `sudo /usr/share/teapot/self-signed-cert-gen.sh`.
+Both Teapot and StoRM WebDAV servers require SSL certificates. Path to the
+Teapot's certificate should be specified in `config.ini`. To generate
+self-signed certificates for StoRM WebDAV and add them to the trust store,
+run `sudo /usr/share/teapot/self-signed-cert-gen.sh`.
 
 ## Storm-webdav configuration files
 
@@ -46,10 +45,10 @@ for detailed instructions.
 
 ## Mapping user’s global and local identities
 
-### File-based Mapping Method
+### File-based mapping
 
 Teapot provides several methods for mapping a user’s global and local
-identities. The File-based Mapping Method allows manual storage of user
+identities. The File-based mapping allows manual storage of user
 mappings in a file. This file should contain the following information:
 for each user, the local username and the user's OIDC subject claim (`sub`),
 as provided by the Identity Provider (IdP). These values must be listed on
@@ -96,7 +95,7 @@ To configure VO-based mapping, specify:
 - The local account to which users with the matching `eduperson-entitlement`
 will be mapped.
 
-### Keycloak-based Mapping
+### Keycloak-based mapping
 
 Keycloak-based mapping maps the user's `sub` claim to Keycloak's
 `preferred_username`. No extra configuration is needed.

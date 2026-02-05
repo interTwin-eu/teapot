@@ -27,11 +27,10 @@ StoRM-WebDAV requires `Java 21`.
 ### Installation & Configuration
 
 Teapot can be installed using either an **RPM** or **DEB** package.
+Both automatically create a dedicated `teapot` system user.
 
-- **DEB package:** Automatically creates a dedicated `teapot` system user.
-Distribution-independent.
+- **DEB package:** Distribution-independent.
 - **RPM package:** Available for Fedora 39, AlmaLinux 9.4, and Rocky Linux 9.3.
-The system user must currently be created manually.
 
 For configuration details, please refer to
 [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md),
@@ -50,7 +49,7 @@ Functional tests can be found in `/robot`. To execute them, run `robot teapot-te
 
 ## Version
 
-The current version of Teapot is 0.20.1, and it uses Storm-Webdav version 1.12.0.
+The current version of Teapot is 0.21.0, and it uses Storm-Webdav version 1.12.0.
 
 ## Authors
 
