@@ -231,6 +231,28 @@ jobs:
           docker build -f robot/robot.dockerfile -t ghcr.io/intertwin-eu/robot-testing:latest .
           docker push ghcr.io/intertwin-eu/robot-testing:latest
 
+  container-keycloak:
+    name: container-keycloak
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build and push robot testing container
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+          USERNAME: ${{ secrets.USERNAME }}
+          TEAPOT_CA_CRT: ${{ secrets.TEAPOT_CA_CRT }}
+        run: |
+          echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
+          cd /robot/ubuntu
+          chmod 777 cert-gen.sh && ./cert-gen.sh keycloak
+          cp teapot.crt keycloak.pem
+          cp teapot.key keycloak-key.pem
+          echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
+          docker build -f keycloak-setup/Dockerfile -t ghcr.io/intertwin-eu/keycloak:latest .
+          docker push ghcr.io/intertwin-eu/robot-testing:latest
+
   test:
     name: test
     needs: [build-fedora, containerization, containerization-ubuntu, container-robot]
