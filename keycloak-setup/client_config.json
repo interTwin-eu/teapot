@@ -1,7 +1,7 @@
 {
     "issuer_url": "https://keycloak:8443/realms/test-realm",
     "client_id": "test-client",
-    "client_secret": "4fWOTEQTvucLH77xp3VcFoED403gMxTQ",
+    "client_secret": "${CLIENT_SECRET}",
     "scope": "max",
     "redirect_uris": [
         "http://localhost:4242"
