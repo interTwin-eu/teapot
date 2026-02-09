@@ -245,12 +245,12 @@ jobs:
           TEAPOT_CA_CRT: ${{ secrets.TEAPOT_CA_CRT }}
         run: |
           echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
-          cd /robot/ubuntu
+          cd robot/ubuntu
           chmod 777 cert-gen.sh && ./cert-gen.sh keycloak
           cp teapot.crt keycloak.pem
           cp teapot.key keycloak-key.pem
           echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
-          docker build -f keycloak-setup/Dockerfile -t ghcr.io/intertwin-eu/keycloak:latest .
+          docker build -f ./../../keycloak-setup/Dockerfile -t ghcr.io/intertwin-eu/keycloak:latest .
           docker push ghcr.io/intertwin-eu/robot-testing:latest
 
   test:
@@ -264,7 +264,7 @@ jobs:
         password: ${{ secrets.TOKEN }}
     services:
       keycloak:
-        image: dvrbanec/keycloak-dev:1
+        image: ghcr.io/intertwin-eu/keycloak:latest
       teapot:
         image: ghcr.io/intertwin-eu/teapot:latest
         credentials:

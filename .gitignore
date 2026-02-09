@@ -1,5 +1,6 @@
 *.log
 *.xml
+*.db
 teapot-venv/*
 debian/teapot/
 debian/.debhelper/

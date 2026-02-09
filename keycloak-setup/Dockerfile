@@ -25,7 +25,7 @@ ENV KC_HTTPS_CERTIFICATE_KEY_FILE=/etc/pki/tls/certs/keycloak-key.pem
 
 # Copy certificates to runtime image
 COPY --from=builder /etc/pki/tls/certs/ /etc/pki/tls/certs/
-#COPY --chown=1000:0 keycloakdb.mv.db /opt/keycloak/data/h2/
+COPY --chown=1000:0 keycloakdb.mv.db /opt/keycloak/data/h2/
 
 # Add import file
 WORKDIR /opt/keycloak
