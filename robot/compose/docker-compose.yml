@@ -24,7 +24,7 @@ services:
     networks:
       - test
   main:
-    image: dvrbanec/main:latest
+    image: ghcr.io/intertwin-eu/robot-testing:latest
     command: |
       /bin/sh -c '
       eval "$(oidc-agent)"
