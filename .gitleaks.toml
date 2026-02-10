@@ -1,4 +1,4 @@
-[[rules]]
-description = "Ignore keycloakdb.mv.db"
-regex = '''keycloakdb\.mv\.db'''
-path = "keycloak-setup/keycloakdb.mv.db"
+[allowlist]
+paths = [
+  "keycloak-setup/keycloakdb.mv.db"
+]
