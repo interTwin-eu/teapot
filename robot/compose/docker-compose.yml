@@ -1,7 +1,7 @@
 ---
 services:
   keycloak:
-    image: keycloak:26.0.2
+    image: ghcr.io/intertwin-eu/keycloak:latest
     ports:
       - 8443:8443
     networks:
@@ -28,6 +28,7 @@ services:
     command: |
       /bin/sh -c '
       eval "$(oidc-agent)"
+      sleep 15
       oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json \
         --op-username test-user1 --op-password secret1  --prompt none \
         --pw-file keycloak_setup/pw-file test-user1
