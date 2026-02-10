@@ -27,6 +27,7 @@ jobs:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MARKDOWN_CONFIG_FILE: .markdownlint.json
+          GITLEAKS_CONFIG_FILE: .gitleaks.toml
           # Only check new or edited files
           VALIDATE_ALL_CODEBASE: false
           # Fail on errors
