@@ -315,7 +315,7 @@ jobs:
       - name: Send report to commit
         uses: joonvena/robotframework-reporter-action@v2.4
         with:
-          gh_access_token: ${{ secrets.TOKEN }}
+          gh_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   release:
     name: Create Release

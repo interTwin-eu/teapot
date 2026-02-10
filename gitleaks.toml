@@ -1,0 +1,5 @@
+[allowlist]
+description = "Ignore Keycloak test database false positives"
+paths = [
+    '''keycloak-setup/keycloakdb\.mv\.db'''
+]
