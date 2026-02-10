@@ -27,9 +27,9 @@ jobs:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MARKDOWN_CONFIG_FILE: .markdownlint.json
+          FILTER_REGEX_EXCLUDE: keycloak-setup/keycloakdb\.mv\.db$
           GITLEAKS_CONFIG_FILE: /github/workspace/.gitleaks.toml
           # Only check new or edited files
           VALIDATE_ALL_CODEBASE: false
           # Fail on errors
           DISABLE_ERRORS: false
-          LOG_LEVEL: DEBUG
