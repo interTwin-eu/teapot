@@ -1,3 +1,4 @@
-[[allowlist.rules]]
-id = "generic-api-key"
-paths = ["keycloak-setup/keycloakdb.mv.db"]
+[[rules]]
+description = "Ignore keycloakdb.mv.db"
+regex = '''keycloakdb\.mv\.db'''
+path = "keycloak-setup/keycloakdb.mv.db"

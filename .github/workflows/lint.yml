@@ -32,3 +32,4 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           # Fail on errors
           DISABLE_ERRORS: false
+          LOG_LEVEL: DEBUG
