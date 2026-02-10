@@ -258,7 +258,7 @@ jobs:
 
   test:
     name: test
-    needs: [build-fedora, containerization, containerization-ubuntu, container-robot]
+    needs: [build-fedora, containerization, containerization-ubuntu, container-robot, container-keycloak]
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/intertwin-eu/robot-testing:latest
@@ -291,6 +291,8 @@ jobs:
           envsubst < keycloak-setup/client_config.json > keycloak-setup/client_config_final.json
           oidc-gen --flow password -f keycloak-setup/client_config_final.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
           oidc-gen --flow password -f keycloak-setup/client_config_final.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
+          oidc-gen --flow password -f keycloak-setup/client_config_final.json --op-username test-user3 --op-password secret3  --prompt none --pw-file keycloak_setup/pw-file test-user3
+          oidc-gen --flow password -f keycloak-setup/client_config_final.json --op-username test-user4 --op-password secret4  --prompt none --pw-file keycloak_setup/pw-file test-user4
           robot --outputdir /__w/teapot/teapot/robot/output/ /__w/teapot/teapot/robot/teapot-tests.robot
         env:
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
