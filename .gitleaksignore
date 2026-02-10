@@ -1,3 +1,4 @@
-keycloakdb.mv.db
-keycloak-setup/
-**/keycloak*.db
+/github/workspace/keycloak-setup/keycloakdb.mv.db:generic-api-key:41
+/github/workspace/keycloak-setup/keycloakdb.mv.db:generic-api-key:84
+/github/workspace/keycloak-setup/keycloakdb.mv.db:generic-api-key:402
+/github/workspace/keycloak-setup/keycloakdb.mv.db:generic-api-key:1229
