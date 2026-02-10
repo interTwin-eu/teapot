@@ -1,5 +1,6 @@
 *.log
 *.xml
+keycloak-setup/ keycloakdb.mv.db
 teapot-venv/*
 debian/teapot/
 debian/.debhelper/

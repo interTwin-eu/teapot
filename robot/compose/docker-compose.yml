@@ -1,46 +1,49 @@
 ---
 services:
   keycloak:
-    image: dvrbanec/keycloak-dev:1
+    image: ghcr.io/intertwin-eu/keycloak:latest
     ports:
       - 8443:8443
     networks:
       - test
+    volumes:
+      - ../../keycloak-setup:/opt/keycloak/data/h2/
   teapot:
     image: ghcr.io/intertwin-eu/teapot:latest
     networks:
       - test
     volumes:
       - ./logs:/var/log/teapot'
+  teapot-ubuntu:
+    image: ghcr.io/intertwin-eu/teapot-ubuntu:latest
+    networks:
+      - test
   curl:
     image: curlimages/curl:latest
     command: sh -c "while true; do sleep 1; done"
     networks:
       - test
   main:
-    image: dvrbanec/main:latest
+    image: ghcr.io/intertwin-eu/robot-testing:latest
     command: |
       /bin/sh -c '
       eval "$(oidc-agent)"
+      sleep 15
       oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json \
         --op-username test-user1 --op-password secret1  --prompt none \
         --pw-file keycloak_setup/pw-file test-user1
       oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json \
         --op-username test-user2 --op-password secret2  --prompt none \
         --pw-file keycloak_setup/pw-file test-user2
-      cd /tmp
-      curl -O https://syncandshare.desy.de/index.php/s/Ncj3Lfk8iEGYGsf/download/ \
-        teapot-tests.robot
-      curl -O https://syncandshare.desy.de/index.php/s/Zzr8qMipiL2En5D/download/ \
-        variables.py
-      robot --outputdir robot/output/ /tmp/teapot-tests.robot
+      robot --outputdir robot/output/ /home/teapot/teapot-tests.robot
       echo "Something else."
       while true; do sleep 1; done'
     networks:
       - test
     volumes:
       - ../../keycloak-setup:/home/teapot/keycloak-setup
-      - ./logs:/home/teapot/logs
+      - ./../teapot-tests.robot:/home/teapot/teapot-tests.robot
+      - ./../variables.py:/__w/teapot/teapot/robot/variables.py
   linter:
     image: ghcr.io/github/super-linter:slim-v4
     networks:

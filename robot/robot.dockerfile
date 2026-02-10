@@ -5,7 +5,11 @@ FROM ubuntu:22.04
 RUN echo "deb [signed-by=/etc/apt/trusted.gpg.d/kitrepo-archive.gpg] https://repo.data.kit.edu/ubuntu/22.04 ./" \
     | tee /etc/apt/sources.list.d/kitrepo.list && \
     apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates curl oidc-agent python3-pip && \
+    apt-get install -y --no-install-recommends ca-certificates \
+        curl \
+        oidc-agent \
+        python3-pip \
+        gettext-base && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install robotframework robotframework-requests certifi-linux && \
     apt-get clean && rm -rf /var/lib/apt/lists/*

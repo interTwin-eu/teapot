@@ -1,21 +1,34 @@
-FROM registry.access.redhat.com/ubi9 AS ubi-micro-build
+FROM quay.io/keycloak/keycloak:26.0.2 AS builder
 
-RUN mkdir -p /mnt/rootfs
+# Enable health and metrics support
+ENV KC_HEALTH_ENABLED=true
+ENV KC_METRICS_ENABLED=true
+ENV KC_HTTPS_CERTIFICATE_FILE=/etc/pki/tls/certs/keycloak.pem
+ENV KC_HTTPS_CERTIFICATE_KEY_FILE=/etc/pki/tls/certs/keycloak-key.pem
 
-RUN dnf install --installroot /mnt/rootfs curl --releasever 9 --setopt install_weak_deps=false --nodocs -y && \
-    dnf --installroot /mnt/rootfs clean all
+# Add certificates
+COPY --chown=1000:0 keycloak.pem /etc/pki/tls/certs/
+COPY --chown=1000:0 keycloak-key.pem /etc/pki/tls/certs/
 
-FROM quay.io/keycloak/keycloak:25.0.1
+# Build optimized image
+RUN /opt/keycloak/bin/kc.sh build
 
-COPY --from=ubi-micro-build /mnt/rootfs /
+FROM quay.io/keycloak/keycloak:26.0.2
+COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
-ENV KEYCLOAK_ADMIN=admin 
-ENV KEYCLOAK_ADMIN_PASSWORD=testing1 
-ENV KC_HOSTNAME=https://keycloak:8443
+# Runtime environment variables
+ENV KC_BOOTSTRAP_ADMIN_USERNAME=admin
+ENV KC_BOOTSTRAP_ADMIN_PASSWORD=testing1
+ENV KC_HOSTNAME=keycloak
+ENV KC_HTTPS_CERTIFICATE_FILE=/etc/pki/tls/certs/keycloak.pem
+ENV KC_HTTPS_CERTIFICATE_KEY_FILE=/etc/pki/tls/certs/keycloak-key.pem
 
-WORKDIR /opt/keycloak/data/import/
-ADD --chown=1000:0 https://syncandshare.desy.de/index.php/s/byaGFbzNqYc4GrR/download/keycloak-export.json .
-ADD --chown=1000:0 https://syncandshare.desy.de/index.php/s/WXK5Qwrw882bytg/download/keycloak.pem /etc/pki/tls/certs/
-ADD --chown=1000:0 https://syncandshare.desy.de/index.php/s/ZxjmXAeH76q9jtQ/download/keycloak-key.pem /etc/pki/tls/certs/
+# Copy certificates to runtime image
+COPY --from=builder /etc/pki/tls/certs/ /etc/pki/tls/certs/
+COPY --chown=1000:0 keycloakdb.mv.db /opt/keycloak/data/h2/
 
-CMD ["start-dev", "--import-realm", "--https-certificate-file=/etc/pki/tls/certs/keycloak.pem", "--https-certificate-key-file=/etc/pki/tls/certs/keycloak-key.pem"]
+# Add import file
+WORKDIR /opt/keycloak
+USER keycloak
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+CMD ["start-dev"]

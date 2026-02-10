@@ -1,0 +1,4 @@
+[allowlist]
+paths = [
+  "keycloak-setup/keycloakdb.mv.db"
+]

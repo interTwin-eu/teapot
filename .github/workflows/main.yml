@@ -9,8 +9,8 @@ concurrency:
   group: ${{ github.workflow }}
 
 jobs:
-  build-fedora:
-    name: build-fedora
+  build-fedora-rpm:
+    name: build-fedora-rpm
     runs-on: ubuntu-latest
     container: fedora:39
     steps:
@@ -59,9 +59,9 @@ jobs:
       version_rpm: ${{ steps.versions.outputs.version_rpm }}
       storm_version: ${{ steps.versions.outputs.storm_version }}
 
-  build-rockylinux:
-    name: build-rockylinux
-    needs: build-fedora
+  build-rockylinux-rpm:
+    name: build-rockylinux-rpm
+    needs: build-fedora-rpm
     runs-on: ubuntu-latest
     container: rockylinux:9.3
     steps:
@@ -78,25 +78,25 @@ jobs:
         run: cp rpm/teapot-rockylinux.spec ~/rpmbuild/SPECS/
       - name: Create source tarball
         run: |
-          mkdir teapot-${{ needs.build-fedora.outputs.version_rpm }}
-          rsync -av --progress ./* teapot-${{ needs.build-fedora.outputs.version_rpm }}/ --exclude teapot-${{ needs.build-fedora.outputs.version_rpm }}
-          tar cfz teapot-${{ needs.build-fedora.outputs.version_rpm }}.tar.gz teapot-${{ needs.build-fedora.outputs.version_rpm }}
-          rm -r teapot-${{ needs.build-fedora.outputs.version_rpm }}
-          mv teapot-${{ needs.build-fedora.outputs.version_rpm }}.tar.gz ~/rpmbuild/SOURCES/
+          mkdir teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}
+          rsync -av --progress ./* teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}/ --exclude teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}
+          tar cfz teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}.tar.gz teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}
+          rm -r teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}
+          mv teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}.tar.gz ~/rpmbuild/SOURCES/
       - name: Build RPM
         run: |
           rpmbuild -ba \
-            --define "version_ ${{ needs.build-fedora.outputs.version_rpm }}" \
-            --define "storm_version ${{ needs.build-fedora.outputs.storm_version }}" \
+            --define "version_ ${{ needs.build-fedora-rpm.outputs.version_rpm }}" \
+            --define "storm_version ${{ needs.build-fedora-rpm.outputs.storm_version }}" \
             ~/rpmbuild/SPECS/teapot-rockylinux.spec
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_rockylinux_9.3
+          name: teapot-${{ needs.build-fedora-rpm.outputs.version }}_rpm_rockylinux_9.3
           path: /github/home/rpmbuild/RPMS/x86_64/teapot-*.rocky9.*.rpm
 
-  build-almalinux:
-    name: build-almalinux
-    needs: build-fedora
+  build-almalinux-rpm:
+    name: build-almalinux-rpm
+    needs: build-fedora-rpm
     runs-on: ubuntu-latest
     container: almalinux:9.4
     steps:
@@ -113,25 +113,25 @@ jobs:
         run: cp rpm/teapot-almalinux.spec ~/rpmbuild/SPECS/
       - name: Create source tarball
         run: |
-          mkdir teapot-${{ needs.build-fedora.outputs.version_rpm }}
-          rsync -av --progress ./* teapot-${{ needs.build-fedora.outputs.version_rpm }}/ --exclude teapot-${{ needs.build-fedora.outputs.version_rpm }}
-          tar cfz teapot-${{ needs.build-fedora.outputs.version_rpm }}.tar.gz teapot-${{ needs.build-fedora.outputs.version_rpm }}
-          rm -r teapot-${{ needs.build-fedora.outputs.version_rpm }}
-          mv teapot-${{ needs.build-fedora.outputs.version_rpm }}.tar.gz ~/rpmbuild/SOURCES/
+          mkdir teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}
+          rsync -av --progress ./* teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}/ --exclude teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}
+          tar cfz teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}.tar.gz teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}
+          rm -r teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}
+          mv teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}.tar.gz ~/rpmbuild/SOURCES/
       - name: Build RPM
         run: |
           rpmbuild -ba \
-            --define "version_ ${{ needs.build-fedora.outputs.version_rpm }}" \
-            --define "storm_version ${{ needs.build-fedora.outputs.storm_version }}" \
+            --define "version_ ${{ needs.build-fedora-rpm.outputs.version_rpm }}" \
+            --define "storm_version ${{ needs.build-fedora-rpm.outputs.storm_version }}" \
             ~/rpmbuild/SPECS/teapot-almalinux.spec
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_almalinux_9.4
+          name: teapot-${{ needs.build-fedora-rpm.outputs.version }}_rpm_almalinux_9.4
           path: /github/home/rpmbuild/RPMS/x86_64/teapot-*.alma9.*.rpm
 
   build-deb:
     name: build-deb
-    needs: build-fedora
+    needs: build-fedora-rpm
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -145,7 +145,7 @@ jobs:
           sudo apt -y install python3-setuptools wget rpm2cpio cpio
       - name: Build deb
         run: |
-          export VERSION_DEB="${{ needs.build-fedora.outputs.version_rpm }}"
+          export VERSION_DEB="${{ needs.build-fedora-rpm.outputs.version_rpm }}"
           export STORM_VERSION=1.12.0
           dch --newversion "${VERSION_DEB}-1" --distribution unstable "Release ${VERSION_DEB}"
           dch --release ""
@@ -153,12 +153,12 @@ jobs:
           cp ./../teapot*.deb .
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-${{ needs.build-fedora.outputs.version }}_debian_all
+          name: teapot-${{ needs.build-fedora-rpm.outputs.version }}_debian_all
           path: teapot_*1_all.deb
 
-  containerization:
-    name: containerization
-    needs: build-fedora
+  container-teapot:
+    name: container-teapot
+    needs: build-fedora-rpm
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -166,7 +166,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
-          name: teapot-${{ needs.build-fedora.outputs.version }}_rpm_fedora_39
+          name: teapot-${{ needs.build-fedora-rpm.outputs.version }}_rpm_fedora_39
           path: /home/runner/work/teapot/teapot/robot
       - name: Building Teapot docker image
         env:
@@ -184,9 +184,9 @@ jobs:
           echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
           docker push ghcr.io/intertwin-eu/teapot:latest
 
-  containerization-ubuntu:
-    name: containerization-ubuntu
-    needs: [build-fedora, build-deb]
+  container-teapot-ubuntu:
+    name: container-teapot-ubuntu
+    needs: [build-fedora-rpm, build-deb]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -194,7 +194,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
-          name: teapot-${{ needs.build-fedora.outputs.version }}_debian_all
+          name: teapot-${{ needs.build-fedora-rpm.outputs.version }}_debian_all
           path: /home/runner/work/teapot/teapot/robot/ubuntu
       - name: Building Teapot docker image
         env:
@@ -231,9 +231,34 @@ jobs:
           docker build -f robot/robot.dockerfile -t ghcr.io/intertwin-eu/robot-testing:latest .
           docker push ghcr.io/intertwin-eu/robot-testing:latest
 
+  container-keycloak:
+    name: container-keycloak
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build and push keycloak container
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+          USERNAME: ${{ secrets.USERNAME }}
+          TEAPOT_CA_CRT: ${{ secrets.TEAPOT_CA_CRT }}
+          TEAPOT_CA_KEY:  ${{ secrets.TEAPOT_CA_KEY }}
+        run: |
+          cd keycloak-setup/
+          echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
+          echo "$TEAPOT_CA_KEY" > Teapot-testing.key
+          chmod 777 ./../robot/ubuntu/cert-gen.sh
+          ./../robot/ubuntu/cert-gen.sh keycloak
+          cp teapot.crt keycloak.pem
+          cp teapot.key keycloak-key.pem
+          echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
+          docker build -f Dockerfile -t ghcr.io/intertwin-eu/keycloak:latest .
+          docker push ghcr.io/intertwin-eu/keycloak:latest
+
   test:
     name: test
-    needs: [build-fedora, containerization, containerization-ubuntu, container-robot]
+    needs: [build-fedora-rpm, container-teapot, container-teapot-ubuntu, container-robot, container-keycloak]
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/intertwin-eu/robot-testing:latest
@@ -242,7 +267,10 @@ jobs:
         password: ${{ secrets.TOKEN }}
     services:
       keycloak:
-        image: dvrbanec/keycloak-dev:1
+        image: ghcr.io/intertwin-eu/keycloak:latest
+        credentials:
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.TOKEN }}
       teapot:
         image: ghcr.io/intertwin-eu/teapot:latest
         credentials:
@@ -260,9 +288,14 @@ jobs:
       - name: Test Teapot
         run: |
           eval "$(oidc-agent)"
-          oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
-          oidc-gen --flow password -f keycloak-setup/client_config.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
+          envsubst < keycloak-setup/client_config.json > keycloak-setup/client_config_final.json
+          oidc-gen --flow password -f keycloak-setup/client_config_final.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
+          oidc-gen --flow password -f keycloak-setup/client_config_final.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
+          oidc-gen --flow password -f keycloak-setup/client_config_final.json --op-username test-user3 --op-password secret3  --prompt none --pw-file keycloak_setup/pw-file test-user3
+          oidc-gen --flow password -f keycloak-setup/client_config_final.json --op-username test-user4 --op-password secret4  --prompt none --pw-file keycloak_setup/pw-file test-user4
           robot --outputdir /__w/teapot/teapot/robot/output/ /__w/teapot/teapot/robot/teapot-tests.robot
+        env:
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -284,11 +317,11 @@ jobs:
       - name: Send report to commit
         uses: joonvena/robotframework-reporter-action@v2.4
         with:
-          gh_access_token: ${{ secrets.TOKEN }}
+          gh_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   release:
     name: Create Release
-    needs: [build-fedora, build-almalinux, build-rockylinux, build-deb, test]
+    needs: [build-fedora-rpm, build-almalinux-rpm, build-rockylinux-rpm, build-deb, test]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     steps:
