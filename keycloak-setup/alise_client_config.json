@@ -1,0 +1,10 @@
+{
+    "issuer_url": "https://keycloak:8443/realms/alise-realm",
+    "client_id": "alise-client",
+    "client_secret": "${ALISE_CLIENT_SECRET}",
+    "scope": "max",
+    "redirect_uris": [
+        "http://localhost:4242",
+        "http://localhost:8000/*"
+    ]
+}

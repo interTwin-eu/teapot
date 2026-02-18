@@ -1,4 +1,5 @@
 [allowlist]
 paths = [
-  "keycloak-setup/keycloakdb.mv.db"
+  "keycloak-setup/keycloakdb.mv.db",
+  "robot/alise/alise_keycloak_test.db"
 ]

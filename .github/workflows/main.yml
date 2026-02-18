@@ -256,9 +256,32 @@ jobs:
           docker build -f Dockerfile -t ghcr.io/intertwin-eu/keycloak:latest .
           docker push ghcr.io/intertwin-eu/keycloak:latest
 
+  container-alise:
+    name: container-alise
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build and push alise container
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+          USERNAME: ${{ secrets.USERNAME }}
+          TEAPOT_CA_CRT: ${{ secrets.TEAPOT_CA_CRT }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          ALISE_CLIENT_SECRET: ${{ secrets.ALISE_CLIENT_SECRET }}
+        run:
+          cd robot/alise
+          echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
+          envsubst < alise.conf > alise_out.conf
+          rm alise.conf && mv alise_out.conf alise.conf
+          echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
+          docker build -f Dockerfile -t ghcr.io/intertwin-eu/alise:latest .
+          docker push ghcr.io/intertwin-eu/alise:latest
+
   test:
     name: test
-    needs: [build-fedora-rpm, container-teapot, container-teapot-ubuntu, container-robot, container-keycloak]
+    needs: [build-fedora-rpm, container-teapot, container-teapot-ubuntu, container-robot, container-keycloak, container-alise]
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/intertwin-eu/robot-testing:latest
@@ -268,6 +291,11 @@ jobs:
     services:
       keycloak:
         image: ghcr.io/intertwin-eu/keycloak:latest
+        credentials:
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.TOKEN }}
+      alise:
+        image: ghcr.io/intertwin-eu/alise:latest
         credentials:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.TOKEN }}
@@ -288,14 +316,18 @@ jobs:
       - name: Test Teapot
         run: |
           eval "$(oidc-agent)"
-          envsubst < keycloak-setup/client_config.json > keycloak-setup/client_config_final.json
-          oidc-gen --flow password -f keycloak-setup/client_config_final.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
-          oidc-gen --flow password -f keycloak-setup/client_config_final.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
-          oidc-gen --flow password -f keycloak-setup/client_config_final.json --op-username test-user3 --op-password secret3  --prompt none --pw-file keycloak_setup/pw-file test-user3
-          oidc-gen --flow password -f keycloak-setup/client_config_final.json --op-username test-user4 --op-password secret4  --prompt none --pw-file keycloak_setup/pw-file test-user4
+          envsubst < keycloak-setup/test_client_config.json > keycloak-setup/test_client_config_final.json
+          envsubst < keycloak-setup/alise_client_config.json > keycloak-setup/alise_client_config_final.json
+          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
+          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
+          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user3 --op-password secret3  --prompt none --pw-file keycloak_setup/pw-file test-user3
+          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user4 --op-password secret4  --prompt none --pw-file keycloak_setup/pw-file test-user4
+          oidc-gen --flow password -f keycloak-setup/alise_client_config_final.json --op-username alise-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file alise-user1
+          oidc-gen --flow password -f keycloak-setup/alise_client_config_final.json --op-username alise-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file alise-user2
           robot --outputdir /__w/teapot/teapot/robot/output/ /__w/teapot/teapot/robot/teapot-tests.robot
         env:
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          ALISE_CLIENT_SECRET: ${{ secrets.ALISE_CLIENT_SECRET }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -2,6 +2,7 @@
 services:
   keycloak:
     image: ghcr.io/intertwin-eu/keycloak:latest
+    pull_policy: always
     ports:
       - 8443:8443
     networks:
@@ -10,12 +11,20 @@ services:
       - ../../keycloak-setup:/opt/keycloak/data/h2/
   teapot:
     image: ghcr.io/intertwin-eu/teapot:latest
+    pull_policy: always
     networks:
       - test
     volumes:
       - ./logs:/var/log/teapot'
   teapot-ubuntu:
     image: ghcr.io/intertwin-eu/teapot-ubuntu:latest
+    pull_policy: always
+    networks:
+      - test
+  alise:
+    image: alise-test:latest
+    ports:
+      - 8000:8000
     networks:
       - test
   curl:
@@ -25,14 +34,15 @@ services:
       - test
   main:
     image: ghcr.io/intertwin-eu/robot-testing:latest
+    pull_policy: always
     command: |
       /bin/sh -c '
       eval "$(oidc-agent)"
       sleep 15
-      oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json \
+      oidc-gen --flow password -f /home/teapot/keycloak-setup/test_client_config.json \
         --op-username test-user1 --op-password secret1  --prompt none \
         --pw-file keycloak_setup/pw-file test-user1
-      oidc-gen --flow password -f /home/teapot/keycloak-setup/client_config.json \
+      oidc-gen --flow password -f /home/teapot/keycloak-setup/test_client_config.json \
         --op-username test-user2 --op-password secret2  --prompt none \
         --pw-file keycloak_setup/pw-file test-user2
       robot --outputdir robot/output/ /home/teapot/teapot-tests.robot
