@@ -270,7 +270,7 @@ jobs:
           TEAPOT_CA_CRT: ${{ secrets.TEAPOT_CA_CRT }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
           ALISE_CLIENT_SECRET: ${{ secrets.ALISE_CLIENT_SECRET }}
-        run:
+        run: |
           cd robot/alise
           echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
           envsubst < alise.conf > alise_out.conf

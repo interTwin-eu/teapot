@@ -1,8 +1,9 @@
 FROM ubuntu:24.04
 
+# hadolint ignore=DL3008,DL3013
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends python3-pip gunicorn
-RUN python3 -m pip install certifi-linux alise --break-system-packages
+    apt-get install -y --no-install-recommends python3-pip gunicorn && \
+    python3 -m pip install certifi-linux alise --break-system-packages --no-cache-dir
 
 COPY --chmod=644 Teapot-testing.crt /usr/local/share/ca-certificates
 RUN update-ca-certificates
