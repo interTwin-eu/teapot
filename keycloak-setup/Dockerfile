@@ -1,3 +1,9 @@
+FROM registry.access.redhat.com/ubi9 AS ubi-micro-build
+RUN mkdir -p /mnt/rootfs
+RUN dnf install --installroot /mnt/rootfs curl --releasever 9 --setopt install_weak_deps=false --nodocs -y && \
+    dnf --installroot /mnt/rootfs clean all && \
+    rpm --root /mnt/rootfs -e --nodeps setup
+
 FROM quay.io/keycloak/keycloak:26.0.2 AS builder
 
 # Enable health and metrics support
@@ -26,6 +32,8 @@ ENV KC_HTTPS_CERTIFICATE_KEY_FILE=/etc/pki/tls/certs/keycloak-key.pem
 # Copy certificates to runtime image
 COPY --from=builder /etc/pki/tls/certs/ /etc/pki/tls/certs/
 COPY --chown=1000:0 keycloakdb.mv.db /opt/keycloak/data/h2/
+
+COPY --from=ubi-micro-build /mnt/rootfs /
 
 # Add import file
 WORKDIR /opt/keycloak
