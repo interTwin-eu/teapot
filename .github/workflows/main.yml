@@ -295,7 +295,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.TOKEN }}
         options: >-
-          --health-cmd "curl --head -fsS https://localhost:9000/health/ready"
+          --health-cmd "curl --head -ksS https://localhost:9000/health/ready"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
