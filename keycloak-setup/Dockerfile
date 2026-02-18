@@ -17,6 +17,8 @@ FROM quay.io/keycloak/keycloak:26.0.2
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
 # Runtime environment variables
+ENV KC_HEALTH_ENABLED=true
+ENV KC_METRICS_ENABLED=true
 ENV KC_BOOTSTRAP_ADMIN_USERNAME=admin
 ENV KC_BOOTSTRAP_ADMIN_PASSWORD=testing1
 ENV KC_HOSTNAME=keycloak
