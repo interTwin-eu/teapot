@@ -1,8 +1,8 @@
 *.log
 *.xml
-#keycloak-setup/keycloakdb.mv.db
+keycloak-setup/keycloakdb.mv.db
 keycloak-setup/keycloakdb.trace.db
-#robot/alise/alise_keycloak_test.db
+robot/alise/alise_keycloak_test.db
 teapot-venv/*
 debian/teapot/
 debian/.debhelper/
