@@ -4,10 +4,7 @@ FROM ubuntu:24.04
 WORKDIR /tmp
 COPY teapot_*-1_all.deb .
 # hadolint ignore=DL3008
-RUN echo "deb [signed-by=/etc/apt/trusted.gpg.d/kitrepo-archive.gpg] https://repo.data.kit.edu/ubuntu/24.04 ./" \
-    > /etc/apt/sources.list.d/kitrepo.list && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN apt-get install -y --no-install-recommends \
         cron \
         ca-certificates \
         oidc-agent \

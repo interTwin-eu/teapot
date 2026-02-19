@@ -5,7 +5,6 @@ FROM fedora:39
 COPY teapot-*.x86_64.rpm /tmp
 # hadolint ignore=DL3041
 RUN dnf install -y curl && \
-    curl -o /etc/yum.repos.d/data-kit-edu-fedora39.repo https://repo.data.kit.edu/data-kit-edu-fedora39.repo && \
     dnf install -y cronie oidc-agent jq sed /tmp/teapot-*.x86_64.rpm && \
     /usr/share/teapot/self-signed-cert-gen.sh && \
     dnf clean all
