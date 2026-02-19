@@ -4,7 +4,7 @@ until curl --head -fsS https://keycloak:9000/health/ready; do
   sleep 2
 done
 
-eval `oidc-agent`
+eval "$(oidc-agent)"
 echo "" > pw-file
 oidc-gen --flow password -f /tmp/test_client_config_final.json --op-username test-user1 --op-password secret1  --prompt none --pw-file pw-file test-user1
 rm pw-file

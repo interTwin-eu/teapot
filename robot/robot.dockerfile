@@ -1,9 +1,9 @@
 # trunk-ignore-all(trivy/DS026)
 FROM ubuntu:22.04
 
-# hadolint ignore=DL3008,DL3013,DL3042,DL4006
+# hadolint ignore=DL3008,DL3013,DL3042
 RUN echo "deb [signed-by=/etc/apt/trusted.gpg.d/kitrepo-archive.gpg] https://repo.data.kit.edu/ubuntu/22.04 ./" \
-    | tee /etc/apt/sources.list.d/kitrepo.list && \
+    > /etc/apt/sources.list.d/kitrepo.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates \
         curl \

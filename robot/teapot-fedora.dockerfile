@@ -20,7 +20,7 @@ RUN update-ca-trust
 # configuring teapot for testing 
 COPY --chmod=744 testing-configurations/user-mapping.csv /etc/teapot
 COPY --chmod=644 test_client_config_final.json /tmp
-COPY --chmod=744 robot/teapot_starting.sh /usr/share/teapot/
+COPY --chmod=744 teapot_starting.sh /usr/share/teapot/
 
 RUN \
     adduser test-user1 && \

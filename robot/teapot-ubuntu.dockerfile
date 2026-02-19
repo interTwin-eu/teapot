@@ -4,8 +4,8 @@ FROM ubuntu:24.04
 WORKDIR /tmp
 COPY teapot_*-1_all.deb .
 # hadolint ignore=DL3008
-RUN echo "deb [signed-by=/etc/apt/trusted.gpg.d/kitrepo-archive.gpg] https://repo.data.kit.edu/ubuntu/2.04 ./" \
-    | tee /etc/apt/sources.list.d/kitrepo.list && \
+RUN echo "deb [signed-by=/etc/apt/trusted.gpg.d/kitrepo-archive.gpg] https://repo.data.kit.edu/ubuntu/24.04 ./" \
+    > /etc/apt/sources.list.d/kitrepo.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
         cron \
@@ -24,9 +24,9 @@ COPY --chown=teapot --chmod=644  teapot.crt /var/lib/teapot/webdav/
 COPY --chown=teapot --chmod=644  teapot.key /var/lib/teapot/webdav/
 RUN update-ca-certificates
 
-COPY --chmod=644 user-mapping.csv /etc/teapot
-COPY --chmod=644 ktest_client_config_final.json /tmp
-COPY --chmod=744 robot/teapot_starting.sh /usr/share/teapot/
+COPY --chmod=644 testing-configurations/user-mapping.csv /etc/teapot
+COPY --chmod=644 test_client_config_final.json /tmp
+COPY --chmod=744 teapot_starting.sh /usr/share/teapot/
 
 RUN \
     adduser test-user1 && \
