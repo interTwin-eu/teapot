@@ -168,6 +168,10 @@ jobs:
         with:
           name: teapot-${{ needs.build-fedora-rpm.outputs.version }}_rpm_fedora_39
           path: /home/runner/work/teapot/teapot/robot
+      - uses: actions/download-artifact@v4
+        with:
+          name: teapot-${{ needs.build-fedora-rpm.outputs.version }}_debian_all
+          path: /home/runner/work/teapot/teapot/robot
       - name: Building the docker images
         env:
           TOKEN: ${{ secrets.TOKEN }}
