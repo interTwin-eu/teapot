@@ -174,12 +174,14 @@ jobs:
           USERNAME: ${{ secrets.USERNAME }}
           TEAPOT_CA_CRT: ${{ secrets.TEAPOT_CA_CRT }}
           TEAPOT_CA_KEY:  ${{ secrets.TEAPOT_CA_KEY }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
         run: |
           cd robot
           echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
           echo "$TEAPOT_CA_KEY" > Teapot-testing.key
           chmod 777 ubuntu/cert-gen.sh
           ubuntu/cert-gen.sh teapot
+          envsubst < ./../keycloak-setup/test_client_config.json > test_client_config_final.json
           docker build . --tag ghcr.io/intertwin-eu/teapot:latest
           echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
           docker push ghcr.io/intertwin-eu/teapot:latest
@@ -202,6 +204,7 @@ jobs:
           USERNAME: ${{ secrets.USERNAME }}
           TEAPOT_CA_CRT: ${{ secrets.TEAPOT_CA_CRT }}
           TEAPOT_CA_KEY:  ${{ secrets.TEAPOT_CA_KEY }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
         run: |
           cd robot/ubuntu
           echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
@@ -209,6 +212,7 @@ jobs:
           chmod 777 cert-gen.sh
           ./cert-gen.sh teapot-ubuntu
           cp ./../testing-configurations/user-mapping.csv .
+          envsubst < ./../../keycloak-setup/test_client_config.json > test_client_config_final.json
           docker build . --tag ghcr.io/intertwin-eu/teapot-ubuntu:latest
           echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin
           docker push ghcr.io/intertwin-eu/teapot-ubuntu:latest
@@ -318,12 +322,13 @@ jobs:
           eval "$(oidc-agent)"
           envsubst < keycloak-setup/test_client_config.json > keycloak-setup/test_client_config_final.json
           envsubst < keycloak-setup/alise_client_config.json > keycloak-setup/alise_client_config_final.json
-          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file test-user1
-          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file test-user2
-          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user3 --op-password secret3  --prompt none --pw-file keycloak_setup/pw-file test-user3
-          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user4 --op-password secret4  --prompt none --pw-file keycloak_setup/pw-file test-user4
-          oidc-gen --flow password -f keycloak-setup/alise_client_config_final.json --op-username alise-user1 --op-password secret1  --prompt none --pw-file keycloak_setup/pw-file alise-user1
-          oidc-gen --flow password -f keycloak-setup/alise_client_config_final.json --op-username alise-user2 --op-password secret2  --prompt none --pw-file keycloak_setup/pw-file alise-user2
+          echo "" > pw-file
+          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user1 --op-password secret1  --prompt none --pw-file pw-file test-user1
+          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user2 --op-password secret2  --prompt none --pw-file pw-file test-user2
+          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user3 --op-password secret3  --prompt none --pw-file pw-file test-user3
+          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user4 --op-password secret4  --prompt none --pw-file pw-file test-user4
+          oidc-gen --flow password -f keycloak-setup/alise_client_config_final.json --op-username alise-user1 --op-password secret1  --prompt none --pw-file pw-file alise-user1
+          oidc-gen --flow password -f keycloak-setup/alise_client_config_final.json --op-username alise-user2 --op-password secret2  --prompt none --pw-file pw-file alise-user2
           robot --outputdir /__w/teapot/teapot/robot/output/ /__w/teapot/teapot/robot/teapot-tests.robot
         env:
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}

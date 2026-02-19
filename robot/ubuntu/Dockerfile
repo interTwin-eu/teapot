@@ -4,12 +4,16 @@ FROM ubuntu:24.04
 WORKDIR /tmp
 COPY teapot_*-1_all.deb .
 # hadolint ignore=DL3008
-RUN apt-get update && \
+RUN echo "deb [signed-by=/etc/apt/trusted.gpg.d/kitrepo-archive.gpg] https://repo.data.kit.edu/ubuntu/2.04 ./" \
+    | tee /etc/apt/sources.list.d/kitrepo.list && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
         cron \
         ca-certificates \
-        sudo \
-        vim \
+        oidc-agent \
+        curl \
+        jq \
+        sed \
         /tmp/teapot_*-1_all.deb && \
     /usr/share/teapot/self-signed-cert-gen.sh && \
     rm -rf /var/lib/apt/lists/*
@@ -20,8 +24,10 @@ COPY --chown=teapot --chmod=644  teapot.crt /var/lib/teapot/webdav/
 COPY --chown=teapot --chmod=644  teapot.key /var/lib/teapot/webdav/
 RUN update-ca-certificates
 
-WORKDIR /etc/teapot
-COPY --chmod=644 user-mapping.csv .
+COPY --chmod=644 user-mapping.csv /etc/teapot
+COPY --chmod=644 ktest_client_config_final.json /tmp
+COPY --chmod=744 robot/teapot_starting.sh /usr/share/teapot/
+
 RUN \
     adduser test-user1 && \
     adduser test-user2  && \
@@ -34,4 +40,4 @@ EXPOSE 8081
 
 WORKDIR /usr/share/teapot/
 USER teapot
-CMD ["python3", "teapot.py"]
+CMD ["./teapot_starting.sh"]
