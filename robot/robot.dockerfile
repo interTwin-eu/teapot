@@ -2,7 +2,8 @@
 FROM ubuntu:22.04
 
 # hadolint ignore=DL3008,DL3013,DL3042
-RUN apt-get install -y --no-install-recommends ca-certificates \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates \
         curl \
         oidc-agent \
         python3-pip \
