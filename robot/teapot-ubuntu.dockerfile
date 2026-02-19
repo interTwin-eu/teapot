@@ -7,6 +7,7 @@ COPY teapot_*-1_all.deb .
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         cron \
+        sudo \
         ca-certificates \
         oidc-agent \
         curl \
