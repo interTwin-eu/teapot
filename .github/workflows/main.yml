@@ -63,7 +63,7 @@ jobs:
     name: build-rockylinux8-rpm
     needs: build-fedora-rpm
     runs-on: ubuntu-latest
-    container: rockylinux:8.10
+    container: rockylinux:8.9
     steps:
       - name: Install build requisites
         run: |
@@ -91,8 +91,8 @@ jobs:
             ~/rpmbuild/SPECS/teapot-rockylinux.spec
       - uses: actions/upload-artifact@v4
         with:
-          name: teapot-${{ needs.build-fedora-rpm.outputs.version }}_rpm_rockylinux_8.10
-          path: /github/home/rpmbuild/RPMS/x86_64/teapot-*.rocky8.10*.rpm
+          name: teapot-${{ needs.build-fedora-rpm.outputs.version }}_rpm_rockylinux_8.9
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-*.rocky8.9*.rpm
           
   build-rockylinux-rpm:
     name: build-rockylinux-rpm
