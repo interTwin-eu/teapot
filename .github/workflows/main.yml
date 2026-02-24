@@ -88,7 +88,7 @@ jobs:
           rpmbuild -ba \
             --define "version_ ${{ needs.build-fedora-rpm.outputs.version_rpm }}" \
             --define "storm_version ${{ needs.build-fedora-rpm.outputs.storm_version }}" \
-            ~/rpmbuild/SPECS/teapot-rockylinux.spec
+            ~/rpmbuild/SPECS/teapot-rockylinux8.spec
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ needs.build-fedora-rpm.outputs.version }}_rpm_rockylinux_8.9
