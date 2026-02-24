@@ -75,7 +75,7 @@ jobs:
       - name: Set up RPM build environment
         run: rpmdev-setuptree
       - name: Copy spec file
-        run: cp rpm/teapot-rockylinux.spec ~/rpmbuild/SPECS/
+        run: cp rpm/teapot-rockylinux8.spec ~/rpmbuild/SPECS/
       - name: Create source tarball
         run: |
           mkdir teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}
