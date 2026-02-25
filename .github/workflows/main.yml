@@ -68,7 +68,7 @@ jobs:
       - name: Install build requisites
         run: |
           dnf -y update
-          dnf -y install rpmdevtools systemd-rpm-macros rpmlint rsync git python3-pip wget rpm-build cpio
+          dnf -y install python39 rpmdevtools systemd-rpm-macros rpmlint rsync git python3-pip wget rpm-build cpio
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
