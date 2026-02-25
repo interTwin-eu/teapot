@@ -42,7 +42,7 @@ fi
 
 # Install Python packages with pip (including all their dependencies)
 mkdir -p python-packages
-pip3 install --target=python-packages --ignore-installed flaat certifi fastapi httpx pydantic uvicorn anyio python-dotenv
+pip3.9 install --target=python-packages --ignore-installed flaat certifi fastapi httpx pydantic uvicorn anyio python-dotenv
 
 %install
 rm -rf %{buildroot}
