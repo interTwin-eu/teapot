@@ -7,7 +7,7 @@ BuildArch:      x86_64
 License:        Apache 2.0
 URL:            https://github.com/interTwin-eu/%name
 Source0:        %name-%version.tar.gz
-BuildRequires:  python3.9 systemd-rpm-macros python3-pip wget rpm-build cpio
+BuildRequires:  python39 systemd-rpm-macros python3-pip wget rpm-build cpio
 Requires:       java-21-openjdk openssl >= 1:3.0 python(abi) = 3.9 python3-psutil python3-requests shadow-utils
 
 %description    
