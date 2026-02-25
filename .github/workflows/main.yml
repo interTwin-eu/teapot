@@ -92,7 +92,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ needs.build-fedora-rpm.outputs.version }}_rpm_rockylinux_8.9
-          path: /github/home/rpmbuild/RPMS/x86_64/teapot-*.rocky8.9*.rpm
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-*.rocky8*.rpm
           
   build-rockylinux-rpm:
     name: build-rockylinux-rpm
