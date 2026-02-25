@@ -8,7 +8,7 @@ License:        Apache 2.0
 URL:            https://github.com/interTwin-eu/%name
 Source0:        %name-%version.tar.gz
 BuildRequires:  python39 systemd-rpm-macros python3-pip wget rpm-build cpio
-Requires:       java-21-openjdk openssl >= 1:3.0 python(abi) = 3.9 python3-psutil python3-requests shadow-utils
+Requires:       java-21-openjdk openssl python(abi) = 3.9 python3-psutil python3-requests shadow-utils
 
 %description    
 Multi-tenant WebDAV server based on StoRM-WebDAV.
