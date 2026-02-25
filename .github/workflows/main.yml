@@ -85,7 +85,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: teapot-${{ needs.get-version.outputs.version }}_${{ matrix.artifact_suffix }}
-          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ matrix.artifact_suffix }}
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-${{ matrix.rpm_glob }}
 
   build-deb:
     name: build-deb
