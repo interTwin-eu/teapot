@@ -50,6 +50,11 @@ jobs:
             spec: teapot-rockylinux.spec
             artifact_suffix: rpm_rockylinux_9.3
             rpm_glob: "*.rocky9.*.rpm"
+          - distro: rockylinux-8.9
+            container: rockylinux:8.9
+            spec: teapot-rockylinux8.spec
+            artifact_suffix: rpm_rockylinux_8.9
+            rpm_glob: "*.rocky8.*.rpm"  
           - distro: almalinux-9.4
             container: almalinux:9.4
             spec: teapot-almalinux.spec

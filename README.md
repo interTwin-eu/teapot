@@ -30,7 +30,7 @@ Teapot can be installed using either an **RPM** or **DEB** package.
 Both automatically create a dedicated `teapot` system user.
 
 - **DEB package:** Distribution-independent.
-- **RPM package:** Available for Fedora 39, AlmaLinux 9.4, and Rocky Linux 9.3.
+- **RPM package:** Available for Fedora 39, AlmaLinux 9.4, and Rocky Linux 8.10/9.3.
 
 For configuration details, please refer to
 [CONFIGURATION.md](https://github.com/interTwin-eu/teapot/blob/main/CONFIGURATION.md),
