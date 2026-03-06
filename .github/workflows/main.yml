@@ -59,6 +59,41 @@ jobs:
       version_rpm: ${{ steps.versions.outputs.version_rpm }}
       storm_version: ${{ steps.versions.outputs.storm_version }}
 
+  build-rockylinux8-rpm:
+    name: build-rockylinux8-rpm
+    needs: build-fedora-rpm
+    runs-on: ubuntu-latest
+    container: rockylinux:8.9
+    steps:
+      - name: Install build requisites
+        run: |
+          dnf -y update
+          dnf -y install python39 rpmdevtools systemd-rpm-macros rpmlint rsync git python3-pip wget rpm-build cpio
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up RPM build environment
+        run: rpmdev-setuptree
+      - name: Copy spec file
+        run: cp rpm/teapot-rockylinux8.spec ~/rpmbuild/SPECS/
+      - name: Create source tarball
+        run: |
+          mkdir teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}
+          rsync -av --progress ./* teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}/ --exclude teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}
+          tar cfz teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}.tar.gz teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}
+          rm -r teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}
+          mv teapot-${{ needs.build-fedora-rpm.outputs.version_rpm }}.tar.gz ~/rpmbuild/SOURCES/
+      - name: Build RPM
+        run: |
+          rpmbuild -ba \
+            --define "version_ ${{ needs.build-fedora-rpm.outputs.version_rpm }}" \
+            --define "storm_version ${{ needs.build-fedora-rpm.outputs.storm_version }}" \
+            ~/rpmbuild/SPECS/teapot-rockylinux8.spec
+      - uses: actions/upload-artifact@v4
+        with:
+          name: teapot-${{ needs.build-fedora-rpm.outputs.version }}_rpm_rockylinux_8.9
+          path: /github/home/rpmbuild/RPMS/x86_64/teapot-*.rocky8*.rpm
+          
   build-rockylinux-rpm:
     name: build-rockylinux-rpm
     needs: build-fedora-rpm
