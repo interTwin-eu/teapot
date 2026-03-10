@@ -54,7 +54,8 @@ jobs:
             container: rockylinux:8.9
             spec: teapot-rockylinux8.spec
             artifact_suffix: rpm_rockylinux_8.9
-            rpm_glob: "*.rocky8.*.rpm"  
+            rpm_glob: "*.rocky8.*.rpm"
+            pre_install: "dnf -y install python39"
           - distro: almalinux-9.4
             container: almalinux:9.4
             spec: teapot-almalinux.spec
@@ -63,6 +64,9 @@ jobs:
     container:
       image: ${{ matrix.container }}
     steps:
+      - name: Distro-specific pre-install
+        if: matrix.pre_install != ''
+        run: ${{ matrix.pre_install }}
       - name: Install build requisites
         run: |
           dnf -y update
