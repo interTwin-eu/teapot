@@ -210,9 +210,38 @@ jobs:
             -f Dockerfile .
 
   test:
-    name: test
+    name: test (${{ matrix.suite }})
     needs: [get-version, containers]
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suite: file-mapping
+            robot_file: file-mapping-tests.robot
+            teapot_mode: FILE
+            teapot_image: ghcr.io/intertwin-eu/teapot:latest
+            users: test-user1 test-user2
+          - suite: vo-mapping
+            robot_file: vo-mapping-tests.robot
+            teapot_mode: VO
+            teapot_image: ghcr.io/intertwin-eu/teapot:latest
+            users: test-user1 test-user2 test-user3 test-user4
+          - suite: alise-mapping
+            robot_file: alise-mapping-tests.robot
+            teapot_mode: ALISE
+            teapot_image: ghcr.io/intertwin-eu/teapot:latest
+            users: alise-user1 alise-user2
+          - suite: keycloak-mapping
+            robot_file: keycloak-mapping-tests.robot
+            teapot_mode: KEYCLOAK
+            teapot_image: ghcr.io/intertwin-eu/teapot:latest
+            users: test-user1 test-user2
+          - suite: debian-packaging
+            robot_file: debian-tests.robot
+            teapot_mode: FILE
+            teapot_image: ghcr.io/intertwin-eu/teapot-ubuntu:latest
+            users: test-user1 test-user2
     container:
       image: ghcr.io/intertwin-eu/robot-testing:latest
       credentials:
@@ -230,15 +259,12 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.TOKEN }}
       teapot:
-        image: ghcr.io/intertwin-eu/teapot:latest
+        image: ${{ matrix.teapot_image }}
         credentials:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.TOKEN }}
-      teapot-ubuntu:
-        image: ghcr.io/intertwin-eu/teapot-ubuntu:latest
-        credentials:
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.TOKEN }}
+        env:
+          TEAPOT_MODE: ${{ matrix.teapot_mode }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -249,20 +275,33 @@ jobs:
           envsubst < keycloak-setup/test_client_config.json > keycloak-setup/test_client_config_final.json
           envsubst < keycloak-setup/alise_client_config.json > keycloak-setup/alise_client_config_final.json
           echo "" > pw-file
-          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user1 --op-password secret1  --prompt none --pw-file pw-file test-user1
-          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user2 --op-password secret2  --prompt none --pw-file pw-file test-user2
-          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user3 --op-password secret3  --prompt none --pw-file pw-file test-user3
-          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json --op-username test-user4 --op-password secret4  --prompt none --pw-file pw-file test-user4
-          oidc-gen --flow password -f keycloak-setup/alise_client_config_final.json --op-username alise-user1 --op-password secret1  --prompt none --pw-file pw-file alise-user1
-          oidc-gen --flow password -f keycloak-setup/alise_client_config_final.json --op-username alise-user2 --op-password secret2  --prompt none --pw-file pw-file alise-user2
-          robot --outputdir /__w/teapot/teapot/robot/output/ /__w/teapot/teapot/robot/teapot-tests.robot
+
+          for user_entry in ${{ matrix.users }}; do
+            case $user_entry in
+              test-user*)
+                num=${user_entry#test-user}
+                oidc-gen --flow password -f keycloak-setup/test_client_config_final.json \
+                  --op-username $user_entry --op-password secret$num \
+                  --prompt none --pw-file pw-file $user_entry
+                ;;
+              alise-user*)
+                num=${user_entry#alise-user}
+                oidc-gen --flow password -f keycloak-setup/alise_client_config_final.json \
+                  --op-username $user_entry --op-password secret$num \
+                  --prompt none --pw-file pw-file $user_entry
+                ;;
+            esac
+          done
+
+          robot --outputdir /__w/teapot/teapot/robot/output/ \
+            /__w/teapot/teapot/robot/${{ matrix.robot_file }}
         env:
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
           ALISE_CLIENT_SECRET: ${{ secrets.ALISE_CLIENT_SECRET }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: robot-tests
+          name: robot-tests-${{ matrix.suite }}
           path: /__w/teapot/teapot/robot/output
 
   generate_report:
@@ -275,7 +314,8 @@ jobs:
           fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
-          name: robot-tests
+          pattern: robot-tests-*
+          merge-multiple: true
           path: /home/runner/work/teapot/teapot/reports/
       - name: Send report to commit
         uses: joonvena/robotframework-reporter-action@v2.4

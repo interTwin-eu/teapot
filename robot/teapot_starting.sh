@@ -13,4 +13,6 @@ response=$(curl -H "Authorization: Bearer $(oidc-token test-user1)" http://alise
 apikey=$(echo "$response" | jq -r '.apikey')
 sed -i "s/^APIKEY =.*/APIKEY = $apikey/" /etc/teapot/config.ini
 
+sed -i "s/^mapping = .*/mapping = ${TEAPOT_MODE}/" /etc/teapot/config.ini
+
 exec python3 teapot.py

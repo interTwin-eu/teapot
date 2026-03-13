@@ -29,11 +29,12 @@ COPY --chmod=744 teapot_starting.sh /usr/share/teapot/
 
 RUN \
     adduser test-user1 && \
-    adduser test-user2  && \
-    su -c "mkdir -p /home/test-user1/interTwin" test-user1 && \
-    su -c "mkdir -p /home/test-user1/interTwin_extra" test-user1 && \
-    su -c "mkdir -p /home/test-user2/interTwin" test-user2 && \
-    su -c "mkdir -p /home/test-user2/interTwin_extra" test-user2
+    adduser test-user2 && \
+    install -d -o test-user1 -g test-user1 -m 700 /home/test-user1/interTwin && \
+    install -d -o test-user2 -g test-user2 -m 700 /home/test-user2/interTwin && \
+    install -d -o teapot -g teapot -m 755 /data/ && \
+    install -d -o test-user1 -g test-user1 -m 700 /data/test-user1 && \
+    install -d -o test-user2 -g test-user2 -m 700 /data/test-user2
 
 EXPOSE 8081
 
