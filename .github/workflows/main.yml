@@ -221,27 +221,22 @@ jobs:
             robot_file: file-mapping-tests.robot
             teapot_mode: FILE
             teapot_image: ghcr.io/intertwin-eu/teapot:latest
-            users: test-user1 test-user2
           - suite: vo-mapping
             robot_file: vo-mapping-tests.robot
             teapot_mode: VO
             teapot_image: ghcr.io/intertwin-eu/teapot:latest
-            users: test-user1 test-user2 test-user3 test-user4
           - suite: alise-mapping
             robot_file: alise-mapping-tests.robot
             teapot_mode: ALISE
             teapot_image: ghcr.io/intertwin-eu/teapot:latest
-            users: alise-user1 alise-user2
           - suite: keycloak-mapping
             robot_file: keycloak-mapping-tests.robot
             teapot_mode: KEYCLOAK
             teapot_image: ghcr.io/intertwin-eu/teapot:latest
-            users: test-user1 test-user2
           - suite: debian-packaging
             robot_file: debian-tests.robot
             teapot_mode: FILE
             teapot_image: ghcr.io/intertwin-eu/teapot-ubuntu:latest
-            users: test-user1 test-user2
     container:
       image: ghcr.io/intertwin-eu/robot-testing:latest
       credentials:
@@ -276,22 +271,18 @@ jobs:
           envsubst < keycloak-setup/alise_client_config.json > keycloak-setup/alise_client_config_final.json
           echo "" > pw-file
 
-          for user_entry in ${{ matrix.users }}; do
-            case $user_entry in
-              test-user*)
-                num=${user_entry#test-user}
-                oidc-gen --flow password -f keycloak-setup/test_client_config_final.json \
-                  --op-username $user_entry --op-password secret$num \
-                  --prompt none --pw-file pw-file $user_entry
-                ;;
-              alise-user*)
-                num=${user_entry#alise-user}
-                oidc-gen --flow password -f keycloak-setup/alise_client_config_final.json \
-                  --op-username $user_entry --op-password secret$num \
-                  --prompt none --pw-file pw-file $user_entry
-                ;;
-            esac
-          done
+          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json \
+            --op-username test-user1 --op-password secret1 --prompt none --pw-file pw-file test-user1
+          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json \
+            --op-username test-user2 --op-password secret2 --prompt none --pw-file pw-file test-user2
+          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json \
+            --op-username test-user3 --op-password secret3 --prompt none --pw-file pw-file test-user3
+          oidc-gen --flow password -f keycloak-setup/test_client_config_final.json \
+            --op-username test-user4 --op-password secret4 --prompt none --pw-file pw-file test-user4
+          oidc-gen --flow password -f keycloak-setup/alise_client_config_final.json \
+            --op-username alise-user1 --op-password secret1  --prompt none --pw-file pw-file alise-user1
+          oidc-gen --flow password -f keycloak-setup/alise_client_config_final.json \
+            --op-username alise-user2 --op-password secret2  --prompt none --pw-file pw-file alise-user2
 
           robot --outputdir /__w/teapot/teapot/robot/output/ \
             /__w/teapot/teapot/robot/${{ matrix.robot_file }}
