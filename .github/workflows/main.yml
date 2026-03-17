@@ -164,24 +164,16 @@ jobs:
           ./cert-gen.sh teapot
           envsubst < ./../keycloak-setup/test_client_config.json > test_client_config_final.json
           docker buildx build \
-            --cache-from type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/teapot:cache \
-            --cache-to type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/teapot:cache \
             --push --tag ${{ env.REGISTRY }}/${{ env.ORG }}/teapot:latest \
             -f teapot-fedora.dockerfile .
-          rm teapot.crt teapot.key
 
           # Teapot-ubuntu
-          ./cert-gen.sh teapot-ubuntu
           docker buildx build \
-            --cache-from type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/teapot-ubuntu:cache \
-            --cache-to type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/teapot-ubuntu:cache \
             --push --tag ${{ env.REGISTRY }}/${{ env.ORG }}/teapot-ubuntu:latest \
             -f teapot-ubuntu.dockerfile .
 
           # Robot-testing
           docker buildx build \
-            --cache-from type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/robot-testing:cache \
-            --cache-to type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/robot-testing:cache \
             --push --tag ${{ env.REGISTRY }}/${{ env.ORG }}/robot-testing:latest \
             -f robot.dockerfile .
 
@@ -191,8 +183,6 @@ jobs:
           envsubst < alise.conf > alise_out.conf
           rm alise.conf && mv alise_out.conf alise.conf
           docker buildx build \
-            --cache-from type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/alise:cache \
-            --cache-to type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/alise:cache \
             --push --tag ${{ env.REGISTRY }}/${{ env.ORG }}/alise:latest \
             -f Dockerfile .
 
@@ -204,8 +194,6 @@ jobs:
           cp teapot.crt keycloak.pem
           cp teapot.key keycloak-key.pem
           docker buildx build \
-            --cache-from type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/keycloak:cache \
-            --cache-to type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/keycloak:cache \
             --push --tag ${{ env.REGISTRY }}/${{ env.ORG }}/keycloak:latest \
             -f Dockerfile .
 
