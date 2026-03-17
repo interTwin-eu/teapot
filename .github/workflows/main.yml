@@ -148,7 +148,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.TOKEN }}
       - uses: docker/setup-buildx-action@v3
-      - name: Prepare certs and configs
+      - name: Prepare certs and build containers
         env:
           TEAPOT_CA_CRT: ${{ secrets.TEAPOT_CA_CRT }}
           TEAPOT_CA_KEY:  ${{ secrets.TEAPOT_CA_KEY }}

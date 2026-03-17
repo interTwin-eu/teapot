@@ -153,19 +153,19 @@ PUT REQUEST USER2 DATA_AREA1 DEB
 
 GET FILE USER1 DATA_AREA2 DEB
     [Setup]     Add TestFile USER2 DATA AREA DEB
-    ${RESPONSE}=    GET    ${DATA_DEB_AREA}/test-user2/TestFile    headers=${HEADER1}     expected_status=500
+    ${RESPONSE}=    GET    ${DATA_DEB_AREA}/test-user2/TestFile    headers=${HEADER1}     expected_status=404
     [Teardown]    Delete TestFile USER2 DATA AREA DEB
 
 GET FILE USER2 DATA_AREA1 DEB
     [Setup]     Add TestFile USER1 DATA AREA DEB
-    ${RESPONSE}=    GET    ${DATA_DEB_AREA}/test-user1/TestFile    headers=${HEADER2}     expected_status=500
+    ${RESPONSE}=    GET    ${DATA_DEB_AREA}/test-user1/TestFile    headers=${HEADER2}     expected_status=404
     [Teardown]    Delete TestFile USER1 DATA AREA DEB
 
 DELETE REQUEST USER1 DATA_AREA2 DEB
     [Setup]     Add TestFile USER2 DATA AREA DEB
-    ${RESPONSE}=    DELETE    ${DATA_DEB_AREA}/test-user2/TestFile    headers=${HEADER1}      expected_status=500
+    ${RESPONSE}=    DELETE    ${DATA_DEB_AREA}/test-user2/TestFile    headers=${HEADER1}      expected_status=404
 
 DELETE REQUEST USER2 DATA_AREA1 DEB
     [Setup]     Add TestFile USER1 DATA AREA DEB
-    ${RESPONSE}=    DELETE    ${DATA_DEB_AREA}/test-user1/TestFile    headers=${HEADER2}      expected_status=500
+    ${RESPONSE}=    DELETE    ${DATA_DEB_AREA}/test-user1/TestFile    headers=${HEADER2}      expected_status=404
 

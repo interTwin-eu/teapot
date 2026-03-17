@@ -2,7 +2,7 @@
 services:
   keycloak:
     image: ghcr.io/intertwin-eu/keycloak:latest
-#    pull_policy: always
+    pull_policy: always
     ports:
       - 8080:8080
       - 8443:8443
@@ -14,14 +14,16 @@ services:
       - ../../keycloak-setup:/opt/keycloak/data/h2/
   teapot:
     image: ghcr.io/intertwin-eu/teapot:latest
-#    pull_policy: always
+    pull_policy: always
+    environment:
+      TEAPOT_MODE: FILE
     networks:
       - test
     volumes:
       - ./logs:/var/log/teapot'
   teapot-ubuntu:
     image: ghcr.io/intertwin-eu/teapot-ubuntu:latest
-#    pull_policy: always
+    pull_policy: always
     networks:
       - test
   alise:
@@ -38,7 +40,7 @@ services:
       - test
   main:
     image: ghcr.io/intertwin-eu/robot-testing:latest
-#    pull_policy: always
+    pull_policy: always
     command: |
       /bin/sh -c '
       eval "$(oidc-agent)"
