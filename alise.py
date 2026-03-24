@@ -69,7 +69,9 @@ class Alise:
             logger.debug("External identities found: %s", external_identities)
             return external_identities
         except (ValueError, KeyError) as e:
-            logger.error("Failed to parse external identities from ALISE response: %s", e)
+            logger.error(
+                "Failed to parse external identities from ALISE response: %s", e
+            )
             return None
         except Exception as e:
             logger.error("Unexpected error parsing ALISE response: %s", e)
@@ -121,7 +123,7 @@ class Alise:
             response_json = response.json()
             logger.debug(
                 "This is the json of the response received from the ALISE API: %s.",
-                response_json
+                response_json,
             )
             local_username = response_json["internal"]["username"]
             external_identities = Alise.extract_external_identities(response_json)

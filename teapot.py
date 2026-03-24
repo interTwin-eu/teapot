@@ -309,17 +309,17 @@ async def _create_user_dirs(username, port, sub, iss, external_identities):
             idp_pairs = []
             for key in config[f"STORAGE_AREA_{i}"]:
                 if key.startswith("idp_url_"):
-                    suffix = key[len("idp_url_"):]
+                    suffix = key[len("idp_url_") :]
                     name_key = f"idp_name_{suffix}"
                     if name_key in config[f"STORAGE_AREA_{i}"]:
-                        idp_pairs.append({
-                            "name": config[f"STORAGE_AREA_{i}"][name_key],
-                            "url": config[f"STORAGE_AREA_{i}"][key],
-                        })
-                    else:
-                        logger.error(
-                            "Missing %s for STORAGE_AREA_%d", name_key, i
+                        idp_pairs.append(
+                            {
+                                "name": config[f"STORAGE_AREA_{i}"][name_key],
+                                "url": config[f"STORAGE_AREA_{i}"][key],
+                            }
                         )
+                    else:
+                        logger.error("Missing %s for STORAGE_AREA_%d", name_key, i)
 
             if not idp_pairs:
                 logger.error("No IdP entries found for STORAGE_AREA_%d", i)
@@ -346,42 +346,44 @@ async def _create_user_dirs(username, port, sub, iss, external_identities):
                             IdP_URL,
                             SA_name,
                         )
-                        continue # skip this Idp
+                        continue  # skip this Idp
                 else:
                     # only include the IdP whose issuer matches the token's iss
                     if IdP_URL != iss:
                         continue
                     idp_sub = sub
 
-            template = raw_template
+                template = raw_template
 
-            replacements = {
-                "name:": f"name: {IdP_name}",
-                "issuer:": f"issuer: {IdP_URL}",
-                "sa:": f"sa: {SA_name}",
-                "iss:": f"iss: {IdP_URL}",
-                "type: jwt-subject": (
-                    "type: jwt-issuer" if mapping == "VO" else "type: jwt-subject"
-                ),
-                "sub:": ("" if mapping == "VO" else f"sub: {idp_sub}" if idp_sub else ""),
-            }
-            for old, new in replacements.items():
-                template = template.replace(old, new)
+                replacements = {
+                    "name:": f"name: {IdP_name}",
+                    "issuer:": f"issuer: {IdP_URL}",
+                    "sa:": f"sa: {SA_name}",
+                    "iss:": f"iss: {IdP_URL}",
+                    "type: jwt-subject": (
+                        "type: jwt-issuer" if mapping == "VO" else "type: jwt-subject"
+                    ),
+                    "sub:": (
+                        "" if mapping == "VO" else f"sub: {idp_sub}" if idp_sub else ""
+                    ),
+                }
+                for old, new in replacements.items():
+                    template = template.replace(old, new)
 
-            if first:
-                # Write the full template for the first storage area
-                with open(app_ym_path, "w", encoding="utf-8") as yml:
-                    yml.write(template)
-                first = False
-            else:
-                # Append only from the '- sa:' block onward
-                with open(app_ym_path, "a", encoding="utf-8") as yml:
-                    sa_block_started = False
-                    for line in template.splitlines():
-                        if not sa_block_started and line.strip().startswith("- sa:"):
-                            sa_block_started = True
-                        if sa_block_started:
-                            yml.write(line + "\n")
+                if first:
+                    # Write the full template for the first storage area
+                    with open(app_ym_path, "w", encoding="utf-8") as yml:
+                        yml.write(template)
+                    first = False
+                else:
+                    # Append only from the '- sa:' block onward
+                    with open(app_ym_path, "a", encoding="utf-8") as yml:
+                        sa_block_started = False
+                        for line in template.splitlines():
+                            if not sa_block_started and line.strip().startswith("- sa:"):
+                                sa_block_started = True
+                            if sa_block_started:
+                                yml.write(line + "\n")
 
             i += 1
 
@@ -787,7 +789,9 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement, preferred_username)
 
     elif mapping == "ALISE":
         alise_instance = Alise()
-        local_username, external_identities = alise_instance.get_local_username(sub, iss)
+        local_username, external_identities = alise_instance.get_local_username(
+            sub, iss
+        )
         if not local_username:
             raise RuntimeError(
                 "Could not determine user's local identity."
@@ -823,7 +827,12 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement, preferred_username)
 
 
 async def storm_webdav_state(
-    state, condition, sub, iss, eduperson_entitlement, preferred_username,
+    state,
+    condition,
+    sub,
+    iss,
+    eduperson_entitlement,
+    preferred_username,
 ):
     """
     This function gets the mapping for the federated user from the sub-claim to the
@@ -833,7 +842,9 @@ async def storm_webdav_state(
     state is NOT_RUNNING. Transition between different states is triggered by an
     incomming request or by storm-webdav instance reaching the inactivity treshold.
     """
-    user, external_identities = await _map_fed_to_local(sub, iss, eduperson_entitlement, preferred_username)
+    user, external_identities = await _map_fed_to_local(
+        sub, iss, eduperson_entitlement, preferred_username
+    )
 
     should_start_sw = False
     logger.info("Assessing the state of the storm webdav instance for user %s", user)
@@ -1151,7 +1162,12 @@ async def root(request: Request):
 
     # user is valid, so check if a storm instance is running for this sub
     redirect_host, redirect_port, local_user = await storm_webdav_state(
-        sw_state, sw_condition, sub, iss, eduperson_entitlement, preferred_username,
+        sw_state,
+        sw_condition,
+        sub,
+        iss,
+        eduperson_entitlement,
+        preferred_username,
     )
 
     if not redirect_host and not redirect_port:
