@@ -380,7 +380,9 @@ async def _create_user_dirs(username, port, sub, iss, external_identities):
                     with open(app_ym_path, "a", encoding="utf-8") as yml:
                         sa_block_started = False
                         for line in template.splitlines():
-                            if not sa_block_started and line.strip().startswith("- sa:"):
+                            if not sa_block_started and line.strip().startswith(
+                                "- sa:"
+                            ):
                                 sa_block_started = True
                             if sa_block_started:
                                 yml.write(line + "\n")
