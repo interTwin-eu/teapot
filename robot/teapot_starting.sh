@@ -10,8 +10,8 @@ oidc-gen --flow password -f /tmp/test_client_config_final.json --op-username tes
 rm pw-file
 
 response=$(curl -H "Authorization: Bearer $(oidc-token test-user1)" http://alise:8000/api/v1/target/keycloak_test/get_apikey)
-apikey=$(echo "$response" | jq -r '.apikey')
-sed -i "s/^APIKEY =.*/APIKEY = $apikey/" /etc/teapot/config.ini
+apikey=$(echo "${response}" | jq -r '.apikey')
+sed -i "s/^APIKEY =.*/APIKEY = ${apikey}/" /etc/teapot/config.ini
 
 sed -i "s/^mapping = .*/mapping = ${TEAPOT_MODE}/" /etc/teapot/config.ini
 

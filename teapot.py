@@ -187,7 +187,7 @@ async def makedir_chown_chmod(dir, mode=STANDARD_MODE):
             )
 
 
-async def _create_user_dirs(username, port, sub):
+async def _create_user_dirs(username, port, sub, iss, external_identities):
     config_update = configparser.ConfigParser()
     config_update.add_section("Current-user")
     config_update.set("Current-user", "username", str(username))
@@ -238,7 +238,15 @@ async def _create_user_dirs(username, port, sub):
             SA_name = config[f"STORAGE_AREA_{i}"]["name"]
             SA_rootPath = config[f"STORAGE_AREA_{i}"]["rootPath"]
             SA_access_point = config[f"STORAGE_AREA_{i}"]["accessPoint"]
-            SA_orgs = config[f"STORAGE_AREA_{i}"]["IdP_URL"]
+            SA_orgs = ",".join(
+                config[f"STORAGE_AREA_{i}"][key]
+                for key in config[f"STORAGE_AREA_{i}"]
+                if key.startswith("idp_url_")
+            )
+            if not SA_orgs:
+                logger.error("No IdP_URL entries found for STORAGE_AREA_%d", i)
+                break
+
         except KeyError as e:
             logger.error(
                 "Missing key for the STORAGE_AREA_%d in configuration: %s", i, e
@@ -292,15 +300,58 @@ async def _create_user_dirs(username, port, sub):
         while config.has_section(f"STORAGE_AREA_{i}"):
             try:
                 SA_name = config[f"STORAGE_AREA_{i}"]["name"]
-                IdP_name = config[f"STORAGE_AREA_{i}"]["IdP_name"]
-                IdP_URL = config[f"STORAGE_AREA_{i}"]["IdP_URL"]
             except KeyError as e:
                 logger.error(
                     "Missing key for STORAGE_AREA_%d in configuration: %s", i, e
                 )
                 break
 
+            idp_pairs = []
+            for key in config[f"STORAGE_AREA_{i}"]:
+                if key.startswith("idp_url_"):
+                    suffix = key[len("idp_url_"):]
+                    name_key = f"idp_name_{suffix}"
+                    if name_key in config[f"STORAGE_AREA_{i}"]:
+                        idp_pairs.append({
+                            "name": config[f"STORAGE_AREA_{i}"][name_key],
+                            "url": config[f"STORAGE_AREA_{i}"][key],
+                        })
+                    else:
+                        logger.error(
+                            "Missing %s for STORAGE_AREA_%d", name_key, i
+                        )
+
+            if not idp_pairs:
+                logger.error("No IdP entries found for STORAGE_AREA_%d", i)
+                break
+
             logger.debug("Processing storage area '%s' (section %d)", SA_name, i)
+
+            for idp in idp_pairs:
+                IdP_name = idp["name"]
+                IdP_URL = idp["url"]
+
+                if mapping == "VO":
+                    idp_sub = None  # not needed
+                elif mapping == "ALISE":
+                    idp_sub = None
+                    if external_identities:
+                        for identity in external_identities:
+                            if identity["iss"] == IdP_URL:
+                                idp_sub = identity["sub"]
+                                break
+                    if idp_sub is None:
+                        logger.debug(
+                            "Skipping IdP %s for storage area %s: no external identity found",
+                            IdP_URL,
+                            SA_name,
+                        )
+                        continue # skip this Idp
+                else:
+                    # only include the IdP whose issuer matches the token's iss
+                    if IdP_URL != iss:
+                        continue
+                    idp_sub = sub
 
             template = raw_template
 
@@ -312,7 +363,7 @@ async def _create_user_dirs(username, port, sub):
                 "type: jwt-subject": (
                     "type: jwt-issuer" if mapping == "VO" else "type: jwt-subject"
                 ),
-                "sub:": ("" if mapping == "VO" else f"sub: {sub}"),
+                "sub:": ("" if mapping == "VO" else f"sub: {idp_sub}" if idp_sub else ""),
             }
             for old, new in replacements.items():
                 template = template.replace(old, new)
@@ -407,8 +458,8 @@ async def _remove_user_env():
         del os.environ[key]
 
 
-async def _start_webdav_instance(username, port, sub):
-    res = await _create_user_dirs(username, port, sub)
+async def _start_webdav_instance(username, port, sub, iss, external_identities):
+    res = await _create_user_dirs(username, port, sub, iss, external_identities)
     if not res:
         logger.error("could not create user dirs for %s", username)
         return False
@@ -720,7 +771,7 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement, preferred_username)
                 "username and subject claim separated by a single space.",
                 mapping_file,
             )
-            return None
+            return None, None
 
         with open(mapping_file, "r", encoding="utf-8") as mapping_file_obj:
             mappingreader = csv.reader(mapping_file_obj, delimiter=" ")
@@ -728,15 +779,15 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement, preferred_username)
                 if row[1] == sub:
                     if not row[0]:
                         logger.error("local user identity is unknown")
-                        return None
+                        return None, None
                     logger.info("local user identity is %s", row[0])
-                    return row[0]
+                    return row[0], None
 
             raise RuntimeError(f"The local user for sub claim {sub} does not exist")
 
     elif mapping == "ALISE":
         alise_instance = Alise()
-        local_username = alise_instance.get_local_username(sub, iss)
+        local_username, external_identities = alise_instance.get_local_username(sub, iss)
         if not local_username:
             raise RuntimeError(
                 "Could not determine user's local identity."
@@ -745,7 +796,7 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement, preferred_username)
             )
         else:
             logger.info("local user identity is %s", local_username)
-        return local_username
+        return local_username, external_identities
 
     elif mapping == "VO":
         VO_membership = VOMapping(eduperson_entitlement)
@@ -755,7 +806,7 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement, preferred_username)
                 "User with sub %s has no matching VO membership; "
                 "cannot determine local username." % sub
             )
-        return username
+        return username, None
 
     elif mapping == "KEYCLOAK":
         username = preferred_username
@@ -764,15 +815,15 @@ async def _map_fed_to_local(sub, iss, eduperson_entitlement, preferred_username)
                 "User with sub %s has no matching preferred_username; "
                 "cannot determine local username." % sub
             )
-        return username
+        return username, None
 
     else:
         logger.error("The identity mapping method information is missing or incorrect.")
-        return None
+        return None, None
 
 
 async def storm_webdav_state(
-    state, condition, sub, iss, eduperson_entitlement, preferred_username
+    state, condition, sub, iss, eduperson_entitlement, preferred_username,
 ):
     """
     This function gets the mapping for the federated user from the sub-claim to the
@@ -782,7 +833,7 @@ async def storm_webdav_state(
     state is NOT_RUNNING. Transition between different states is triggered by an
     incomming request or by storm-webdav instance reaching the inactivity treshold.
     """
-    user = await _map_fed_to_local(sub, iss, eduperson_entitlement, preferred_username)
+    user, external_identities = await _map_fed_to_local(sub, iss, eduperson_entitlement, preferred_username)
 
     should_start_sw = False
     logger.info("Assessing the state of the storm webdav instance for user %s", user)
@@ -838,7 +889,7 @@ async def storm_webdav_state(
             raise ValueError(
                 "No valid user provided. The storm-webdav will NOT be started."
             )
-        pid = await _start_webdav_instance(user, port, sub)
+        pid = await _start_webdav_instance(user, port, sub, iss, external_identities)
 
         if not pid:
             async with condition:
@@ -1100,7 +1151,7 @@ async def root(request: Request):
 
     # user is valid, so check if a storm instance is running for this sub
     redirect_host, redirect_port, local_user = await storm_webdav_state(
-        sw_state, sw_condition, sub, iss, eduperson_entitlement, preferred_username
+        sw_state, sw_condition, sub, iss, eduperson_entitlement, preferred_username,
     )
 
     if not redirect_host and not redirect_port:
