@@ -342,7 +342,8 @@ async def _create_user_dirs(username, port, sub, iss, external_identities):
                                 break
                     if idp_sub is None:
                         logger.debug(
-                            "Skipping IdP %s for storage area %s: no external identity found",
+                            "Skipping IdP %s for storage area %s:"
+                            " no external identity found",
                             IdP_URL,
                             SA_name,
                         )
