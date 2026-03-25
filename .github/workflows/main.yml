@@ -294,12 +294,18 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: robot-tests-*
-          merge-multiple: true
           path: /home/runner/work/teapot/teapot/reports/
+      - name: Install robotframework
+        run: pip install robotframework
+      - name: Merge robot outputs
+        run: |
+          rebot --output /home/runner/work/teapot/teapot/reports/output.xml \
+            /home/runner/work/teapot/teapot/reports/**/output.xml
       - name: Send report to commit
         uses: joonvena/robotframework-reporter-action@v2.4
         with:
           gh_access_token: ${{ secrets.GITHUB_TOKEN }}
+          report_path: /home/runner/work/teapot/teapot/reports
 
   release:
     name: Create Release
