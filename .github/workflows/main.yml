@@ -298,9 +298,7 @@ jobs:
       - name: Install robotframework
         run: pip install robotframework
       - name: Merge robot outputs
-        run: |
-          rebot --output /home/runner/work/teapot/teapot/reports/output.xml \
-            /home/runner/work/teapot/teapot/reports/**/output.xml
+        run: rebot --output reports/output.xml reports/**/output.xml
       - name: Send report to commit
         uses: joonvena/robotframework-reporter-action@v2.4
         with:
