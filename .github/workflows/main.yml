@@ -294,7 +294,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: robot-tests-*
-          path: /home/runner/work/teapot/teapot/reports/
+          path: reports/
       - name: Install robotframework
         run: pip install robotframework
       - name: Merge robot outputs
@@ -303,7 +303,7 @@ jobs:
         uses: joonvena/robotframework-reporter-action@v2.4
         with:
           gh_access_token: ${{ secrets.GITHUB_TOKEN }}
-          report_path: /home/runner/work/teapot/teapot/reports
+          report_path: reports
 
   release:
     name: Create Release
