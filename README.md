@@ -40,8 +40,6 @@ which covers both Teapot and StoRM-WebDAV.
 
 Teapot is started automatically upon installation via a systemd unit. After configuration,
 you can restart the service with: `sudo systemctl restart teapot.service`.
-To ensure Teapot starts automatically after each reboot, enable the service:
-`sudo systemctl enable teapot.service`.
 
 ## Automated testing
 
