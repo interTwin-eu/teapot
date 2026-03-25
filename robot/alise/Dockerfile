@@ -3,7 +3,7 @@ FROM ubuntu:24.04
 # hadolint ignore=DL3008,DL3013
 RUN apt-get update && \
     apt-get install -y --no-install-recommends python3-pip gunicorn curl && \
-    python3 -m pip install certifi-linux "jinja2==3.1.4" alise --break-system-packages --no-cache-dir
+    python3 -m pip install certifi-linux "jinja2==3.1.4" "starlette<1.0.0" alise --break-system-packages --no-cache-dir
 
 COPY --chmod=644 Teapot-testing.crt /usr/local/share/ca-certificates
 RUN update-ca-certificates
