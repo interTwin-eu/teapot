@@ -7,9 +7,12 @@ COPY teapot_*-1_all.deb .
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         cron \
-        ca-certificates \
         sudo \
-        vim \
+        ca-certificates \
+        oidc-agent \
+        curl \
+        jq \
+        sed \
         /tmp/teapot_*-1_all.deb && \
     /usr/share/teapot/self-signed-cert-gen.sh && \
     rm -rf /var/lib/apt/lists/*
@@ -20,18 +23,21 @@ COPY --chown=teapot --chmod=644  teapot.crt /var/lib/teapot/webdav/
 COPY --chown=teapot --chmod=644  teapot.key /var/lib/teapot/webdav/
 RUN update-ca-certificates
 
-WORKDIR /etc/teapot
-COPY --chmod=644 user-mapping.csv .
+COPY --chmod=644 testing-configurations/user-mapping.csv /etc/teapot
+COPY --chmod=644 test_client_config_final.json /tmp
+COPY --chmod=744 teapot_starting.sh /usr/share/teapot/
+
 RUN \
     adduser test-user1 && \
-    adduser test-user2  && \
-    su -c "mkdir -p /home/test-user1/interTwin" test-user1 && \
-    su -c "mkdir -p /home/test-user1/interTwin_extra" test-user1 && \
-    su -c "mkdir -p /home/test-user2/interTwin" test-user2 && \
-    su -c "mkdir -p /home/test-user2/interTwin_extra" test-user2
+    adduser test-user2 && \
+    install -d -o test-user1 -g test-user1 -m 700 /home/test-user1/interTwin && \
+    install -d -o test-user2 -g test-user2 -m 700 /home/test-user2/interTwin && \
+    install -d -o teapot -g teapot -m 755 /data/ && \
+    install -d -o test-user1 -g test-user1 -m 700 /data/test-user1 && \
+    install -d -o test-user2 -g test-user2 -m 700 /data/test-user2
 
 EXPOSE 8081
 
 WORKDIR /usr/share/teapot/
 USER teapot
-CMD ["python3", "teapot.py"]
+CMD ["./teapot_starting.sh"]

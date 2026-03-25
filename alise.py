@@ -54,6 +54,29 @@ class Alise:
         else:
             return quote_plus(sub)
 
+    @staticmethod
+    def extract_external_identities(response_json):
+        """
+        Extract all external (sub, iss) pairs from an ALISE API response.
+
+        Returns a list of dicts with 'sub' and 'iss' keys, or None on failure.
+        """
+        try:
+            external_identities = [
+                {"sub": entry["sub"], "iss": entry["iss"]}
+                for entry in response_json.get("external", [])
+            ]
+            logger.debug("External identities found: %s", external_identities)
+            return external_identities
+        except (ValueError, KeyError) as e:
+            logger.error(
+                "Failed to parse external identities from ALISE response: %s", e
+            )
+            return None
+        except Exception as e:
+            logger.error("Unexpected error parsing ALISE response: %s", e)
+            return None
+
     def get_local_username(self, subject_claim, issuer):
         """
         Retrieve the local username from the ALISE API.
@@ -85,25 +108,30 @@ class Alise:
             logger.error(
                 "Can't connect to ALISE API. Network-related error was raised: %s", e
             )
-            return None
+            return None, None
         except requests.Timeout as e:
             logger.error("Can't connect to ALISE API. Request timed out: %s", e)
-            return None
+            return None, None
         except requests.RequestException as e:
             logger.error("An error occured during request to ALISE API: %s", e)
-            return None
+            return None, None
         except Exception as e:
             logger.error("Request to ALISE API raised an unexpected error: %s", e)
-            return None
+            return None, None
 
         try:
             response_json = response.json()
+            logger.debug(
+                "This is the json of the response received from the ALISE API: %s.",
+                response_json,
+            )
             local_username = response_json["internal"]["username"]
+            external_identities = Alise.extract_external_identities(response_json)
         except ValueError as e:
             logger.error("Decoding JSON has failed: %s", e)
-            return None
+            return None, None
         except Exception as e:
             logger.error("Local username not found in the json response: %s", e)
-            return None
+            return None, None
 
-        return local_username
+        return local_username, external_identities
