@@ -4,6 +4,12 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      rebuild_infra:
+        description: 'Rebuild infrastructure containers (alise, keycloak)'
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}
@@ -123,8 +129,8 @@ jobs:
           name: teapot-${{ needs.get-version.outputs.version }}_debian_all
           path: teapot_*1_all.deb
 
-  containers:
-    name: containers
+  containers-teapot-robot:
+    name: containers-teapot-robot
     needs: [get-version, build-rpm, build-deb]
     runs-on: ubuntu-latest
     env:
@@ -147,59 +153,80 @@ jobs:
           registry: ghcr.io
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.TOKEN }}
-      - uses: docker/setup-buildx-action@v3
-      - name: Prepare certs and build containers
+      - name: Build teapot containers
         env:
           TEAPOT_CA_CRT: ${{ secrets.TEAPOT_CA_CRT }}
-          TEAPOT_CA_KEY:  ${{ secrets.TEAPOT_CA_KEY }}
+          TEAPOT_CA_KEY: ${{ secrets.TEAPOT_CA_KEY }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          ALISE_CLIENT_SECRET: ${{ secrets.ALISE_CLIENT_SECRET }}
         run: |
           cd robot
           echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
           echo "$TEAPOT_CA_KEY" > Teapot-testing.key
           chmod 777 cert-gen.sh
-
-          # Teapot
           ./cert-gen.sh teapot
           envsubst < ./../keycloak-setup/test_client_config.json > test_client_config_final.json
-          docker buildx build \
-            --push --tag ${{ env.REGISTRY }}/${{ env.ORG }}/teapot:latest \
+
+          # Teapot
+          docker build --tag ${{ env.REGISTRY }}/${{ env.ORG }}/teapot:latest \
             -f teapot-fedora.dockerfile .
+          docker push ${{ env.REGISTRY }}/${{ env.ORG }}/teapot:latest
 
           # Teapot-ubuntu
-          docker buildx build \
-            --push --tag ${{ env.REGISTRY }}/${{ env.ORG }}/teapot-ubuntu:latest \
+          docker build --tag ${{ env.REGISTRY }}/${{ env.ORG }}/teapot-ubuntu:latest \
             -f teapot-ubuntu.dockerfile .
+          docker push ${{ env.REGISTRY }}/${{ env.ORG }}/teapot-ubuntu:latest
 
           # Robot-testing
-          docker buildx build \
-            --push --tag ${{ env.REGISTRY }}/${{ env.ORG }}/robot-testing:latest \
+          docker build --tag ${{ env.REGISTRY }}/${{ env.ORG }}/robot-testing:latest \
             -f robot.dockerfile .
+          docker push ${{ env.REGISTRY }}/${{ env.ORG }}/robot-testing:latest
 
-          # ALISE
-          cd alise
-          cp ./../Teapot-testing.crt Teapot-testing.crt
-          envsubst < alise.conf > alise_out.conf
-          rm alise.conf && mv alise_out.conf alise.conf
-          docker buildx build \
-            --push --tag ${{ env.REGISTRY }}/${{ env.ORG }}/alise:latest \
-            -f Dockerfile .
-
-          # building Keycloak container
-          cd ./../../keycloak-setup/
+  container-infra:
+    name: container-infra
+    needs: [get-version]
+    if: github.event_name == 'workflow_dispatch' && inputs.rebuild_infra == true
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io
+      ORG: intertwin-eu
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.TOKEN }}
+      - name: Build infrastructure containers
+        env:
+          TEAPOT_CA_CRT: ${{ secrets.TEAPOT_CA_CRT }}
+          TEAPOT_CA_KEY: ${{ secrets.TEAPOT_CA_KEY }}
+          ALISE_CLIENT_SECRET: ${{ secrets.ALISE_CLIENT_SECRET }}
+        run: |
+          # Keycloak
+          cd keycloak-setup/
           echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
           echo "$TEAPOT_CA_KEY" > Teapot-testing.key
           ./../robot/cert-gen.sh keycloak
           cp teapot.crt keycloak.pem
           cp teapot.key keycloak-key.pem
-          docker buildx build \
-            --push --tag ${{ env.REGISTRY }}/${{ env.ORG }}/keycloak:latest \
+          docker build --tag ${{ env.REGISTRY }}/${{ env.ORG }}/keycloak:latest \
             -f Dockerfile .
+          docker push ${{ env.REGISTRY }}/${{ env.ORG }}/keycloak:latest
+
+          # ALISE
+          cd ./../robot/alise
+          echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
+          envsubst < alise.conf > alise_out.conf
+          rm alise.conf && mv alise_out.conf alise.conf
+          docker build --tag ${{ env.REGISTRY }}/${{ env.ORG }}/alise:latest \
+            -f Dockerfile .
+          docker push ${{ env.REGISTRY }}/${{ env.ORG }}/alise:latest
 
   test:
     name: test (${{ matrix.suite }})
-    needs: [get-version, containers]
+    needs: [get-version, containers-teapot-robot]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

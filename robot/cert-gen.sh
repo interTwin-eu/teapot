@@ -44,7 +44,7 @@ openssl x509 -req \
   -CAkey Teapot-testing.key \
   -CAcreateserial \
   -out "teapot.crt" \
-  -days 30 \
+  -days 365 \
   -sha256 \
   -extfile teapot.ext.cnf \
   -extensions v3_req
