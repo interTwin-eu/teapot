@@ -212,6 +212,7 @@ jobs:
           cd keycloak-setup/
           echo "$TEAPOT_CA_CRT" > Teapot-testing.crt
           echo "$TEAPOT_CA_KEY" > Teapot-testing.key
+          chmod 777 cert-gen.sh
           ./../robot/cert-gen.sh keycloak
           cp teapot.crt keycloak.pem
           cp teapot.key keycloak-key.pem
