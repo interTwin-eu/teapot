@@ -183,8 +183,8 @@ jobs:
             -f ${{ matrix.dockerfile }} .
           docker push ${{ env.REGISTRY }}/${{ env.ORG }}/${{ matrix.name }}:latest
 
-  container-infra:
-    name: container-infra
+  containers-infra:
+    name: containers-infra
     needs: [get-version]
     if: |
       (github.event_name == 'workflow_dispatch' && inputs.rebuild_infra == true) ||
@@ -231,7 +231,7 @@ jobs:
 
   test:
     name: test (${{ matrix.suite }})
-    needs: [get-version, containers-teapot-robot, container-infra]
+    needs: [get-version, containers-teapot-robot, containers-infra]
     if: |
       always() &&
       !contains(needs.*.result, 'failure') &&
