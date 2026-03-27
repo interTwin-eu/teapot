@@ -231,7 +231,11 @@ jobs:
 
   test:
     name: test (${{ matrix.suite }})
-    needs: [get-version, containers-teapot-robot]
+    needs: [get-version, containers-teapot-robot, container-infra]
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
