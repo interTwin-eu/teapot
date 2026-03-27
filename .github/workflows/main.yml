@@ -130,21 +130,34 @@ jobs:
           path: teapot_*1_all.deb
 
   containers-teapot-robot:
-    name: containers-teapot-robot
+    name: containers-teapot-robot (${{ matrix.name }})
     needs: [get-version, build-rpm, build-deb]
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
       ORG: intertwin-eu
+    strategy:
+      matrix:
+        include:
+          - name: teapot
+            dockerfile: teapot-fedora.dockerfile
+            needs_rpm: true
+          - name: teapot-ubuntu
+            dockerfile: teapot-ubuntu.dockerfile
+            needs_deb: true
+          - name: robot-testing
+            dockerfile: robot.dockerfile
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: actions/download-artifact@v4
+        if: matrix.needs_rpm
         with:
           name: teapot-${{ needs.get-version.outputs.version }}_rpm_fedora_39
           path: /home/runner/work/teapot/teapot/robot
       - uses: actions/download-artifact@v4
+        if: matrix.needs_deb
         with:
           name: teapot-${{ needs.get-version.outputs.version }}_debian_all
           path: /home/runner/work/teapot/teapot/robot
@@ -153,7 +166,7 @@ jobs:
           registry: ghcr.io
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.TOKEN }}
-      - name: Build teapot containers
+      - name: Build ${{ matrix.name }} container
         env:
           TEAPOT_CA_CRT: ${{ secrets.TEAPOT_CA_CRT }}
           TEAPOT_CA_KEY: ${{ secrets.TEAPOT_CA_KEY }}
@@ -166,25 +179,16 @@ jobs:
           ./cert-gen.sh teapot
           envsubst < ./../keycloak-setup/test_client_config.json > test_client_config_final.json
 
-          # Teapot
-          docker build --tag ${{ env.REGISTRY }}/${{ env.ORG }}/teapot:latest \
-            -f teapot-fedora.dockerfile .
-          docker push ${{ env.REGISTRY }}/${{ env.ORG }}/teapot:latest
-
-          # Teapot-ubuntu
-          docker build --tag ${{ env.REGISTRY }}/${{ env.ORG }}/teapot-ubuntu:latest \
-            -f teapot-ubuntu.dockerfile .
-          docker push ${{ env.REGISTRY }}/${{ env.ORG }}/teapot-ubuntu:latest
-
-          # Robot-testing
-          docker build --tag ${{ env.REGISTRY }}/${{ env.ORG }}/robot-testing:latest \
-            -f robot.dockerfile .
-          docker push ${{ env.REGISTRY }}/${{ env.ORG }}/robot-testing:latest
+          docker build --tag ${{ env.REGISTRY }}/${{ env.ORG }}/${{ matrix.name }}:latest \
+            -f ${{ matrix.dockerfile }} .
+          docker push ${{ env.REGISTRY }}/${{ env.ORG }}/${{ matrix.name }}:latest
 
   container-infra:
     name: container-infra
     needs: [get-version]
-    if: github.event_name == 'workflow_dispatch' && inputs.rebuild_infra == true
+    if: |
+      (github.event_name == 'workflow_dispatch' && inputs.rebuild_infra == true) ||
+      contains(github.event.head_commit.message, '[rebuild-infra]')
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
