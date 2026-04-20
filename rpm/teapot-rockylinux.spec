@@ -42,8 +42,7 @@ fi
 
 # Install Python packages with pip (including all their dependencies)
 mkdir -p python-packages
-pip3 install --target=python-packages --ignore-installed  --disable-pip-version-check \
-    'flaat==1.1.18' certifi-linux fastapi httpx pydantic uvicorn anyio<4.9.0 python-dotenv
+pip3 install --target=python-packages --ignore-installed 'flaat==1.1.18' certifi-linux fastapi httpx pydantic uvicorn anyio python-dotenv
 
 %install
 rm -rf %{buildroot}
