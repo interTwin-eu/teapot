@@ -145,7 +145,7 @@ mapping = config["Teapot"]["mapping"]
 
 context = ssl.create_default_context()
 context.load_verify_locations(cafile=config["Teapot"]["Teapot_CA"])
-client = httpx.AsyncClient(verify=context, , timeout=httpx.Timeout(connect=10.0, read=None, write=None, pool=10.0))
+client = httpx.AsyncClient(verify=context, timeout=httpx.Timeout(connect=10.0, read=None, write=None, pool=10.0))
 
 
 async def makedir_chown_chmod(dir, mode=STANDARD_MODE):
@@ -1237,7 +1237,7 @@ async def root(request: Request):
                 headers=rewritten_headers,
                 background=BackgroundTask(forward_resp.aclose),
             )
-        
+
         response_body = await forward_resp.aread()
         if request.method.upper() == "PROPFIND":
             rewritten_content_bytes = await rewrite_webdav_content(
