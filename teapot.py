@@ -145,7 +145,10 @@ mapping = config["Teapot"]["mapping"]
 
 context = ssl.create_default_context()
 context.load_verify_locations(cafile=config["Teapot"]["Teapot_CA"])
-client = httpx.AsyncClient(verify=context, timeout=httpx.Timeout(connect=10.0, read=None, write=None, pool=10.0))
+client = httpx.AsyncClient(
+    verify=context,
+    timeout=httpx.Timeout(connect=10.0, read=None, write=None, pool=10.0),
+)
 
 
 async def makedir_chown_chmod(dir, mode=STANDARD_MODE):
@@ -610,6 +613,18 @@ async def _stop_webdav_instance(username, state, condition):
     return exit_code
 
 
+async def _decrement_active_requests(username, response):
+    await response.aclose()
+    async with app.state.state_lock:
+        session = app.state.session_state.get(username)
+        if session:
+            session["active_requests"] = max(0, session["active_requests"] - 1)
+            session["last_accessed"] = datetime.datetime.now().strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
+            await save_session_state()
+
+
 async def stop_expired_instances():
     """
     Checks for expired instances still running.
@@ -635,7 +650,13 @@ async def stop_expired_instances():
                 last_accessed = user_dict.get("last_accessed", None)
                 if last_accessed is not None:
                     diff = now - datetime.datetime.fromisoformat(last_accessed)
-                    if diff.seconds >= INSTANCE_TIMEOUT_SEC:
+                    if diff.total_seconds() >= INSTANCE_TIMEOUT_SEC:
+                        if user_dict.get("active_requests", 0) > 0:
+                            logger.info(
+                                "Instance for user %s has timed out but has active requests, skipping",
+                                user,
+                            )
+                            continue
                         res = await _stop_webdav_instance(user, sw_state, sw_condition)
                         if res != 0:
                             logger.error(
@@ -918,6 +939,7 @@ async def storm_webdav_state(
                         "last_accessed": datetime.datetime.now().strftime(
                             "%Y-%m-%d %H:%M:%S"
                         ),
+                        "active_requests": 0,
                     }
                     await save_session_state()
             logger.error(
@@ -983,6 +1005,7 @@ async def storm_webdav_state(
                     "last_accessed": datetime.datetime.now().strftime(
                         "%Y-%m-%d %H:%M:%S"
                     ),
+                    "active_requests": 0,
                 }
                 await save_session_state()
             condition.notify()
@@ -1206,7 +1229,22 @@ async def root(request: Request):
         headers=forwarded_headers,
         content=request.stream(),
     )
-    forward_resp = await client.send(forward_req, stream=True)
+
+    async with app.state.state_lock:
+        if local_user in app.state.session_state:
+            app.state.session_state[local_user]["active_requests"] = \
+                app.state.session_state[local_user].get("active_requests", 0) + 1
+            await save_session_state()
+
+    try:
+        forward_resp = await client.send(forward_req, stream=True)
+    except Exception:
+        async with app.state.state_lock:
+            session = app.state.session_state.get(local_user)
+            if session:
+                session["active_requests"] = max(0, session["active_requests"] - 1)
+                await save_session_state()
+        raise
 
     # Get the original request host and port for URL rewriting
     original_host = request.url.hostname
@@ -1235,7 +1273,7 @@ async def root(request: Request):
                 forward_resp.aiter_bytes(),
                 status_code=forward_resp.status_code,
                 headers=rewritten_headers,
-                background=BackgroundTask(forward_resp.aclose),
+                background=BackgroundTask(_decrement_active_requests, local_user, forward_resp),
             )
 
         response_body = await forward_resp.aread()
@@ -1271,7 +1309,7 @@ async def root(request: Request):
         create_content_stream(rewritten_content_bytes),
         status_code=forward_resp.status_code,
         headers=rewritten_headers,
-        background=BackgroundTask(forward_resp.aclose),
+        background=BackgroundTask(_decrement_active_requests, local_user, forward_resp),
     )
 
 
