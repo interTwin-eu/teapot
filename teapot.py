@@ -1232,8 +1232,9 @@ async def root(request: Request):
 
     async with app.state.state_lock:
         if local_user in app.state.session_state:
-            app.state.session_state[local_user]["active_requests"] = \
+            app.state.session_state[local_user]["active_requests"] = (
                 app.state.session_state[local_user].get("active_requests", 0) + 1
+            )
             await save_session_state()
 
     try:
@@ -1273,7 +1274,9 @@ async def root(request: Request):
                 forward_resp.aiter_bytes(),
                 status_code=forward_resp.status_code,
                 headers=rewritten_headers,
-                background=BackgroundTask(_decrement_active_requests, local_user, forward_resp),
+                background=BackgroundTask(
+                    _decrement_active_requests, local_user, forward_resp
+                ),
             )
 
         response_body = await forward_resp.aread()
