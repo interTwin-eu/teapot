@@ -653,7 +653,8 @@ async def stop_expired_instances():
                     if diff.total_seconds() >= INSTANCE_TIMEOUT_SEC:
                         if user_dict.get("active_requests", 0) > 0:
                             logger.info(
-                                "Instance for user %s has timed out but has active requests, skipping",
+                                "Instance for user %s has active requests,"
+                                " skipping shut down",
                                 user,
                             )
                             continue
